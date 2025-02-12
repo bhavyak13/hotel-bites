@@ -6,16 +6,17 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
 } from "firebase/auth";
+import 'dotenv/config'
 
 const FirebaseContext = createContext(null);
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBB5YbvvoBIG3HtqgAx8iRBSqR-8EvhAYM",
-  authDomain: "hotel-bites.firebaseapp.com",
-  projectId: "hotel-bites",
-  storageBucket: "hotel-bites.firebasestorage.app",
-  messagingSenderId: "1088802123792",
-  appId: "1:1088802123792:web:e6e2ba513ce6847c6a1a95"
+  apiKey: process.env.API_KEY,
+  authDomain: process.env.AUTH_DOMAIN,
+  projectId: process.env.PROJECT_ID,
+  storageBucket: process.env.STORAGE_BUCKET,
+  messagingSenderId: process.env.MESSAGING_SENDER_ID,
+  appId:process.env.APP_ID,
 };
 
 
