@@ -28,7 +28,7 @@ const FoodCard = (data) => {
       productId: id,
       quantity,
     }
-    firebase.handleCreateNewDoc(payload, "shoppingCartItems");
+    // firebase.handleCreateNewDoc(payload, "shoppingCartItems");
   }
 
   return (
