@@ -66,6 +66,17 @@ export const FirebaseProvider = (props) => {
     return docRef;
   };
 
+  const handleCreateNewVariant = async (data) => {
+    const { productId } = data;
+    const collectionRef = collection(firestore, "products", productId, "variants");
+    const docRef = await addDoc(collectionRef, {
+      ...data,
+      userId: user?.uid || "",
+    });
+    console.log("BK handleCreateNewDoc docRef.id, docRef:", docRef.id, docRef);
+    return docRef;
+  };
+
 
   const getDocuments = async (collectionName) => {
     const querySnapshot = await getDocs(collection(firestore, collectionName));
@@ -96,10 +107,15 @@ export const FirebaseProvider = (props) => {
       value={{
         isLoggedIn,
         user,
-        signupUserWithEmailAndPassword,
+
         singinUserWithEmailAndPass,
-        handleCreateNewDoc,
+        signupUserWithEmailAndPassword,
+
+        // getDocById,
         getDocuments,
+        handleCreateNewDoc,
+        handleCreateNewVariant,
+
       }}
     >
       {props.children}

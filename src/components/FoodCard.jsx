@@ -7,7 +7,9 @@ import { useFirebase } from "../context/Firebase";
 
 const FoodCard = (data) => {
 
-  const { id, name, description, status, link } = data;
+  const { id, name, description, status } = data;
+
+  console.log("BK data",data);
 
   const firebase = useFirebase();
   const navigate = useNavigate();
@@ -19,17 +21,19 @@ const FoodCard = (data) => {
   //   }
   // }, [imageURL]); // Added dependency
 
-  const addToCart = () => {
+  const redirectToOtherPages = (pageName) => {
+    const productId = id;
+    let link = '';
 
-    const quantity = 1;
-
-    const payload = {
-      variantId,
-      productId: id,
-      quantity,
+    if (pageName === 'detail') {
+      link = `/products/${productId}`;
+    } else {
+      link = `/products/${productId}/variants/new`;
     }
-    // firebase.handleCreateNewDoc(payload, "shoppingCartItems");
+
+    navigate(link)
   }
+
 
   return (
     <Card style={{ width: "18rem", margin: "25px" }}>
@@ -38,11 +42,11 @@ const FoodCard = (data) => {
         <Card.Title>{name}</Card.Title>
         <Card.Text>{description}</Card.Text>
         <Card.Text>Status: <strong>{status}</strong></Card.Text>
-        <Button onClick={() => navigate(link)} variant="primary">
+        <Button onClick={() => redirectToOtherPages("detail")} variant="primary">
           View Details
         </Button>
-        <Button onClick={() => addToCart()} variant="primary">
-          Add to cart
+        <Button onClick={() => redirectToOtherPages("variant")} variant="primary">
+          Add New Variant
         </Button>
       </Card.Body>
     </Card>

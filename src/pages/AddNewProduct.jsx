@@ -24,7 +24,7 @@ const FileInput = ({ label, onChange }) => (
   </Form.Group>
 );
 
-const AddNewItem = () => {
+const AddNewProduct = () => {
   const firebase = useFirebase();
 
   // Form state
@@ -80,4 +80,4 @@ const AddNewItem = () => {
   );
 };
 
-export default AddNewItem;
+export default AddNewProduct;

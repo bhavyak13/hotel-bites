@@ -7,7 +7,9 @@ import HomePage from "./pages/Home";
 import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
 import MyNavbar from "./components/Navbar";
-import AddNewItem from "./pages/AddNewItem";
+import BookDetailPage from "./pages/Detail";
+import AddNewVariant from "./pages/AddNewVariant";
+import AddNewProduct from "./pages/AddNewProduct";
 
 function App() {
   return (
@@ -17,7 +19,11 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/food/new" element={<AddNewItem />} />
+        <Route path="/products" element={<HomePage />} />
+        <Route path="/products/new" element={<AddNewProduct />} />
+        <Route path="/products/:productId" element={<BookDetailPage />} />
+        <Route path="/products/:productId/variants/new" element={<AddNewVariant />} />
+        {/* <Route path="variants/new" element={<AddNewVariant />} /> */}
         {/* <Route path="/book/list" element={<ListingPage />} />
         <Route path="/book/view/:bookId" element={<BookDetailPage />} />
         <Route path="/book/orders" element={<OrdersPage />} />
