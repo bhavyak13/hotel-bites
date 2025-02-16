@@ -5,7 +5,10 @@ import Card from "react-bootstrap/Card";
 
 import { useFirebase } from "../context/Firebase";
 
-const FoodCard = ({ imageURL, name, description, status, link }) => {
+const FoodCard = (data) => {
+
+  const { id, name, description, status, link } = data;
+
   const firebase = useFirebase();
   const navigate = useNavigate();
   const [url, setURL] = useState(null);
@@ -16,6 +19,18 @@ const FoodCard = ({ imageURL, name, description, status, link }) => {
   //   }
   // }, [imageURL]); // Added dependency
 
+  const addToCart = () => {
+
+    const quantity = 1;
+
+    const payload = {
+      variantId,
+      productId: id,
+      quantity,
+    }
+    firebase.handleCreateNewDoc(payload, "shoppingCartItems");
+  }
+
   return (
     <Card style={{ width: "18rem", margin: "25px" }}>
       {url && <Card.Img variant="top" src={url} alt={name} />}
@@ -25,6 +40,9 @@ const FoodCard = ({ imageURL, name, description, status, link }) => {
         <Card.Text>Status: <strong>{status}</strong></Card.Text>
         <Button onClick={() => navigate(link)} variant="primary">
           View Details
+        </Button>
+        <Button onClick={() => addToCart()} variant="primary">
+          Add to cart
         </Button>
       </Card.Body>
     </Card>
