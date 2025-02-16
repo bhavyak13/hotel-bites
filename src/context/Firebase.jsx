@@ -6,24 +6,38 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
 } from "firebase/auth";
-import 'dotenv/config'
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  getDoc,
+  doc,
+  query,
+  where,
+} from "firebase/firestore";
 
 const FirebaseContext = createContext(null);
 
 const firebaseConfig = {
-  apiKey: process.env.API_KEY,
-  authDomain: process.env.AUTH_DOMAIN,
-  projectId: process.env.PROJECT_ID,
-  storageBucket: process.env.STORAGE_BUCKET,
-  messagingSenderId: process.env.MESSAGING_SENDER_ID,
-  appId:process.env.APP_ID,
+  apiKey: import.meta.env.VITE_API_KEY,
+  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_APP_ID,
 };
+
+console.log("BK firebaseConfig", firebaseConfig);
 
 
 export const useFirebase = () => useContext(FirebaseContext);
 
+
 const firebaseApp = initializeApp(firebaseConfig);
 const firebaseAuth = getAuth(firebaseApp);
+const firestore = getFirestore(firebaseApp);
 
 
 export const FirebaseProvider = (props) => {
@@ -33,6 +47,36 @@ export const FirebaseProvider = (props) => {
 
   const singinUserWithEmailAndPass = (email, password) =>
     signInWithEmailAndPassword(firebaseAuth, email, password);
+
+
+
+
+
+  /*************** data-related function start  **************/
+
+  const handleCreateNewItem = async (data) => {
+    // const imageRef = ref(storage, `uploads/images/${Date.now()}-${cover.name}`);
+    // const uploadResult = await uploadBytes(imageRef, cover);
+    // imageURL: uploadResult.ref.fullPath,
+    const docRef = await addDoc(collection(firestore, "foods"), {
+      ...data,
+      userId: user.uid,
+    });
+    console.log("BK handleCreateNewItem res:", docRef.id,docRef);
+  };
+
+
+  const getDocuments = async () => {
+    const querySnapshot = await getDocs(collection(firestore, "foods"));
+    // console.log("Document data:", querySnapshot);
+    return querySnapshot;
+  };
+
+
+
+  /*************** data-related function end  **************/
+
+
 
   const [user, setUser] = useState(null);
 
@@ -53,7 +97,8 @@ export const FirebaseProvider = (props) => {
         signupUserWithEmailAndPassword,
         singinUserWithEmailAndPass,
         isLoggedIn,
-
+        handleCreateNewItem,
+        getDocuments,
       }}
     >
       {props.children}
