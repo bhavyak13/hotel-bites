@@ -77,12 +77,29 @@ export const FirebaseProvider = (props) => {
     return docRef;
   };
 
-
   const getDocuments = async (collectionName) => {
     const querySnapshot = await getDocs(collection(firestore, collectionName));
     // console.log("Document data:", querySnapshot);
     return querySnapshot;
   };
+
+
+  const getSubCollectionAllDocuments = async (collection1Name, collection1Id, collection2Name) => {
+    const collectionRef = collection(firestore, collection1Name, collection1Id, collection2Name);
+    const querySnapshot = await getDocs(collectionRef);
+    console.log("BK getSubCollectionAllDocuments res", querySnapshot);
+    return querySnapshot;
+  };
+
+
+  const getDocById = async (id, collectionName) => {
+    const docRef = doc(firestore, collectionName, id);
+    const result = await getDoc(docRef);
+    return result;
+  };
+
+
+
 
 
   /*************** data-related function end  **************/
@@ -111,10 +128,11 @@ export const FirebaseProvider = (props) => {
         singinUserWithEmailAndPass,
         signupUserWithEmailAndPassword,
 
-        // getDocById,
+        getDocById,
         getDocuments,
         handleCreateNewDoc,
         handleCreateNewVariant,
+        getSubCollectionAllDocuments,
 
       }}
     >
