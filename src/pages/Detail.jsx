@@ -44,7 +44,7 @@ const BookDetailPage = () => {
       // Fetch product variants
       const res2 = await firebase.getSubCollectionAllDocuments(collectionName, params.productId, variantsCollection);
       setVariantsData(res2.docs);
-      
+
       // Set the first variant as selected by default
       if (res2.docs.length > 0) setSelectedVariant({ id: res2.docs[0].id, ...res2.docs[0].data() });
     };
@@ -63,22 +63,23 @@ const BookDetailPage = () => {
     const payload = {
       quantity: qty,
       productId: params.productId,
-      variantId: selectedVariant.id, 
+      variantId: selectedVariant.id,
     };
 
     firebase.handleCreateNewDoc(payload, "shoppingCartItems");
   };
 
-  if (!productData) return <h1>Loading... / No data</h1>;
+  if (!productData || !variantsData || !selectedVariant) return <h1>Loading... / No data</h1>;
 
   return (
     <div className="container mt-5">
       <h1>{productData.name}</h1>
       <img src={url} width="50%" style={{ borderRadius: "10px" }} alt="Product" />
-      
+
       <h1>Details</h1>
+      {/* {selectedVariant.id} */}
       <p>Price: Rs. {selectedVariant?.priceOffer || selectedVariant?.priceOriginal || "N/A"}</p>
-      
+
       {/* Variant Selector */}
       <SelectInput
         label="Select Variant"
