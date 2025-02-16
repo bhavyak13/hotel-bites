@@ -50,7 +50,7 @@ const AddNewItem = () => {
   // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await firebase.handleCreateNewItem(formData);
+    await firebase.handleCreateNewDoc(formData,"products");
   };
 
   return (

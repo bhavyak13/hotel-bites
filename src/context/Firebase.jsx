@@ -54,24 +54,24 @@ export const FirebaseProvider = (props) => {
 
   /*************** data-related function start  **************/
 
-  const handleCreateNewItem = async (data) => {
+  const handleCreateNewDoc = async (data, collectionName) => {
     // const imageRef = ref(storage, `uploads/images/${Date.now()}-${cover.name}`);
     // const uploadResult = await uploadBytes(imageRef, cover);
     // imageURL: uploadResult.ref.fullPath,
-    const docRef = await addDoc(collection(firestore, "foods"), {
+    const docRef = await addDoc(collection(firestore, collectionName), {
       ...data,
-      userId: user.uid,
+      userId: user?.uid || "",
     });
-    console.log("BK handleCreateNewItem res:", docRef.id,docRef);
+    console.log("BK handleCreateNewDoc docRef.id, docRef:", docRef.id, docRef);
+    return docRef;
   };
 
 
-  const getDocuments = async () => {
-    const querySnapshot = await getDocs(collection(firestore, "foods"));
+  const getDocuments = async (collectionName) => {
+    const querySnapshot = await getDocs(collection(firestore, collectionName));
     // console.log("Document data:", querySnapshot);
     return querySnapshot;
   };
-
 
 
   /*************** data-related function end  **************/
@@ -94,10 +94,11 @@ export const FirebaseProvider = (props) => {
   return (
     <FirebaseContext.Provider
       value={{
+        isLoggedIn,
+        user,
         signupUserWithEmailAndPassword,
         singinUserWithEmailAndPass,
-        isLoggedIn,
-        handleCreateNewItem,
+        handleCreateNewDoc,
         getDocuments,
       }}
     >

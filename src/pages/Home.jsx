@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import CardGroup from "react-bootstrap/CardGroup";
 
 import { useFirebase } from "../context/Firebase";
-import FoodCard from "../components/Card";
+import FoodCard from "../components/FoodCard";
 
 const HomePage = () => {
   const firebase = useFirebase();
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    firebase.getDocuments()
+    firebase.getDocuments("products")
       .then((data) =>
         setData(data.docs)
       );
@@ -22,7 +22,6 @@ const HomePage = () => {
           <FoodCard
             link={`/book/view/${book.id}`}
             key={book.id}
-            id={book.id}
             {...book.data()}
           />
         ))}
