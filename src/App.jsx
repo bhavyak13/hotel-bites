@@ -10,6 +10,7 @@ import MyNavbar from "./components/Navbar";
 import BookDetailPage from "./pages/Detail";
 import AddNewVariant from "./pages/AddNewVariant";
 import AddNewProduct from "./pages/AddNewProduct";
+import Cart from "./pages/Cart";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/products/new" element={<AddNewProduct />} />
         <Route path="/products/:productId" element={<BookDetailPage />} />
         <Route path="/products/:productId/variants/new" element={<AddNewVariant />} />
+        <Route path="/cart" element={<Cart />} />
         {/* <Route path="variants/new" element={<AddNewVariant />} /> */}
         {/* <Route path="/book/list" element={<ListingPage />} />
         <Route path="/book/view/:bookId" element={<BookDetailPage />} />
