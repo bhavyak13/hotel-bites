@@ -29,7 +29,7 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_APP_ID,
 };
 
-console.log("BK firebaseConfig", firebaseConfig);
+// console.log("BK firebaseConfig", firebaseConfig);
 
 
 export const useFirebase = () => useContext(FirebaseContext);
