@@ -1,23 +1,23 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
+
+const BASE_URL = "/hotel-bites";
 
 const MyNavbar = () => {
   return (
     <Navbar bg="dark" variant="dark">
       <Container>
-        <Navbar.Brand href="#home">Navbar</Navbar.Brand>
+        <Navbar.Brand as={Link} to={`/`}>Navbar</Navbar.Brand>
         <Nav className="me-auto">
-          <Nav.Link href="/">Home</Nav.Link>
-          <Nav.Link href="/products">Products</Nav.Link>
-          <Nav.Link href="/products/new">Add New Product</Nav.Link>
-          {/* <Nav.Link href="/variants/new">Add New Variant</Nav.Link> */}
-          {/* <Nav.Link href="/products/:productId">Add New Product</Nav.Link> */}
-          {/* <Nav.Link href="/products/:productId/variants/new">Add New Variant</Nav.Link> */}
-          <Nav.Link href="/cart">Cart</Nav.Link>
-          <Nav.Link href="/login">login</Nav.Link>
-          <Nav.Link href="/register">Register</Nav.Link>
+          <Nav.Link as={Link} to={`/`}>Home</Nav.Link>
+          <Nav.Link as={Link} to={`/products`}>Products</Nav.Link>
+          <Nav.Link as={Link} to={`/products/new`}>Add New Product</Nav.Link>
+          <Nav.Link as={Link} to={`/cart`}>Cart</Nav.Link>
+          <Nav.Link as={Link} to={`/login`}>Login</Nav.Link>
+          <Nav.Link as={Link} to={`/register`}>Register</Nav.Link>
         </Nav>
       </Container>
     </Navbar>

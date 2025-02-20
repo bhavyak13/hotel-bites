@@ -4,13 +4,16 @@ import './index.css'
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
 import { FirebaseProvider } from './context/firebase.jsx'
+import { BASE_URL } from './context/utils.js'
+
+
 
 createRoot(document.getElementById('root')).render(
   // <StrictMode>
-    <BrowserRouter>
-      <FirebaseProvider>
-        <App />
-      </FirebaseProvider>
-    </BrowserRouter>
+  <BrowserRouter basename={BASE_URL} >
+    <FirebaseProvider>
+      <App />
+    </FirebaseProvider>
+  </BrowserRouter>
   // </StrictMode>,
 )
