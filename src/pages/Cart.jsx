@@ -4,19 +4,31 @@ import CardGroup from "react-bootstrap/CardGroup";
 import { useFirebase } from "../context/Firebase";
 import FoodCard from "../components/FoodCard";
 import { Button } from "react-bootstrap";
+import CartFoodCard from "../components/CartFoodCard";
 
 const Cart = () => {
   const firebase = useFirebase();
   const [data, setData] = useState([]);
 
-  useEffect(() => {
-    firebase.getDocuments("shoppingCartItems")
+  const fetchData = async () => {
+    await firebase.fetchCartWithDetails("shoppingCartItems")
       .then((data) =>
-        setData(data.docs)
+        setData(data)
       );
+  }
+
+  const handleRemoveDocument = async (id) => {
+    await firebase.removeDocumentWithId("shoppingCartItems", id);
+    await fetchData();
+  }
+
+  useEffect(() => {
+    fetchData();
   }, []);
 
-  const handleBuyNow=()=>{
+  console.log("BK data", data);
+
+  const handleBuyNow = () => {
     firebase.createOrder();
   }
 
@@ -24,10 +36,11 @@ const Cart = () => {
     <div className="container mt-5">
       <CardGroup>
         {data?.map((book) => (
-          <FoodCard
+          <CartFoodCard
             key={book.id}
             id={book.id}
-            {...book.data()}
+            handleRemoveDocument={handleRemoveDocument}
+            {...book}
           />
         ))}
       </CardGroup>

@@ -16,7 +16,11 @@ import {
   doc,
   query,
   where,
+  limit,
+  deleteDoc,
 } from "firebase/firestore";
+
+
 import Razorpay from "razorpay";
 
 const FirebaseContext = createContext(null);
@@ -99,6 +103,91 @@ export const FirebaseProvider = (props) => {
     return result;
   };
 
+  const fetchProductsWithFirstVariant = async () => {
+    try {
+      // Step 1: Fetch all products
+      const productsSnapshot = await getDocs(collection(firestore, "products"));
+      const products = productsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      // Step 2: Fetch first variant for each product
+      const variantPromises = products.map(async (product) => {
+        const variantQuery = query(
+          collection(firestore, `products/${product.id}/variants`),
+          limit(1) // Get only the first variant
+        );
+
+        const variantSnapshot = await getDocs(variantQuery);
+        const firstVariant = variantSnapshot.docs.length > 0
+          ? { id: variantSnapshot.docs[0].id, ...variantSnapshot.docs[0].data() }
+          : null;
+
+        return { ...product, firstVariant }; // Attach first variant to product
+      });
+
+      // Step 3: Resolve all promises in parallel
+      const productsWithVariants = await Promise.all(variantPromises);
+      console.log("Products with first variants:", productsWithVariants);
+
+      return productsWithVariants;
+    } catch (error) {
+      console.error("Error fetching products with variants:", error);
+    }
+  };
+
+  const removeDocumentWithId = async (collectionName, docId) => {
+    try {
+      if (!collectionName || !docId) {
+        throw new Error("Collection name and document ID are required.");
+      }
+  
+      const docRef = doc(firestore, collectionName, docId);
+      await deleteDoc(docRef);
+  
+      console.log(`Document with ID ${docId} deleted successfully from ${collectionName}`);
+    } catch (error) {
+      console.error("Error deleting document:", error);
+    }
+  }
+
+
+  const fetchCartWithDetails = async (collectionName) => {
+    try {
+      // Step 1: Fetch all cart items (single query)
+      const cartSnapshot = await getDocs(collection(firestore, collectionName));
+      const cartItems = cartSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(), // Contains productId & variantId
+      }));
+
+      // Step 2: Prepare product & variant fetch promises
+      const productPromises = cartItems.map(cartItem =>
+        getDoc(doc(firestore, "products", cartItem.productId))
+      );
+
+      const variantPromises = cartItems.map(cartItem =>
+        getDoc(doc(firestore, `products/${cartItem.productId}/variants`, cartItem.variantId))
+      );
+
+      // Step 3: Fetch all products & variants concurrently
+      const productSnapshots = await Promise.all(productPromises);
+      const variantSnapshots = await Promise.all(variantPromises);
+
+      // Step 4: Map cart items with product & variant details
+      const cartWithDetails = cartItems.map((cartItem, index) => ({
+        ...cartItem,
+        product: productSnapshots[index].exists() ? { id: productSnapshots[index].id, ...productSnapshots[index].data() } : null,
+        variant: variantSnapshots[index].exists() ? { id: variantSnapshots[index].id, ...variantSnapshots[index].data() } : null,
+      }));
+
+      console.log("Cart with product & variant details:", cartWithDetails);
+      return cartWithDetails;
+    } catch (error) {
+      console.error("Error fetching cart details:", error);
+    }
+  };
 
 
 
@@ -164,6 +253,10 @@ export const FirebaseProvider = (props) => {
         handleCreateNewDoc,
         handleCreateNewVariant,
         getSubCollectionAllDocuments,
+        removeDocumentWithId,
+
+        fetchProductsWithFirstVariant,
+        fetchCartWithDetails,
 
 
         createOrder,

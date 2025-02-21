@@ -7,9 +7,9 @@ import { useFirebase } from "../context/Firebase";
 
 const FoodCard = (data) => {
 
-  const { id, name, description, status } = data;
+  const { id, name, description, status, firstVariant } = data;
 
-  console.log("BK data",data);
+  console.log("BK data", data);
 
   const firebase = useFirebase();
   const navigate = useNavigate();
@@ -42,6 +42,7 @@ const FoodCard = (data) => {
         <Card.Title>{name}</Card.Title>
         <Card.Text>{description}</Card.Text>
         <Card.Text>Status: <strong>{status}</strong></Card.Text>
+        <Card.Text>Price: <strong>{firstVariant?.priceOriginal || firstVariant?.priceOffer}</strong></Card.Text>
         <Button onClick={() => redirectToOtherPages("detail")} variant="primary">
           View Details
         </Button>
