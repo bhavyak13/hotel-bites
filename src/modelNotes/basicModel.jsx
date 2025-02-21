@@ -81,6 +81,54 @@ blue lays
 
 
 ************* variant  ****************
-************* variant  ****************
+
+
+
+************* Orders  ****************
+
+{
+    orderId: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    status: {
+      type: DataTypes.STRING,// created -> attempted -> paymentdone? -> paid/captured 
+      allowNull: false
+    },
+    finalPrice: {
+      type: DataTypes.DOUBLE,
+      allowNull: false
+    },
+    razorpayOrderId: {
+      type: DataTypes.STRING,
+    },
+    razorpayPaymentStatus: {
+      type: DataTypes.STRING,
+    },
+    razorpayPaymentId: {
+      type: DataTypes.STRING
+    },
+    userId,
+    purchasedItems:[]
+  }
+
+************* storerazorpaysuccesspayments  ****************
+
+  const storerazorpaysuccesspayments = sequelizeClient.define('storerazorpaysuccesspayments', {
+    razorpayPaymentId: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    razorpayOrderId: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    razorpaySignature: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    orderId,
+  }
+
 
 */

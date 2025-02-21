@@ -17,6 +17,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
+import Razorpay from "razorpay";
 
 const FirebaseContext = createContext(null);
 
@@ -106,6 +107,36 @@ export const FirebaseProvider = (props) => {
 
 
 
+
+
+
+
+  /*************** RAZORPAY function begin  **************/
+
+  const createOrder = async () => {
+    console.log("BK createOrder begin");
+    // var instance = new Razorpay({
+    //   key_id: import.meta.env.VITE_RAZORPAY_KEY_ID,
+    //   key_secret: import.meta.env.VITE_RAZORPAY_KEY_SECRET,
+    // })
+    // console.log("BK instance :", instance);
+
+    // const res = await instance.orders.create({
+    //   amount: 5000,
+    //   currency: "INR",
+    //   receipt: "receipt#1",
+    //   notes: {
+    //     key1: "value3",
+    //     key2: "value2"
+    //   }
+    // })
+    // console.log("BK res :", res);
+  }
+
+
+  /*************** RAZORPAY function end  **************/
+
+
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -134,6 +165,8 @@ export const FirebaseProvider = (props) => {
         handleCreateNewVariant,
         getSubCollectionAllDocuments,
 
+
+        createOrder,
       }}
     >
       {props.children}

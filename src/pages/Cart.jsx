@@ -3,6 +3,7 @@ import CardGroup from "react-bootstrap/CardGroup";
 
 import { useFirebase } from "../context/Firebase";
 import FoodCard from "../components/FoodCard";
+import { Button } from "react-bootstrap";
 
 const Cart = () => {
   const firebase = useFirebase();
@@ -15,6 +16,10 @@ const Cart = () => {
       );
   }, []);
 
+  const handleBuyNow=()=>{
+    firebase.createOrder();
+  }
+
   return (
     <div className="container mt-5">
       <CardGroup>
@@ -26,6 +31,9 @@ const Cart = () => {
           />
         ))}
       </CardGroup>
+      <Button onClick={() => handleBuyNow()} variant="primary">
+        Buy Now
+      </Button>
     </div>
   );
 };
