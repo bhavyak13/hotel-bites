@@ -10,10 +10,10 @@ const MyNavbar = () => {
   return (
     <Navbar bg="dark" variant="dark">
       <Container>
-        <Navbar.Brand as={Link} to={`/`}>Navbar</Navbar.Brand>
+        <Navbar.Brand as={Link} to={`/`}>Hotel-Bites</Navbar.Brand>
         <Nav className="me-auto">
-          <Nav.Link as={Link} to={`/`}>Home</Nav.Link>
-          <Nav.Link as={Link} to={`/products`}>Products</Nav.Link>
+          {/* <Nav.Link as={Link} to={`/`}>Home</Nav.Link> */}
+          {/* <Nav.Link as={Link} to={`/products`}>Products</Nav.Link> */}
           <Nav.Link as={Link} to={`/products/new`}>Add New Product</Nav.Link>
           <Nav.Link as={Link} to={`/cart`}>Cart</Nav.Link>
           <Nav.Link as={Link} to={`/login`}>Login</Nav.Link>
