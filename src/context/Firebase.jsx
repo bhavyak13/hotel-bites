@@ -244,6 +244,7 @@ export const FirebaseProvider = (props) => {
 
 
   const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     onAuthStateChanged(firebaseAuth, (user) => {
@@ -253,16 +254,26 @@ export const FirebaseProvider = (props) => {
   }, []);
 
   const isLoggedIn = user ? true : false;
-  
+
   const logoutUser = async () => {
     try {
       await firebaseAuth.signOut();
       console.log("User signed out successfully");
       setUser(null);
+
     } catch (error) {
       console.error("Sign Out Error", error);
     }
   };
+
+  useEffect(() => {
+    console.log("BK user", user, user?.uid)
+    if (user && user?.uid == "ukEdfieQ7FaI4rpITgxbtWyBuZZ2") {
+      setIsAdmin(true);
+    } else {
+      if (isAdmin) setIsAdmin(false);
+    }
+  }, [user])
 
 
   return (
@@ -270,6 +281,7 @@ export const FirebaseProvider = (props) => {
       value={{
         isLoggedIn,
         user,
+        isAdmin,
 
         singinUserWithEmailAndPass,
         signupUserWithEmailAndPassword,

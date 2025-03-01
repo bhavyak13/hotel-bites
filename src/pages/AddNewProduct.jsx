@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { useFirebase } from "../context/Firebase";
+import { useNavigate } from "react-router-dom";
 
 // Reusable input component
 const FormInput = ({ label, name, value, onChange, placeholder }) => (
@@ -28,6 +29,15 @@ const FileInput = ({ label, onChange }) => (
 
 const AddNewProduct = () => {
   const firebase = useFirebase();
+
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!firebase.isAdmin) { // if not admin 
+      navigate("/");
+    }
+  }, [firebase, navigate]);
 
   // Form state
   const [coverPic, setCoverPic] = useState("");

@@ -10,6 +10,8 @@ const BASE_URL = "/hotel-bites";
 const MyNavbar = () => {
   const firebase = useFirebase();
 
+  const { isAdmin } = firebase;
+
   return (
     <Navbar bg="dark" variant="dark">
       <Container>
@@ -17,7 +19,9 @@ const MyNavbar = () => {
         <Nav className="me-auto">
           {/* <Nav.Link as={Link} to={`/`}>Home</Nav.Link> */}
           {/* <Nav.Link as={Link} to={`/products`}>Products</Nav.Link> */}
-          <Nav.Link as={Link} to={`/products/new`}>Add New Product</Nav.Link>
+          {isAdmin &&
+            <Nav.Link as={Link} to={`/products/new`}>Add New Product</Nav.Link>
+          }
           <Nav.Link as={Link} to={`/cart`}>Cart</Nav.Link>
           {/* <Nav.Link as={Link} to={`/register`}>Register</Nav.Link> */}
 
