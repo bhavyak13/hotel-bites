@@ -7,7 +7,7 @@ import { useFirebase } from "../context/Firebase";
 
 const CartFoodCard = (data) => {
 
-  const { id, handleRemoveDocument } = data;
+  const { id, handleRemoveDocument, quantity } = data;
   const { name, description, status, productImage } = data?.product;
   const { variant } = data;
 
@@ -33,7 +33,10 @@ const CartFoodCard = (data) => {
         <Card.Title>{name}</Card.Title>
         <Card.Text>{description}</Card.Text>
         <Card.Text>Status: <strong>{status}</strong></Card.Text>
+        <Card.Text>quantity: {quantity}</Card.Text>
         <Card.Text>Price: <strong>{variant?.priceOriginal || variant?.priceOffer}</strong></Card.Text>
+        <Card.Text>Total Price: <strong>INR {quantity * (variant?.priceOriginal || variant?.priceOffer)}</strong></Card.Text>
+
         <Button onClick={async () => {
           await handleRemoveDocument(id);
           firebase.displayToastMessage('removed successfully!');
