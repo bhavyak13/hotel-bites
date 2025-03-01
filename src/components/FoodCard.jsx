@@ -7,19 +7,19 @@ import { useFirebase } from "../context/Firebase";
 
 const FoodCard = (data) => {
 
-  const { id, name, description, status, firstVariant } = data;
+  const { id, name, description, status, firstVariant, productImage } = data;
 
-  console.log("BK data", data);
+  // console.log("BK data", data);
 
   const firebase = useFirebase();
   const navigate = useNavigate();
   const [url, setURL] = useState(null);
 
-  // useEffect(() => {
-  //   if (imageURL) {
-  //     firebase.getImageURL(imageURL).then((url) => setURL(url));
-  //   }
-  // }, [imageURL]); // Added dependency
+  useEffect(() => {
+    if (productImage) {
+      firebase.getImageURL(productImage).then((url) => setURL(url));
+    }
+  }, [productImage]); // Added dependency
 
   const redirectToOtherPages = (pageName) => {
     const productId = id;

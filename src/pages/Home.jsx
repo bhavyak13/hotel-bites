@@ -19,7 +19,7 @@ const HomePage = () => {
 
   }, []);
 
-  console.log("BK data",data);
+  // console.log("BK data",data);
 
   return (
     <div className="container mt-5">

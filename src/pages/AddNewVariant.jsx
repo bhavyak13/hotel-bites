@@ -66,7 +66,7 @@ const AddNewVariant = () => {
       productId,
     }
     
-    console.log("BK AddNewVariant: payload : ", payload);
+    // console.log("BK AddNewVariant: payload : ", payload);
     await firebase.handleCreateNewVariant(payload);
   };
 
@@ -80,7 +80,7 @@ const AddNewVariant = () => {
         <FormInput label="Original Price" name="priceOriginal" value={formData.priceOriginal} onChange={handleChange} placeholder="Enter Original Price" type="number" />
         <FormInput label="Inventory Quantity" name="inventoryQuantity" value={formData.inventoryQuantity} onChange={handleChange} placeholder="Enter Inventory Quantity" type="number" />
         <FormInput label="Status" name="status" value={formData.status} onChange={handleChange} placeholder="Enter Status (active/non-active)" />
-        <FileInput label="Product Images" onChange={handleFileChange} />
+        {/* <FileInput label="Product Images" onChange={handleFileChange} /> */}
 
         <Button variant="primary" type="submit">Create</Button>
       </Form>

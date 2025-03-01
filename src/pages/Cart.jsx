@@ -26,7 +26,7 @@ const Cart = () => {
     fetchData();
   }, []);
 
-  console.log("BK data", data);
+  // console.log("BK data", data);
 
   const handleBuyNow = () => {
     firebase.createOrder();
