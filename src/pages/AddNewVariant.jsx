@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { useFirebase } from "../context/Firebase";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 // Reusable input component
 const FormInput = ({ label, name, value, onChange, placeholder, type = "text" }) => (
@@ -28,8 +28,17 @@ const FileInput = ({ label, onChange }) => (
 
 const AddNewVariant = () => {
   const firebase = useFirebase();
-  const params = useParams();
 
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!firebase.isAdmin) { // if not admin 
+      navigate("/");
+    }
+  }, [firebase, navigate]);
+
+  const params = useParams();
   // Form state
   const [formData, setFormData] = useState({
     SKU: "",
@@ -65,7 +74,7 @@ const AddNewVariant = () => {
       ...formData,
       productId,
     }
-    
+
     // console.log("BK AddNewVariant: payload : ", payload);
     await firebase.handleCreateNewVariant(payload);
   };

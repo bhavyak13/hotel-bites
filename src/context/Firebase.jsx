@@ -25,6 +25,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 
 import Razorpay from "razorpay";
+import { toast } from "react-toastify";
 
 const FirebaseContext = createContext(null);
 
@@ -37,7 +38,7 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_APP_ID,
 };
 
-// // console.log("BK firebaseConfig", firebaseConfig);
+// // console.("BK firebaseConfig", firebaseConfig);
 
 
 export const useFirebase = () => useContext(FirebaseContext);
@@ -209,6 +210,10 @@ export const FirebaseProvider = (props) => {
 
 
 
+  const displayToastMessage = (toastMessage) => {
+    toast(toastMessage);
+  }
+
   /*************** data-related function end  **************/
 
 
@@ -244,6 +249,7 @@ export const FirebaseProvider = (props) => {
 
 
   const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     onAuthStateChanged(firebaseAuth, (user) => {
@@ -254,6 +260,25 @@ export const FirebaseProvider = (props) => {
 
   const isLoggedIn = user ? true : false;
 
+  const logoutUser = async () => {
+    try {
+      await firebaseAuth.signOut();
+      console.log("User signed out successfully");
+      setUser(null);
+
+    } catch (error) {
+      console.error("Sign Out Error", error);
+    }
+  };
+
+  useEffect(() => {
+    console.log("BK user", user, user?.uid)
+    if (user && user?.uid == "ukEdfieQ7FaI4rpITgxbtWyBuZZ2") {
+      setIsAdmin(true);
+    } else {
+      if (isAdmin) setIsAdmin(false);
+    }
+  }, [user])
 
 
   return (
@@ -261,6 +286,7 @@ export const FirebaseProvider = (props) => {
       value={{
         isLoggedIn,
         user,
+        isAdmin,
 
         singinUserWithEmailAndPass,
         signupUserWithEmailAndPassword,
@@ -276,7 +302,9 @@ export const FirebaseProvider = (props) => {
         fetchProductsWithFirstVariant,
         fetchCartWithDetails,
 
+        logoutUser,
 
+        displayToastMessage,
         createOrder,
       }}
     >

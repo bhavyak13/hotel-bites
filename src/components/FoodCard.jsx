@@ -12,6 +12,7 @@ const FoodCard = (data) => {
   // console.log("BK data", data);
 
   const firebase = useFirebase();
+
   const navigate = useNavigate();
   const [url, setURL] = useState(null);
 
@@ -46,9 +47,11 @@ const FoodCard = (data) => {
         <Button onClick={() => redirectToOtherPages("detail")} variant="primary">
           View Details
         </Button>
-        <Button onClick={() => redirectToOtherPages("variant")} variant="primary">
-          Add New Variant
-        </Button>
+        {firebase.isAdmin &&
+          <Button onClick={() => redirectToOtherPages("variant")} variant="primary">
+            Add New Variant
+          </Button>
+        }
       </Card.Body>
     </Card>
   );

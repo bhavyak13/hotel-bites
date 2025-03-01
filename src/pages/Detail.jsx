@@ -3,7 +3,6 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { useParams } from "react-router-dom";
 import { useFirebase } from "../context/Firebase";
-import { Toaster } from "./Toast";
 
 // Reusable Select Component
 const SelectInput = ({ label, options, selected, onChange }) => (
@@ -58,6 +57,10 @@ const BookDetailPage = () => {
     setSelectedVariant({ id: variant.id, ...variant.data() });
   };
 
+
+  
+
+
   const addToCart = async () => {
     // what if item is already in cart?
     if (!selectedVariant) return alert("Please select a variant");
@@ -69,6 +72,7 @@ const BookDetailPage = () => {
     };
 
     await firebase.handleCreateNewDoc(payload, "shoppingCartItems");
+    firebase.displayToastMessage("Added to cart successfully!");
   };
 
   if (!productData || !variantsData || !selectedVariant) return <h1>Loading... / No data</h1>;
