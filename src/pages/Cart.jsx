@@ -7,6 +7,9 @@ import { Alert, Button } from "react-bootstrap";
 import CartFoodCard from "../components/CartFoodCard";
 import { useNavigate } from "react-router-dom";
 
+import { v4 as uuidv4 } from 'uuid';
+
+
 const Cart = () => {
   const firebase = useFirebase();
   const [data, setData] = useState([]);
@@ -37,9 +40,9 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    if(data){
+    if (data) {
       calculateFinalPrice();
-    }else{
+    } else {
       setFinalPrice("Not found");
     }
   }, [data]);
@@ -48,9 +51,53 @@ const Cart = () => {
   // console.log("BK data", data);
   const navigate = useNavigate();
 
-  const handleBuyNow = () => {
-    navigate('/payment');
-  }
+
+  const generateUniqueId = () => {
+    return uuidv4();
+  };
+
+
+  const handleBuyNow = async () => {
+    if (data.length === 0) return;
+
+    try {
+      // Add each item to the "purchasedItems" collection and store only their IDs
+      const purchasedItemsIds = await Promise.all(
+        data.map(async (item) => {
+          const finalItem = {
+            productId: item?.productId,
+            variantId: item?.variantId,
+            quantity: item?.quantity
+          };
+          console.log("BK finalItem", finalItem);
+          const docRef = await firebase.handleCreateNewDoc(finalItem, "purchasedItems");
+          return docRef.id; // Store only the document ID
+        })
+      );
+
+      // Create a new order document with an array of purchased item IDs
+      const payload = {
+        orderId: generateUniqueId(), // Generate a unique order ID
+        status: "created",
+        finalPrice: parseFloat(finalPrice),
+        userId: firebase?.user?.uid || "",
+        purchasedItems: purchasedItemsIds, // Store only the IDs of purchased items
+      };
+
+      const orderRef = await firebase.handleCreateNewDoc(payload, "orders");
+
+      // Clear the shopping cart after successful order creation
+      await Promise.all(
+        data.map((item) => firebase.removeDocumentWithId("shoppingCartItems", item.id))
+      );
+      navigate(`/orders/${orderRef.id}`);
+      
+    } catch (error) {
+      console.error("Error placing order:", error);
+    }
+  };
+
+
 
   return (
     <div className="container mt-5">

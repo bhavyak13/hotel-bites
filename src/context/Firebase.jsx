@@ -72,11 +72,15 @@ export const FirebaseProvider = (props) => {
       const { productImage } = data;
       const imageRef = ref(storage, `uploads/images/${Date.now()}-${productImage.name}`);
       uploadResult = await uploadBytes(imageRef, productImage);
+      data = {
+        ...data,
+        productImage: uploadResult?.ref?.fullPath || '',
+      }
       // console.log("BK imageRef,uploadResult", imageRef, uploadResult);
     }
-    const docRef = await addDoc(collection(firestore, collectionName), {
+    let docRef;
+    docRef = await addDoc(collection(firestore, collectionName), {
       ...data,
-      productImage: uploadResult?.ref?.fullPath || '',
       userId: user?.uid || "",
     });
     // console.log("BK handleCreateNewDoc docRef.id, docRef:", docRef.id, docRef);
