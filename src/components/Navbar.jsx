@@ -23,7 +23,7 @@ const MyNavbar = () => {
             <Nav.Link as={Link} to={`/products/new`}>Add New Product</Nav.Link>
           }
           <Nav.Link as={Link} to={`/cart`}>Cart</Nav.Link>
-          {/* <Nav.Link as={Link} to={`/register`}>Register</Nav.Link> */}
+          <Nav.Link as={Link} to={`/register`}>Register</Nav.Link>
 
           {!firebase?.user
             ? <Nav.Link as={Link} to={`/login`}>Login</Nav.Link>
