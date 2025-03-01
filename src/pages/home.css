@@ -1,132 +1,108 @@
-body {
+/* General styling */
+.home-page {
     font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f8f8f8;
+    padding: 20px;
   }
   
+  /* Advertisement */
+  .ad-container {
+    background-color: #f0f0f0;
+    text-align: center;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+  }
+  
+  /* Header */
   .header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    background-color: #fff;
-    padding: 10px 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 10px;
   }
   
   .menu-title {
-    font-size: 20px;
+    font-size: 2rem;
     font-weight: bold;
+  }
+  .cart-icon-container {
+      margin-right: 10px;
   }
   
   .cart-icon {
-    font-size: 20px;
+    font-size: 1.8rem;
     cursor: pointer;
   }
   
+  /* Search Bar */
   .search-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
+    margin-bottom: 20px;
+    padding: 0 10px;
   }
   
   .search-input {
-    width: 90%;
-    max-width: 400px;
+    width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
+    font-size: 1rem;
   }
   
+  /* Food Menu */
   .menu-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px;
+    width: 100%;
   }
   
   .menu-list {
-    width: 100%;
-    max-width: 500px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */
+    gap: 20px;
   }
   
-  .menu-item {
-    display: flex;
-    align-items: center;
-    background: white;
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* Media Queries for Tablets */
+  @media (max-width: 1024px) {
+    .menu-title {
+      font-size: 1.8rem;
+    }
+  
+    .cart-icon {
+      font-size: 1.6rem;
+    }
+  
+    .search-input {
+      font-size: 0.9rem;
+    }
+  
+    .home-page {
+      padding: 15px;
+    }
+  
+    .ad-container {
+      margin-bottom: 15px;
+      padding: 10px;
+    }
+  
+    .header {
+      margin-bottom: 15px;
+    }
+  
+    .search-container {
+      margin-bottom: 15px;
+    }
+    .menu-list{
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
   }
   
-  .menu-item img {
-    width: 50px;
-    height: 50px;
-    border-radius: 8px;
-    margin-right: 10px;
-  }
+  /* Media Queries for Phones */
+  @media (max-width: 600px) {
+    .menu-title {
+      font-size: 1.5rem;
+    }
   
-  .menu-item-info {
-    flex-grow: 1;
-  }
-  
-  .menu-item-title {
-    font-size: 16px;
-    font-weight: bold;
-  }
-  
-  .menu-item-description {
-    font-size: 14px;
-    color: #555;
-  }
-  
-  .menu-item-price {
-    font-size: 14px;
-    font-weight: bold;
-  }
-  
-  .add-button {
-    background-color: black;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-    border-radius: 5px;
-  }
-  
-  .ad-container {
-    background-color: #ffe4b5; /* Light orange color */
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
-    padding: 10px;
-    margin-bottom: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-  
-  .checkout-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: white;
-    padding: 10px;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .checkout-button {
-    background: black;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    .cart-icon {
+      font-size: 1.4rem;
+    }
   }
   

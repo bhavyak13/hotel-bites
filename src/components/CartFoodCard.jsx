@@ -8,14 +8,20 @@ import { useFirebase } from "../context/Firebase";
 const CartFoodCard = (data) => {
 
   const { id, handleRemoveDocument } = data;
-  const { name, description, status } = data?.product;
+  const { name, description, status, productImage } = data?.product;
   const { variant } = data;
 
-  // console.log("BK data", data);
+  console.log("BK data", data);
 
   const firebase = useFirebase();
   const navigate = useNavigate();
   const [url, setURL] = useState(null);
+
+  useEffect(() => {
+    if (productImage) {
+      firebase.getImageURL(productImage).then((url) => setURL(url));
+    }
+  }, [productImage]); // Added dependency
 
 
 
@@ -28,7 +34,10 @@ const CartFoodCard = (data) => {
         <Card.Text>{description}</Card.Text>
         <Card.Text>Status: <strong>{status}</strong></Card.Text>
         <Card.Text>Price: <strong>{variant?.priceOriginal || variant?.priceOffer}</strong></Card.Text>
-        <Button onClick={() => handleRemoveDocument(id)} variant="primary">
+        <Button onClick={async () => {
+          await handleRemoveDocument(id);
+          firebase.displayToastMessage('removed successfully!');
+        }} variant="primary">
           Remove
         </Button>
       </Card.Body>
