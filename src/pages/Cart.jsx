@@ -3,7 +3,7 @@ import CardGroup from "react-bootstrap/CardGroup";
 
 import { useFirebase } from "../context/Firebase";
 import FoodCard from "../components/FoodCard";
-import { Button } from "react-bootstrap";
+import { Alert, Button } from "react-bootstrap";
 import CartFoodCard from "../components/CartFoodCard";
 
 const Cart = () => {
@@ -34,19 +34,29 @@ const Cart = () => {
 
   return (
     <div className="container mt-5">
-      <CardGroup>
-        {data?.map((book) => (
-          <CartFoodCard
-            key={book.id}
-            id={book.id}
-            handleRemoveDocument={handleRemoveDocument}
-            {...book}
-          />
-        ))}
-      </CardGroup>
-      <Button onClick={() => handleBuyNow()} variant="primary">
-        Buy Now
-      </Button>
+      {data?.length === 0
+        ? <Alert key={"info"} variant={"info"}>
+          Cart Empty!
+        </Alert>
+        : (
+          <>
+            <CardGroup>
+              {data?.map((book) => (
+                <CartFoodCard
+                  key={book.id}
+                  id={book.id}
+                  handleRemoveDocument={handleRemoveDocument}
+                  {...book}
+                />
+              ))}
+            </CardGroup>
+            <Button onClick={() => handleBuyNow()} variant="primary">
+              Buy Now
+            </Button>
+          </>
+        )
+
+      }
     </div>
   );
 };

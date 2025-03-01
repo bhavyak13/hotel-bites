@@ -202,6 +202,24 @@ export const FirebaseProvider = (props) => {
   };
 
 
+  const checkIsItemAlreadyInCart = async (collectionName, productId, variantId) => {
+    try {
+      const cartRef = collection(firestore, collectionName);
+      const q = query(
+        cartRef,
+        where("productId", "==", productId),
+        where("variantId", "==", variantId),
+        limit(1) // Limit to one result as we only need to check existence
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      return !querySnapshot.empty ? querySnapshot.docs[0] : null;
+    } catch (error) {
+      console.error("Error checking cart item:", error);
+      return null;
+    }
+  };
 
 
   const getImageURL = (path) => {
@@ -305,6 +323,7 @@ export const FirebaseProvider = (props) => {
         logoutUser,
 
         displayToastMessage,
+        checkIsItemAlreadyInCart,
         createOrder,
       }}
     >

@@ -3,6 +3,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { useParams } from "react-router-dom";
 import { useFirebase } from "../context/Firebase";
+import { Alert } from "react-bootstrap";
 
 // Reusable Select Component
 const SelectInput = ({ label, options, selected, onChange }) => (
@@ -58,24 +59,37 @@ const BookDetailPage = () => {
   };
 
 
-  
+
 
 
   const addToCart = async () => {
-    // what if item is already in cart?
     if (!selectedVariant) return alert("Please select a variant");
 
-    const payload = {
-      quantity: qty,
-      productId: params.productId,
-      variantId: selectedVariant.id,
-    };
+    const isItemAlreadyInCart = await firebase.checkIsItemAlreadyInCart('shoppingCartItems', params.productId, selectedVariant.id);
+    console.log("BK isItemAlreadyInCart",isItemAlreadyInCart);
 
-    await firebase.handleCreateNewDoc(payload, "shoppingCartItems");
-    firebase.displayToastMessage("Added to cart successfully!");
+    if (isItemAlreadyInCart === null) {
+      // Item does not exist, add new entry
+      const payload = {
+        quantity: qty,
+        productId: params.productId,
+        variantId: selectedVariant.id,
+      };
+      await firebase.handleCreateNewDoc(payload, "shoppingCartItems");
+      firebase.displayToastMessage("Added to cart successfully!");
+    } else {
+      firebase.displayToastMessage("Item already in cart!");
+    }
   };
 
-  if (!productData || !variantsData || !selectedVariant) return <h1>Loading... / No data</h1>;
+  if (!productData || !variantsData || !selectedVariant)
+    return (
+      <div className="container mt-5">
+        <Alert key={"info"} variant={"info"}>
+          No data found
+        </Alert>
+      </div>
+    )
 
   return (
     <div className="container mt-5">
