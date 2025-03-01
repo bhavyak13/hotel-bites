@@ -37,7 +37,7 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_APP_ID,
 };
 
-// // console.log("BK firebaseConfig", firebaseConfig);
+// // console.("BK firebaseConfig", firebaseConfig);
 
 
 export const useFirebase = () => useContext(FirebaseContext);
@@ -253,7 +253,16 @@ export const FirebaseProvider = (props) => {
   }, []);
 
   const isLoggedIn = user ? true : false;
-
+  
+  const logoutUser = async () => {
+    try {
+      await firebaseAuth.signOut();
+      console.log("User signed out successfully");
+      setUser(null);
+    } catch (error) {
+      console.error("Sign Out Error", error);
+    }
+  };
 
 
   return (
@@ -276,6 +285,7 @@ export const FirebaseProvider = (props) => {
         fetchProductsWithFirstVariant,
         fetchCartWithDetails,
 
+        logoutUser,
 
         createOrder,
       }}
