@@ -74,7 +74,7 @@ const Cart = () => {
               final price : {finalPrice}
             </div>
             <Button onClick={() => handleBuyNow()} variant="primary">
-              Buy Now
+              Place Order
             </Button>
           </>
         )
