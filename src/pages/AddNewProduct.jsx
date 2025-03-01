@@ -20,7 +20,9 @@ const FormInput = ({ label, name, value, onChange, placeholder }) => (
 const FileInput = ({ label, onChange }) => (
   <Form.Group className="mb-3">
     <Form.Label>{label}</Form.Label>
-    <Form.Control type="file" multiple onChange={onChange} />
+    <Form.Control type="file"
+      //  multiple
+      onChange={onChange} />
   </Form.Group>
 );
 
@@ -28,29 +30,42 @@ const AddNewProduct = () => {
   const firebase = useFirebase();
 
   // Form state
+  const [coverPic, setCoverPic] = useState("");
+
   const [formData, setFormData] = useState({
     SKU: "",
     name: "",
     description: "",
-    productImages: [],
+    productImage: "",
     status: "",
   });
 
   // Handle input changes
   const handleChange = (e) => {
-    // console.log("BK : e: ", e, e.target.name, e.target.value);
+    // // console.log("BK : e: ", e, e.target.name, e.target.value);
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   // Handle file selection
   const handleFileChange = (e) => {
-    setFormData({ ...formData, productImages: Array.from(e.target.files) });
+    setFormData({ ...formData, productImage: Array.from(e.target.files?.[0]) });
   };
 
   // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await firebase.handleCreateNewDoc(formData,"products");
+
+    const finalData = {
+      ...formData,
+      productImage: coverPic,
+    };
+
+    // // console.log("BK finaldata",finalData,coverPic);
+
+    await firebase.handleCreateNewDoc(
+      finalData,
+      "products"
+    );
   };
 
   return (
@@ -71,7 +86,14 @@ const AddNewProduct = () => {
           placeholder="Enter Product Name"
         />
         <FormInput label="Description" name="description" value={formData.description} onChange={handleChange} placeholder="Enter Description" />
-        <FileInput label="Product Images" onChange={handleFileChange} />
+        {/* <FileInput label="Product Images" onChange={handleFileChange} /> */}
+        <Form.Group className="mb-3" controlId="formBasicPassword">
+          <Form.Label>Cover Pic</Form.Label>
+          <Form.Control
+            onChange={(e) => setCoverPic(e.target.files[0])}
+            type="file"
+          />
+        </Form.Group>
         <FormInput label="Status" name="status" value={formData.status} onChange={handleChange} placeholder="Enter Status (active/non-active)" />
 
         <Button variant="primary" type="submit">Create</Button>

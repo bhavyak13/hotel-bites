@@ -21,6 +21,9 @@ import {
 } from "firebase/firestore";
 
 
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
+
 import Razorpay from "razorpay";
 
 const FirebaseContext = createContext(null);
@@ -34,7 +37,7 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_APP_ID,
 };
 
-// console.log("BK firebaseConfig", firebaseConfig);
+// // console.log("BK firebaseConfig", firebaseConfig);
 
 
 export const useFirebase = () => useContext(FirebaseContext);
@@ -43,6 +46,8 @@ export const useFirebase = () => useContext(FirebaseContext);
 const firebaseApp = initializeApp(firebaseConfig);
 const firebaseAuth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
+const storage = getStorage(firebaseApp);
+
 
 
 export const FirebaseProvider = (props) => {
@@ -60,14 +65,20 @@ export const FirebaseProvider = (props) => {
   /*************** data-related function start  **************/
 
   const handleCreateNewDoc = async (data, collectionName) => {
-    // const imageRef = ref(storage, `uploads/images/${Date.now()}-${cover.name}`);
-    // const uploadResult = await uploadBytes(imageRef, cover);
-    // imageURL: uploadResult.ref.fullPath,
+    let uploadResult = '';
+    // console.log("BK data2",data);
+    if (data && data?.productImage) {
+      const { productImage } = data;
+      const imageRef = ref(storage, `uploads/images/${Date.now()}-${productImage.name}`);
+      uploadResult = await uploadBytes(imageRef, productImage);
+      // console.log("BK imageRef,uploadResult", imageRef, uploadResult);
+    }
     const docRef = await addDoc(collection(firestore, collectionName), {
       ...data,
+      productImage: uploadResult?.ref?.fullPath || '',
       userId: user?.uid || "",
     });
-    console.log("BK handleCreateNewDoc docRef.id, docRef:", docRef.id, docRef);
+    // console.log("BK handleCreateNewDoc docRef.id, docRef:", docRef.id, docRef);
     return docRef;
   };
 
@@ -78,13 +89,13 @@ export const FirebaseProvider = (props) => {
       ...data,
       userId: user?.uid || "",
     });
-    console.log("BK handleCreateNewDoc docRef.id, docRef:", docRef.id, docRef);
+    // console.log("BK handleCreateNewDoc docRef.id, docRef:", docRef.id, docRef);
     return docRef;
   };
 
   const getDocuments = async (collectionName) => {
     const querySnapshot = await getDocs(collection(firestore, collectionName));
-    // console.log("Document data:", querySnapshot);
+    // // console.log("Document data:", querySnapshot);
     return querySnapshot;
   };
 
@@ -92,7 +103,7 @@ export const FirebaseProvider = (props) => {
   const getSubCollectionAllDocuments = async (collection1Name, collection1Id, collection2Name) => {
     const collectionRef = collection(firestore, collection1Name, collection1Id, collection2Name);
     const querySnapshot = await getDocs(collectionRef);
-    console.log("BK getSubCollectionAllDocuments res", querySnapshot);
+    // console.log("BK getSubCollectionAllDocuments res", querySnapshot);
     return querySnapshot;
   };
 
@@ -129,7 +140,7 @@ export const FirebaseProvider = (props) => {
 
       // Step 3: Resolve all promises in parallel
       const productsWithVariants = await Promise.all(variantPromises);
-      console.log("Products with first variants:", productsWithVariants);
+      // console.log("Products with first variants:", productsWithVariants);
 
       return productsWithVariants;
     } catch (error) {
@@ -142,11 +153,11 @@ export const FirebaseProvider = (props) => {
       if (!collectionName || !docId) {
         throw new Error("Collection name and document ID are required.");
       }
-  
+
       const docRef = doc(firestore, collectionName, docId);
       await deleteDoc(docRef);
-  
-      console.log(`Document with ID ${docId} deleted successfully from ${collectionName}`);
+
+      // console.log(`Document with ID ${docId} deleted successfully from ${collectionName}`);
     } catch (error) {
       console.error("Error deleting document:", error);
     }
@@ -182,13 +193,19 @@ export const FirebaseProvider = (props) => {
         variant: variantSnapshots[index].exists() ? { id: variantSnapshots[index].id, ...variantSnapshots[index].data() } : null,
       }));
 
-      console.log("Cart with product & variant details:", cartWithDetails);
+      // console.log("Cart with product & variant details:", cartWithDetails);
       return cartWithDetails;
     } catch (error) {
       console.error("Error fetching cart details:", error);
     }
   };
 
+
+
+
+  const getImageURL = (path) => {
+    return getDownloadURL(ref(storage, path));
+  };
 
 
 
@@ -203,12 +220,12 @@ export const FirebaseProvider = (props) => {
   /*************** RAZORPAY function begin  **************/
 
   const createOrder = async () => {
-    console.log("BK createOrder begin");
+    // console.log("BK createOrder begin");
     // var instance = new Razorpay({
     //   key_id: import.meta.env.VITE_RAZORPAY_KEY_ID,
     //   key_secret: import.meta.env.VITE_RAZORPAY_KEY_SECRET,
     // })
-    // console.log("BK instance :", instance);
+    // // console.log("BK instance :", instance);
 
     // const res = await instance.orders.create({
     //   amount: 5000,
@@ -219,7 +236,7 @@ export const FirebaseProvider = (props) => {
     //     key2: "value2"
     //   }
     // })
-    // console.log("BK res :", res);
+    // // console.log("BK res :", res);
   }
 
 
@@ -254,6 +271,7 @@ export const FirebaseProvider = (props) => {
         handleCreateNewVariant,
         getSubCollectionAllDocuments,
         removeDocumentWithId,
+        getImageURL,
 
         fetchProductsWithFirstVariant,
         fetchCartWithDetails,
