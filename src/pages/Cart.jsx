@@ -6,6 +6,7 @@ import FoodCard from "../components/FoodCard";
 import { Alert, Button } from "react-bootstrap";
 import CartFoodCard from "../components/CartFoodCard";
 import { useNavigate } from "react-router-dom";
+import "../pages/home.css";
 
 const Cart = () => {
   const firebase = useFirebase();
@@ -53,7 +54,15 @@ const Cart = () => {
   }
 
   return (
-    <div className="container mt-5">
+    <div className="home-page">
+      {/* Advertisement Space */}
+      <div className="ad-container">Advertising space</div>
+      
+            {/* Header */}
+            <div className="header">
+        <div className="order-summary">Order Summary</div>
+        </div>
+
       {data?.length === 0
         ? <Alert key={"info"} variant={"info"}>
           Cart Empty!

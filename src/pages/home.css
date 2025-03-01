@@ -34,6 +34,11 @@
     font-size: 1.8rem;
     cursor: pointer;
   }
+
+  .order-summary {
+    font-size: 2rem;
+    font-weight: bold;
+  }
   
   /* Search Bar */
   .search-container {
