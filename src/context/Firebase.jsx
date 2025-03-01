@@ -226,6 +226,31 @@ export const FirebaseProvider = (props) => {
   };
 
 
+  const fetchOrders = async () => {
+    try {
+      if (!user?.uid) {
+        console.error("User is not logged in");
+        return [];
+      }
+  
+      const ordersRef = collection(firestore, "orders");
+      const q = query(ordersRef, where("userId", "==", user.uid));
+      const querySnapshot = await getDocs(q);
+  
+      const ordersList = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+  
+      return ordersList;
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      return [];
+    }
+  };
+  
+
+
   const getImageURL = (path) => {
     return getDownloadURL(ref(storage, path));
   };
@@ -320,6 +345,7 @@ export const FirebaseProvider = (props) => {
         getSubCollectionAllDocuments,
         removeDocumentWithId,
         getImageURL,
+        fetchOrders,
 
         fetchProductsWithFirstVariant,
         fetchCartWithDetails,
