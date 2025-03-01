@@ -25,6 +25,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 
 import Razorpay from "razorpay";
+import { toast } from "react-toastify";
 
 const FirebaseContext = createContext(null);
 
@@ -209,6 +210,10 @@ export const FirebaseProvider = (props) => {
 
 
 
+  const displayToastMessage = (toastMessage) => {
+    toast(toastMessage);
+  }
+
   /*************** data-related function end  **************/
 
 
@@ -299,6 +304,7 @@ export const FirebaseProvider = (props) => {
 
         logoutUser,
 
+        displayToastMessage,
         createOrder,
       }}
     >

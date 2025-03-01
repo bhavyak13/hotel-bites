@@ -42,13 +42,14 @@ const AddNewProduct = () => {
   // Form state
   const [coverPic, setCoverPic] = useState("");
 
-  const [formData, setFormData] = useState({
+  const defaultFormData = {
     SKU: "",
     name: "",
     description: "",
     productImage: "",
     status: "",
-  });
+  }
+  const [formData, setFormData] = useState(defaultFormData);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -76,6 +77,9 @@ const AddNewProduct = () => {
       finalData,
       "products"
     );
+    setFormData(defaultFormData);
+    firebase.displayToastMessage("product created successfully!");
+    navigate('/');
   };
 
   return (

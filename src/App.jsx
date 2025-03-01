@@ -12,10 +12,16 @@ import AddNewVariant from "./pages/AddNewVariant";
 import AddNewProduct from "./pages/AddNewProduct";
 import Cart from "./pages/Cart";
 
+
+import { ToastContainer, toast } from 'react-toastify';
 function App() {
+
   return (
     <div>
       <MyNavbar />
+
+      <ToastContainer />
+
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
