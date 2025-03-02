@@ -18,6 +18,7 @@ import {
   where,
   limit,
   deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 
 
@@ -238,23 +239,45 @@ export const FirebaseProvider = (props) => {
         console.error("User is not logged in");
         return [];
       }
-  
+
       const ordersRef = collection(firestore, "orders");
       const q = query(ordersRef, where("userId", "==", user.uid));
       const querySnapshot = await getDocs(q);
-  
+
       const ordersList = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
       }));
-  
+
       return ordersList;
     } catch (error) {
       console.error("Error fetching orders:", error);
       return [];
     }
   };
-  
+
+  const fetchAllOrders = async () => {
+    try {
+      if (!user?.uid) {
+        console.error("User is not logged in");
+        return [];
+      }
+
+      const ordersRef = collection(firestore, "orders");
+      const querySnapshot = await getDocs(ordersRef);
+
+      const ordersList = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      return ordersList;
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      return [];
+    }
+  };
+
 
 
   const getImageURL = (path) => {
@@ -266,6 +289,24 @@ export const FirebaseProvider = (props) => {
   const displayToastMessage = (toastMessage) => {
     toast(toastMessage);
   }
+
+
+  const updateOrderStatus = async (orderId, newStatus) => {
+    try {
+      if (!orderId || !newStatus) {
+        throw new Error("Order ID and new status are required.");
+      }
+      console.log("BK orderId || !newStatus", orderId, newStatus)
+
+      const orderRef = doc(firestore, "orders", orderId);
+      await updateDoc(orderRef, { status: newStatus });
+
+      console.log(`Order ${orderId} status updated to ${newStatus}`);
+    } catch (error) {
+      console.error("Error updating order status:", error);
+    }
+  };
+
 
   /*************** data-related function end  **************/
 
@@ -352,6 +393,8 @@ export const FirebaseProvider = (props) => {
         removeDocumentWithId,
         getImageURL,
         fetchOrders,
+        fetchAllOrders,
+        updateOrderStatus,
 
         fetchProductsWithFirstVariant,
         fetchCartWithDetails,

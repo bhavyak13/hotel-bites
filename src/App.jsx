@@ -17,6 +17,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import PaymentPage from "./pages/Payment";
 import OrderSuccess from "./pages/OrderSuccess";
 import MyOrders from "./pages/MyOrders";
+import AllOrders from "./pages/AllOrders";
 function App() {
 
   return (
@@ -37,6 +38,7 @@ function App() {
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/orders" element={<MyOrders />} />
         <Route path="/orders/:orderId" element={<OrderSuccess />} />
+        <Route path="/orders/all" element={<AllOrders />} /> {/* Updated route path */}
         {/* <Route path="variants/new" element={<AddNewVariant />} /> */}
         {/* <Route path="/book/list" element={<ListingPage />} />
         <Route path="/book/view/:bookId" element={<BookDetailPage />} />
