@@ -172,7 +172,13 @@ export const FirebaseProvider = (props) => {
   const fetchCartWithDetails = async (collectionName) => {
     try {
       // Step 1: Fetch all cart items (single query)
-      const cartSnapshot = await getDocs(collection(firestore, collectionName));
+
+      const cartRef = collection(firestore, collectionName);
+      const q = query(cartRef, where("userId", "==", user.uid));
+      const cartSnapshot = await getDocs(q);
+
+
+
       const cartItems = cartSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(), // Contains productId & variantId
