@@ -49,7 +49,7 @@ const Cart = () => {
   }, [data]);
 
 
-  // console.log("BK data", data);
+  console.log("BK cart data", data);
   const navigate = useNavigate();
 
 
@@ -110,7 +110,7 @@ const Cart = () => {
         <div className="order-summary">Order Summary</div>
         </div>
 
-      {data?.length === 0
+      {!data || data?.length === 0
         ? <Alert key={"info"} variant={"info"}>
           Cart Empty!
         </Alert>

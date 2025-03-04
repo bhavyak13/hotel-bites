@@ -93,6 +93,7 @@ blue lays
     },
     status: {
       type: DataTypes.STRING,// created -> attempted -> paymentdone? -> paid/captured 
+      // -> created -> preparing -> out for delivery -> delivered
       allowNull: false
     },
     finalPrice: {

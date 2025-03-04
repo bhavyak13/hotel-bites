@@ -33,6 +33,9 @@ const MyNavbar = () => {
           {firebase?.user
             && <Nav.Link as={Link} to={`/orders`}>My orders</Nav.Link>
           }
+          {firebase?.isAdmin
+            && <Nav.Link as={Link} to={`/orders/all`}>All orders</Nav.Link>
+          }
           {firebase?.user &&
             <button
               onClick={async () => {
