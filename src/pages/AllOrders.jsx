@@ -140,7 +140,7 @@ const AllOrders = () => {
                 {formattedDate(order?._createdDate)}
               </h6>
             )}
-
+            <h6>address: {order?.address}</h6>
             <hr />
             <h6>Purchased Items:</h6>
             <ListGroup>

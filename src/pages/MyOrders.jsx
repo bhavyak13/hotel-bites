@@ -126,6 +126,8 @@ const AllOrders = () => {
               )}
             </h6>
             <h6>Final Price: ₹{order.finalPrice}</h6>
+            <h6>Address: {order?.address}</h6>
+
 
             {/* Display created date */}
             {order?._createdDate && (

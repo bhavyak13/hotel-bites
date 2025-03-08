@@ -3,7 +3,7 @@ import CardGroup from "react-bootstrap/CardGroup";
 
 import { useFirebase } from "../context/Firebase";
 import FoodCard from "../components/FoodCard";
-import { Alert, Button } from "react-bootstrap";
+import { Alert, Button, Form } from "react-bootstrap";
 import CartFoodCard from "../components/CartFoodCard";
 import { useNavigate } from "react-router-dom";
 import "../pages/home.css";
@@ -11,10 +11,22 @@ import "../pages/home.css";
 import { v4 as uuidv4 } from 'uuid';
 
 
+const initialAddresses = [
+  "123, MG Road, Bangalore, Karnataka - 560001",
+  "456, Connaught Place, New Delhi, Delhi - 110001",
+  "789, Koregaon Park, Pune, Maharashtra - 411001",
+  "101, Park Street, Kolkata, West Bengal - 700016",
+  "55, Anna Salai, Chennai, Tamil Nadu - 600002"
+];
+
+
 const Cart = () => {
   const firebase = useFirebase();
   const [data, setData] = useState([]);
   const [finalPrice, setFinalPrice] = useState(0);
+  const [selectedAddress, setSelectedAddress] = useState(""); // State for selected address
+  const [addresses, setAddresses] = useState(initialAddresses); // Available addresses
+
 
   const fetchData = async () => {
     await firebase.fetchCartWithDetails("shoppingCartItems")
@@ -59,6 +71,10 @@ const Cart = () => {
 
 
   const handleBuyNow = async () => {
+    if (!selectedAddress) {
+      firebase.displayToastMessage("Please select an address before placing the order.", "error");
+      return;
+    }
     if (data.length === 0) return;
 
     try {
@@ -68,7 +84,7 @@ const Cart = () => {
           const finalItem = {
             productId: item?.productId,
             variantId: item?.variantId,
-            quantity: item?.quantity
+            quantity: item?.quantity,
           };
           console.log("BK finalItem", finalItem);
           const docRef = await firebase.handleCreateNewDoc(finalItem, "purchasedItems");
@@ -83,6 +99,7 @@ const Cart = () => {
         finalPrice: parseFloat(finalPrice),
         userId: firebase?.user?.uid || "",
         purchasedItems: purchasedItemsIds, // Store only the IDs of purchased items
+        address: selectedAddress,
         _createdDate: new Date().toISOString(),
       };
 
@@ -106,11 +123,11 @@ const Cart = () => {
     <div className="home-page">
       {/* Advertisement Space */}
       <div className="ad-container">Advertising space</div>
-      
-            {/* Header */}
-            <div className="header">
+
+      {/* Header */}
+      <div className="header">
         <div className="order-summary">Order Summary</div>
-        </div>
+      </div>
 
       {!data || data?.length === 0
         ? <Alert key={"info"} variant={"info"}>
@@ -128,6 +145,23 @@ const Cart = () => {
                 />
               ))}
             </CardGroup>
+
+            {/* Address Dropdown */}
+            <Form.Group className="mt-3">
+              <Form.Label>Select Delivery Address</Form.Label>
+              <Form.Select
+                value={selectedAddress}
+                onChange={(e) => setSelectedAddress(e.target.value)}
+              >
+                <option value="">-- Select Address --</option>
+                {addresses.map((address, index) => (
+                  <option key={index} value={address}>
+                    {address}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+
             <div className="final-price">
               final price : {finalPrice}
             </div>
