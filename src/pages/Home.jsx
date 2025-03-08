@@ -7,19 +7,11 @@ import "../pages/home.css";
 const HomePage = () => {
   const firebase = useFirebase();
   const [data, setData] = useState([]);
-  const [cart, setCart] = useState([]);
 
   useEffect(() => {
     firebase.fetchProductsWithFirstVariant().then((data) => setData(data));
   }, []);
 
-  const addToCart = (item) => {
-    setCart([...cart, item]);
-  };
-
-  const calculateTotal = () => {
-    return cart.reduce((acc, item) => acc + parseFloat(item.price), 0).toFixed(2);
-  };
 
   return (
     <div className="home-page">
@@ -50,7 +42,6 @@ const HomePage = () => {
             <FoodCard
               key={item.id}
               {...item}
-              addToCart={() => addToCart(item)}
             />
           ))}
         </div>

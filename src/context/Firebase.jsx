@@ -174,6 +174,8 @@ export const FirebaseProvider = (props) => {
     try {
       // Step 1: Fetch all cart items (single query)
 
+      if(!user)return null;
+
       const cartRef = collection(firestore, collectionName);
       const q = query(cartRef, where("userId", "==", user.uid));
       const cartSnapshot = await getDocs(q);
