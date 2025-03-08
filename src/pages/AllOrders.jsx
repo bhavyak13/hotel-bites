@@ -45,8 +45,14 @@ const AllOrders = () => {
       );
 
       console.log("BK ordersWithDetails", ordersWithDetails);
+      // Sort orders by latest date (descending order)
+      const sortedOrders = ordersWithDetails.sort((a, b) =>
+        new Date(b._createdDate) - new Date(a._createdDate)
+      );
 
-      setOrders(ordersWithDetails);
+      console.log("BK sortedOrders", sortedOrders);
+
+      setOrders(sortedOrders);
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
