@@ -3,14 +3,31 @@ import CardGroup from "react-bootstrap/CardGroup"; //We may no longer use this i
 import { useFirebase } from "../context/Firebase";
 import FoodCard from "../components/FoodCard";
 import "../pages/home.css";
+import { Spinner } from "react-bootstrap";
 
 const HomePage = () => {
   const firebase = useFirebase();
   const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
+  
 
   useEffect(() => {
-    firebase.fetchProductsWithFirstVariant().then((data) => setData(data));
+    const fetchProducts = async () => {
+      await firebase.fetchProductsWithFirstVariant().then((data) => setData(data));
+      setLoading(false);
+    }
+    fetchProducts();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="text-center mt-5">
+        <Spinner animation="border" />
+        <p>Welcome! We are loading products for you..</p>
+      </div>
+    );
+  }
+
 
 
   return (

@@ -77,6 +77,8 @@ const AddNewVariant = () => {
 
     // console.log("BK AddNewVariant: payload : ", payload);
     await firebase.handleCreateNewVariant(payload);
+    navigate("/");
+
   };
 
   return (

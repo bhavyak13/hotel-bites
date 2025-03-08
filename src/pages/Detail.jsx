@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useFirebase } from "../context/Firebase";
-import { Alert } from "react-bootstrap";
+import { Alert, Spinner } from "react-bootstrap";
 
 // Reusable Select Component
 const SelectInput = ({ label, options, selected, onChange }) => (
@@ -24,6 +24,8 @@ const SelectInput = ({ label, options, selected, onChange }) => (
 );
 
 const BookDetailPage = () => {
+  const navigate = useNavigate();
+
   const params = useParams();
   const firebase = useFirebase();
 
@@ -32,9 +34,12 @@ const BookDetailPage = () => {
   const [variantsData, setVariantsData] = useState([]);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [url, setURL] = useState(null);
+  const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     const fetchData = async () => {
+      if(!loading)setLoading(true);
       const collectionName = "products";
       const variantsCollection = "variants";
 
@@ -48,6 +53,7 @@ const BookDetailPage = () => {
 
       // Set the first variant as selected by default
       if (res2.docs.length > 0) setSelectedVariant({ id: res2.docs[0].id, ...res2.docs[0].data() });
+      setLoading(false);
     };
     fetchData();
   }, [params.productId, firebase]);
@@ -66,7 +72,7 @@ const BookDetailPage = () => {
     if (!selectedVariant) return alert("Please select a variant");
 
     const isItemAlreadyInCart = await firebase.checkIsItemAlreadyInCart('shoppingCartItems', params.productId, selectedVariant.id);
-    console.log("BK isItemAlreadyInCart",isItemAlreadyInCart);
+    console.log("BK isItemAlreadyInCart", isItemAlreadyInCart);
 
     if (isItemAlreadyInCart === null) {
       // Item does not exist, add new entry
@@ -80,7 +86,18 @@ const BookDetailPage = () => {
     } else {
       firebase.displayToastMessage("Item already in cart!");
     }
+    navigate('/');
   };
+
+
+  if (loading) {
+    return (
+      <div className="text-center mt-5">
+        <Spinner animation="border" />
+        <p>loading detials..</p>
+      </div>
+    );
+  }
 
   if (!productData || !variantsData || !selectedVariant)
     return (
@@ -119,9 +136,16 @@ const BookDetailPage = () => {
         />
       </Form.Group>
 
-      <Button onClick={addToCart} variant="primary">
+      <Button
+        onClick={addToCart}
+        variant="primary"
+        disabled={!firebase?.user}
+      >
         Add to Cart
       </Button>
+      <div className="not-logged-in-text">
+        {!firebase?.user && "Please Login to start adding items to cart"}
+      </div>
     </div>
   );
 };

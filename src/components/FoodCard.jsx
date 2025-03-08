@@ -45,7 +45,7 @@ const FoodCard = (data) => {
         <Card.Text>Status: <strong>{status}</strong></Card.Text>
         <Card.Text>Price: <strong>{firstVariant?.priceOriginal || firstVariant?.priceOffer}</strong></Card.Text>
         <Button onClick={() => redirectToOtherPages("detail")} variant="primary">
-          Quantity
+          Details
         </Button>
         {firebase.isAdmin &&
           <Button onClick={() => redirectToOtherPages("variant")} variant="primary">
