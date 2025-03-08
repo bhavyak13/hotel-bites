@@ -92,8 +92,9 @@ const Cart = () => {
       await Promise.all(
         data.map((item) => firebase.removeDocumentWithId("shoppingCartItems", item.id))
       );
-      navigate(`/orders/${orderRef.id}`);
-      
+      // navigate(`/orders/${orderRef.id}`);
+      navigate(`/orders`);
+      firebase.displayToastMessage("Order Placed successfully!");
     } catch (error) {
       console.error("Error placing order:", error);
     }

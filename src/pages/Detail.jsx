@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useFirebase } from "../context/Firebase";
 import { Alert } from "react-bootstrap";
 
@@ -24,6 +24,8 @@ const SelectInput = ({ label, options, selected, onChange }) => (
 );
 
 const BookDetailPage = () => {
+  const navigate = useNavigate();
+
   const params = useParams();
   const firebase = useFirebase();
 
@@ -80,6 +82,7 @@ const BookDetailPage = () => {
     } else {
       firebase.displayToastMessage("Item already in cart!");
     }
+    navigate('/');
   };
 
   if (!productData || !variantsData || !selectedVariant)

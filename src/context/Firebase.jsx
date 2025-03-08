@@ -310,7 +310,7 @@ export const FirebaseProvider = (props) => {
 
   const fetchAllOrders = async () => {
     try {
-      if (!user?.uid) {
+      if (!user || !user?.uid) {
         console.error("User is not logged in");
         return [];
       }

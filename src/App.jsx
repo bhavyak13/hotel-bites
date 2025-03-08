@@ -37,7 +37,7 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/orders" element={<MyOrders />} />
-        <Route path="/orders/:orderId" element={<OrderSuccess />} />
+        {/* <Route path="/orders/:orderId" element={<OrderSuccess />} /> */}
         <Route path="/orders/all" element={<AllOrders />} /> {/* Updated route path */}
         {/* <Route path="variants/new" element={<AddNewVariant />} /> */}
         {/* <Route path="/book/list" element={<ListingPage />} />
