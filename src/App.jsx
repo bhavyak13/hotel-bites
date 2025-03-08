@@ -18,34 +18,56 @@ import PaymentPage from "./pages/Payment";
 import OrderSuccess from "./pages/OrderSuccess";
 import MyOrders from "./pages/MyOrders";
 import AllOrders from "./pages/AllOrders";
+import AppWrapper from "./AppWrapper";
+
 function App() {
-
   return (
-    <div>
-      <MyNavbar />
+      <div>
+          <MyNavbar />
+          <ToastContainer />
 
-      <ToastContainer />
+          <Routes>
+              <Route path="/" element={<AppWrapper><HomePage /></AppWrapper>} />
+              <Route path="/login" element={<AppWrapper><LoginPage /></AppWrapper>} />
+              <Route path="/register" element={<AppWrapper><RegisterPage /></AppWrapper>} />
 
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/products" element={<HomePage />} />
-        <Route path="/products/new" element={<AddNewProduct />} />
-        <Route path="/products/:productId" element={<BookDetailPage />} />
-        <Route path="/products/:productId/variants/new" element={<AddNewVariant />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/payment" element={<PaymentPage />} />
-        <Route path="/orders" element={<MyOrders />} />
-        {/* <Route path="/orders/:orderId" element={<OrderSuccess />} /> */}
-        <Route path="/orders/all" element={<AllOrders />} /> {/* Updated route path */}
-        {/* <Route path="variants/new" element={<AddNewVariant />} /> */}
-        {/* <Route path="/book/list" element={<ListingPage />} />
-        <Route path="/book/view/:bookId" element={<BookDetailPage />} />
-        <Route path="/book/orders" element={<OrdersPage />} />
-        <Route path="/books/orders/:bookId" element={<ViewOrderDetails />} /> */}
-      </Routes>
-    </div>
+              {/* Requires Login */}
+              <Route
+                  path="/products"
+                  element={<AppWrapper ><HomePage /></AppWrapper>}
+              />
+              <Route
+                  path="/products/new"
+                  element={<AppWrapper status={{ requiresAdmin: true }}><AddNewProduct /></AppWrapper>}
+              />
+              <Route
+                  path="/products/:productId"
+                  element={<AppWrapper status={{ }}><BookDetailPage /></AppWrapper>}
+              />
+              <Route
+                  path="/products/:productId/variants/new"
+                  element={<AppWrapper status={{ requiresAdmin: true }}><AddNewVariant /></AppWrapper>}
+              />
+              <Route
+                  path="/cart"
+                  element={<AppWrapper status={{ requiresLogin: true }}><Cart /></AppWrapper>}
+              />
+              {/* <Route
+                  path="/payment"
+                  element={<AppWrapper status={{ requiresLogin: true }}><PaymentPage /></AppWrapper>}
+              /> */}
+              <Route
+                  path="/orders"
+                  element={<AppWrapper status={{ requiresLogin: true }}><MyOrders /></AppWrapper>}
+              />
+
+              {/* Requires Admin */}
+              <Route
+                  path="/orders/all"
+                  element={<AppWrapper status={{ requiresAdmin: true }}><AllOrders /></AppWrapper>}
+              />
+          </Routes>
+      </div>
   );
 }
 

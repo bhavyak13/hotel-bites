@@ -68,7 +68,7 @@ const BookDetailPage = () => {
     if (!selectedVariant) return alert("Please select a variant");
 
     const isItemAlreadyInCart = await firebase.checkIsItemAlreadyInCart('shoppingCartItems', params.productId, selectedVariant.id);
-    console.log("BK isItemAlreadyInCart",isItemAlreadyInCart);
+    console.log("BK isItemAlreadyInCart", isItemAlreadyInCart);
 
     if (isItemAlreadyInCart === null) {
       // Item does not exist, add new entry
@@ -122,9 +122,16 @@ const BookDetailPage = () => {
         />
       </Form.Group>
 
-      <Button onClick={addToCart} variant="primary">
+      <Button
+        onClick={addToCart}
+        variant="primary"
+        disabled={!firebase?.user}
+      >
         Add to Cart
       </Button>
+      <div className="not-logged-in-text">
+        {!firebase?.user && "Please Login to start adding items to cart"}
+      </div>
     </div>
   );
 };

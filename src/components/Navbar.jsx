@@ -22,7 +22,10 @@ const MyNavbar = () => {
           {isAdmin &&
             <Nav.Link as={Link} to={`/products/new`}>Add New Product</Nav.Link>
           }
+
+          {!isAdmin &&
           <Nav.Link as={Link} to={`/cart`}>Cart</Nav.Link>
+          }
 
           {!firebase?.user &&
             <Nav.Link as={Link} to={`/register`}>Register</Nav.Link>
@@ -30,7 +33,7 @@ const MyNavbar = () => {
           {!firebase?.user
             && <Nav.Link as={Link} to={`/login`}>Login</Nav.Link>
           }
-          {firebase?.user
+          {firebase?.user && !isAdmin
             && <Nav.Link as={Link} to={`/orders`}>My orders</Nav.Link>
           }
           {firebase?.isAdmin
