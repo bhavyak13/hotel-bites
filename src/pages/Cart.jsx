@@ -3,7 +3,7 @@ import CardGroup from "react-bootstrap/CardGroup";
 
 import { useFirebase } from "../context/Firebase";
 import FoodCard from "../components/FoodCard";
-import { Alert, Button, Form } from "react-bootstrap";
+import { Alert, Button, Form, Spinner } from "react-bootstrap";
 import CartFoodCard from "../components/CartFoodCard";
 import { useNavigate } from "react-router-dom";
 import "../pages/home.css";
@@ -26,6 +26,8 @@ const Cart = () => {
   const [finalPrice, setFinalPrice] = useState(0);
   const [selectedAddress, setSelectedAddress] = useState(""); // State for selected address
   const [addresses, setAddresses] = useState(initialAddresses); // Available addresses
+  const [loading, setLoading] = useState(true);
+
 
 
   const fetchData = async () => {
@@ -33,6 +35,8 @@ const Cart = () => {
       .then((data) =>
         setData(data)
       );
+    setLoading(false);
+
   }
 
   const handleRemoveDocument = async (id) => {
@@ -119,6 +123,17 @@ const Cart = () => {
 
 
 
+  if (loading) {
+    return (
+      <div className="text-center mt-5">
+        <Spinner animation="border" />
+        <p>loading Cart..</p>
+      </div>
+    );
+  }
+
+
+
   return (
     <div className="home-page">
       {/* Advertisement Space */}
@@ -126,7 +141,7 @@ const Cart = () => {
 
       {/* Header */}
       <div className="header">
-        <div className="order-summary">Order Summary</div>
+        <div className="order-summary">Cart</div>
       </div>
 
       {!data || data?.length === 0
