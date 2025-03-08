@@ -215,6 +215,56 @@ export const FirebaseProvider = (props) => {
   };
 
 
+  const fetchPurchasedItemWithDetails = async (data) => {
+    try {
+      // Step 1: Fetch all cart items (single query)
+
+      if(!user)return null;
+      if(!data?.length)return null;
+      console.log("BK Data2",data);
+      
+      
+      const purchasedItemPromises = data.map(cartItem =>
+        getDoc(doc(firestore, "purchasedItems", cartItem))
+      );
+      
+      let purchasedItemSnapshots = await Promise.all(purchasedItemPromises);
+
+      console.log("BK purchasedItemSnapshots",purchasedItemSnapshots);
+      purchasedItemSnapshots = purchasedItemSnapshots.map((cartItem, index) => (
+        cartItem.data()
+      ));
+      console.log("BK purchasedItemSnapshots2",purchasedItemSnapshots);
+      
+      
+      // Step 2: Prepare product & variant fetch promises
+      const productPromises = purchasedItemSnapshots.map(cartItem =>
+        getDoc(doc(firestore, "products", cartItem.productId))
+      );
+
+      const variantPromises = purchasedItemSnapshots.map(cartItem =>
+        getDoc(doc(firestore, `products/${cartItem.productId}/variants`, cartItem.variantId))
+      );
+
+      // Step 3: Fetch all products & variants concurrently
+      const productSnapshots = await Promise.all(productPromises);
+      const variantSnapshots = await Promise.all(variantPromises);
+
+      // Step 4: Map cart items with product & variant details
+      const cartWithDetails = purchasedItemSnapshots.map((cartItem, index) => ({
+        ...cartItem,
+        product: productSnapshots[index].exists() ? { id: productSnapshots[index].id, ...productSnapshots[index].data() } : null,
+        variant: variantSnapshots[index].exists() ? { id: variantSnapshots[index].id, ...variantSnapshots[index].data() } : null,
+      }));
+
+      // console.log("Cart with product & variant details:", cartWithDetails);
+      return cartWithDetails;
+    } catch (error) {
+      console.error("Error fetching cart details:", error);
+    }
+  };
+
+
   const checkIsItemAlreadyInCart = async (collectionName, productId, variantId) => {
     try {
       const cartRef = collection(firestore, collectionName);
@@ -400,6 +450,7 @@ export const FirebaseProvider = (props) => {
 
         fetchProductsWithFirstVariant,
         fetchCartWithDetails,
+        fetchPurchasedItemWithDetails,
 
         logoutUser,
 

@@ -83,6 +83,7 @@ const Cart = () => {
         finalPrice: parseFloat(finalPrice),
         userId: firebase?.user?.uid || "",
         purchasedItems: purchasedItemsIds, // Store only the IDs of purchased items
+        _createdDate: new Date().toISOString(),
       };
 
       const orderRef = await firebase.handleCreateNewDoc(payload, "orders");
