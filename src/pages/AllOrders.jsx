@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useFirebase } from "../context/Firebase";
 import { Card, ListGroup, Alert, Spinner, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import OrderFoodCard from "../components/OrderFoodCard";
 
 const ORDER_STATUSES = [
   "Created",
@@ -19,6 +20,8 @@ const AllOrders = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  console.log("BK orders:", orders);
+
   useEffect(() => {
     if (!firebase?.isAdmin) {
       navigate("/");
@@ -26,33 +29,63 @@ const AllOrders = () => {
   }, [firebase, navigate]);
 
   const getOrders = async () => {
+    try {
+      const fetchedOrders = await firebase.fetchAllOrders();
+      console.log("BK fetchedOrders", fetchedOrders);
 
-    const fetchedOrders = await firebase.fetchAllOrders();
+      // Map through orders and update each one's purchased items
+      const ordersWithDetails = await Promise.all(
+        fetchedOrders.map(async (order) => {
+          const updatedPurchasedItems = await firebase.fetchPurchasedItemWithDetails(order.purchasedItems);
+          return {
+            ...order,
+            purchasedItems: updatedPurchasedItems
+          };
+        })
+      );
 
-    // Ensure each order has an 'id' field
-    const ordersWithId = fetchedOrders.map(order => ({
-      id: order.id,  // Firebase document ID
-      ...order
-    }));
+      console.log("BK ordersWithDetails", ordersWithDetails);
+      // Sort orders by latest date (descending order)
+      const sortedOrders = ordersWithDetails.sort((a, b) =>
+        new Date(b._createdDate) - new Date(a._createdDate)
+      );
 
-    setOrders(ordersWithId);
-    setLoading(false);
+      console.log("BK sortedOrders", sortedOrders);
+
+      setOrders(sortedOrders);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => {
-    
 
+  useEffect(() => {
     getOrders();
   }, [firebase]);
-
 
   const handleStatusChange = async (orderId, newStatus) => {
     setLoading(true);
     await firebase.updateOrderStatus(orderId, newStatus);
     await getOrders();
     setLoading(false);
-    
   };
+
+
+  const formattedDate = (_createdDate) => {
+    if (_createdDate)
+      return new Date(_createdDate).toLocaleString('en-GB', {
+        year: 'numeric',
+        month: 'long',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      });
+    else return "";
+  }
+
 
   if (loading) {
     return (
@@ -63,7 +96,7 @@ const AllOrders = () => {
     );
   }
 
-  if (!orders.length) {
+  if (!orders?.length) {
     return (
       <Alert variant="warning" className="mt-5 text-center">
         No orders found.
@@ -74,7 +107,7 @@ const AllOrders = () => {
   return (
     <div className="container mt-5">
       <h3 className="mb-4">All Orders</h3>
-      {orders.map((order) => (
+      {orders?.map((order) => (
         <Card key={order.orderId} className="mb-3">
           <Card.Header>
             <h5>Order ID: {order.orderId}</h5>
@@ -99,11 +132,26 @@ const AllOrders = () => {
               )}
             </h6>
             <h6>Final Price: ₹{order.finalPrice}</h6>
+
+            {/* Display created date */}
+            {order?._createdDate && (
+              <h6>
+                Created Date:{" "}
+                {formattedDate(order?._createdDate)}
+              </h6>
+            )}
+            <h6>address: {order?.address}</h6>
             <hr />
             <h6>Purchased Items:</h6>
             <ListGroup>
               {order.purchasedItems?.map((item, idx) => (
-                <ListGroup.Item key={idx}>{item}</ListGroup.Item>
+                <ListGroup.Item key={idx}>
+                  <OrderFoodCard
+                    key={item.id}
+                    id={item.id}
+                    {...item}
+                  />
+                </ListGroup.Item>
               ))}
             </ListGroup>
           </Card.Body>
