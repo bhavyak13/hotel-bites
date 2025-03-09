@@ -65,7 +65,7 @@ const Cart = () => {
   }, [data]);
 
 
-  console.log("BK cart data", data);
+  // console.log("BK cart data", data);
   const navigate = useNavigate();
 
 
@@ -90,7 +90,7 @@ const Cart = () => {
             variantId: item?.variantId,
             quantity: item?.quantity,
           };
-          console.log("BK finalItem", finalItem);
+          // console.log("BK finalItem", finalItem);
           const docRef = await firebase.handleCreateNewDoc(finalItem, "purchasedItems");
           return docRef.id; // Store only the document ID
         })

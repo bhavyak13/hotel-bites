@@ -9,7 +9,7 @@ const FoodCard = (data) => {
 
   const { id, name, description, status, firstVariant, productImage } = data;
 
-  // console.log("BK data", data);
+  // // console.log("BK data", data);
 
   const firebase = useFirebase();
 

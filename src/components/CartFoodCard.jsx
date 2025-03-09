@@ -11,7 +11,7 @@ const CartFoodCard = (data) => {
   const { name, description, status, productImage } = data?.product;
   const { variant } = data;
 
-  console.log("BK data", data);
+  // console.log("BK data", data);
 
   const firebase = useFirebase();
   const navigate = useNavigate();

@@ -72,7 +72,7 @@ const BookDetailPage = () => {
     if (!selectedVariant) return alert("Please select a variant");
 
     const isItemAlreadyInCart = await firebase.checkIsItemAlreadyInCart('shoppingCartItems', params.productId, selectedVariant.id);
-    console.log("BK isItemAlreadyInCart", isItemAlreadyInCart);
+    // console.log("BK isItemAlreadyInCart", isItemAlreadyInCart);
 
     if (isItemAlreadyInCart === null) {
       // Item does not exist, add new entry

@@ -68,7 +68,7 @@ export const FirebaseProvider = (props) => {
 
   const handleCreateNewDoc = async (data, collectionName) => {
     let uploadResult = '';
-    // console.log("BK data2",data);
+    // // console.log("BK data2",data);
     if (data && data?.productImage) {
       const { productImage } = data;
       const imageRef = ref(storage, `uploads/images/${Date.now()}-${productImage.name}`);
@@ -77,14 +77,14 @@ export const FirebaseProvider = (props) => {
         ...data,
         productImage: uploadResult?.ref?.fullPath || '',
       }
-      // console.log("BK imageRef,uploadResult", imageRef, uploadResult);
+      // // console.log("BK imageRef,uploadResult", imageRef, uploadResult);
     }
     let docRef;
     docRef = await addDoc(collection(firestore, collectionName), {
       ...data,
       userId: user?.uid || "",
     });
-    // console.log("BK handleCreateNewDoc docRef.id, docRef:", docRef.id, docRef);
+    // // console.log("BK handleCreateNewDoc docRef.id, docRef:", docRef.id, docRef);
     return docRef;
   };
 
@@ -95,7 +95,7 @@ export const FirebaseProvider = (props) => {
       ...data,
       userId: user?.uid || "",
     });
-    // console.log("BK handleCreateNewDoc docRef.id, docRef:", docRef.id, docRef);
+    // // console.log("BK handleCreateNewDoc docRef.id, docRef:", docRef.id, docRef);
     return docRef;
   };
 
@@ -109,7 +109,7 @@ export const FirebaseProvider = (props) => {
   const getSubCollectionAllDocuments = async (collection1Name, collection1Id, collection2Name) => {
     const collectionRef = collection(firestore, collection1Name, collection1Id, collection2Name);
     const querySnapshot = await getDocs(collectionRef);
-    // console.log("BK getSubCollectionAllDocuments res", querySnapshot);
+    // // console.log("BK getSubCollectionAllDocuments res", querySnapshot);
     return querySnapshot;
   };
 
@@ -221,7 +221,7 @@ export const FirebaseProvider = (props) => {
 
       if (!user) return null;
       if (!data?.length) return null;
-      console.log("BK Data2", data);
+      // console.log("BK Data2", data);
 
 
       const purchasedItemPromises = data.map(cartItem =>
@@ -230,11 +230,11 @@ export const FirebaseProvider = (props) => {
 
       let purchasedItemSnapshots = await Promise.all(purchasedItemPromises);
 
-      console.log("BK purchasedItemSnapshots", purchasedItemSnapshots);
+      // console.log("BK purchasedItemSnapshots", purchasedItemSnapshots);
       purchasedItemSnapshots = purchasedItemSnapshots.map((cartItem, index) => (
         cartItem.data()
       ));
-      console.log("BK purchasedItemSnapshots2", purchasedItemSnapshots);
+      // console.log("BK purchasedItemSnapshots2", purchasedItemSnapshots);
 
 
       // Step 2: Prepare product & variant fetch promises
@@ -372,7 +372,7 @@ export const FirebaseProvider = (props) => {
       if (!orderId || !newStatus) {
         throw new Error("Order ID and new status are required.");
       }
-      console.log("BK orderId || !newStatus", orderId, newStatus)
+      // console.log("BK orderId || !newStatus", orderId, newStatus)
 
       const orderRef = doc(firestore, "orders", orderId);
       await updateDoc(orderRef, { status: newStatus });
@@ -395,12 +395,12 @@ export const FirebaseProvider = (props) => {
   /*************** RAZORPAY function begin  **************/
 
   const createOrder = async () => {
-    // console.log("BK createOrder begin");
+    // // console.log("BK createOrder begin");
     // var instance = new Razorpay({
     //   key_id: import.meta.env.VITE_RAZORPAY_KEY_ID,
     //   key_secret: import.meta.env.VITE_RAZORPAY_KEY_SECRET,
     // })
-    // // console.log("BK instance :", instance);
+    // // // console.log("BK instance :", instance);
 
     // const res = await instance.orders.create({
     //   amount: 5000,
@@ -411,7 +411,7 @@ export const FirebaseProvider = (props) => {
     //     key2: "value2"
     //   }
     // })
-    // // console.log("BK res :", res);
+    // // // console.log("BK res :", res);
   }
 
 
@@ -443,7 +443,7 @@ export const FirebaseProvider = (props) => {
   };
 
   useEffect(() => {
-    console.log("BK user", user, user?.uid)
+    // console.log("BK user", user, user?.uid)
     if (user) {
       if (user?.uid == "ukEdfieQ7FaI4rpITgxbtWyBuZZ2") {
         setIsAdmin(true);

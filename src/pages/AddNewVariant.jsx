@@ -75,7 +75,7 @@ const AddNewVariant = () => {
       productId,
     }
 
-    // console.log("BK AddNewVariant: payload : ", payload);
+    // // console.log("BK AddNewVariant: payload : ", payload);
     await firebase.handleCreateNewVariant(payload);
     navigate("/");
 

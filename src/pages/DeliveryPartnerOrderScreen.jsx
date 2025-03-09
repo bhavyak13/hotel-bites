@@ -20,14 +20,14 @@ const DeliveryPartnerOrderScreen = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  console.log("BK DeliveryPartnerOrderScreen orders:", orders);
+  // console.log("BK DeliveryPartnerOrderScreen orders:", orders);
 
   const getOrders = async () => {
     try {
       const deliveryAgentId = firebase?.user?.uid;
-      console.log("BK DeliveryPartnerOrderScreen deliveryAgentId", deliveryAgentId);
+      // console.log("BK DeliveryPartnerOrderScreen deliveryAgentId", deliveryAgentId);
       const fetchedOrders = await firebase.fetchOrdersForDeliveryAgent(deliveryAgentId);
-      console.log("BK DeliveryPartnerOrderScreen fetchedOrders", fetchedOrders);
+      // console.log("BK DeliveryPartnerOrderScreen fetchedOrders", fetchedOrders);
 
       // Map through orders and update each one's purchased items
       const ordersWithDetails = await Promise.all(
@@ -40,13 +40,13 @@ const DeliveryPartnerOrderScreen = () => {
         })
       );
 
-      console.log("BK DeliveryPartnerOrderScreen ordersWithDetails", ordersWithDetails);
+      // console.log("BK DeliveryPartnerOrderScreen ordersWithDetails", ordersWithDetails);
       // Sort orders by latest date (descending order)
       const sortedOrders = ordersWithDetails.sort((a, b) =>
         new Date(b._createdDate) - new Date(a._createdDate)
       );
 
-      console.log("BK DeliveryPartnerOrderScreen sortedOrders", sortedOrders);
+      // console.log("BK DeliveryPartnerOrderScreen sortedOrders", sortedOrders);
 
       setOrders(sortedOrders);
     } catch (error) {
