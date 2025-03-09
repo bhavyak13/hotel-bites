@@ -174,7 +174,7 @@ export const FirebaseProvider = (props) => {
     try {
       // Step 1: Fetch all cart items (single query)
 
-      if(!user)return null;
+      if (!user) return null;
 
       const cartRef = collection(firestore, collectionName);
       const q = query(cartRef, where("userId", "==", user.uid));
@@ -219,24 +219,24 @@ export const FirebaseProvider = (props) => {
     try {
       // Step 1: Fetch all cart items (single query)
 
-      if(!user)return null;
-      if(!data?.length)return null;
-      console.log("BK Data2",data);
-      
-      
+      if (!user) return null;
+      if (!data?.length) return null;
+      console.log("BK Data2", data);
+
+
       const purchasedItemPromises = data.map(cartItem =>
         getDoc(doc(firestore, "purchasedItems", cartItem))
       );
-      
+
       let purchasedItemSnapshots = await Promise.all(purchasedItemPromises);
 
-      console.log("BK purchasedItemSnapshots",purchasedItemSnapshots);
+      console.log("BK purchasedItemSnapshots", purchasedItemSnapshots);
       purchasedItemSnapshots = purchasedItemSnapshots.map((cartItem, index) => (
         cartItem.data()
       ));
-      console.log("BK purchasedItemSnapshots2",purchasedItemSnapshots);
-      
-      
+      console.log("BK purchasedItemSnapshots2", purchasedItemSnapshots);
+
+
       // Step 2: Prepare product & variant fetch promises
       const productPromises = purchasedItemSnapshots.map(cartItem =>
         getDoc(doc(firestore, "products", cartItem.productId))
@@ -294,6 +294,30 @@ export const FirebaseProvider = (props) => {
 
       const ordersRef = collection(firestore, "orders");
       const q = query(ordersRef, where("userId", "==", user.uid));
+      const querySnapshot = await getDocs(q);
+
+      const ordersList = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      return ordersList;
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      return [];
+    }
+  };
+
+
+  const fetchOrdersForDeliveryAgent = async (deliveryPartnerId) => {
+    try {
+      if (!deliveryPartnerId) {
+        console.error("No delivery partner found");
+        return [];
+      }
+
+      const ordersRef = collection(firestore, "orders");
+      const q = query(ordersRef, where("deliveryPartnerId", "==", deliveryPartnerId));
       const querySnapshot = await getDocs(q);
 
       const ordersList = querySnapshot.docs.map(doc => ({
@@ -396,6 +420,7 @@ export const FirebaseProvider = (props) => {
 
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isDeliveryPartner, setIsDeliveryPartner] = useState(false);
 
   useEffect(() => {
     onAuthStateChanged(firebaseAuth, (user) => {
@@ -419,10 +444,16 @@ export const FirebaseProvider = (props) => {
 
   useEffect(() => {
     console.log("BK user", user, user?.uid)
-    if (user && user?.uid == "ukEdfieQ7FaI4rpITgxbtWyBuZZ2") {
-      setIsAdmin(true);
-    } else {
+    if (user) {
+      if (user?.uid == "ukEdfieQ7FaI4rpITgxbtWyBuZZ2") {
+        setIsAdmin(true);
+      } else if (user?.uid == "EEqRTrY732ZaK27XRkjkJbjMq5E2") {
+        setIsDeliveryPartner(true);
+      }
+    }
+    else {
       if (isAdmin) setIsAdmin(false);
+      if (isDeliveryPartner) setIsDeliveryPartner(false);
     }
   }, [user])
 
@@ -433,6 +464,8 @@ export const FirebaseProvider = (props) => {
         isLoggedIn,
         user,
         isAdmin,
+        isDeliveryPartner,
+        fetchOrdersForDeliveryAgent,
 
         singinUserWithEmailAndPass,
         signupUserWithEmailAndPassword,

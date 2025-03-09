@@ -96,7 +96,9 @@ const Cart = () => {
         })
       );
 
-      // Create a new order document with an array of purchased item IDs
+
+
+      // ORDER PAYLOAD!!
       const payload = {
         orderId: generateUniqueId(), // Generate a unique order ID
         status: "created",
@@ -105,6 +107,7 @@ const Cart = () => {
         purchasedItems: purchasedItemsIds, // Store only the IDs of purchased items
         address: selectedAddress,
         _createdDate: new Date().toISOString(),
+        deliveryPartnerId: 'EEqRTrY732ZaK27XRkjkJbjMq5E2', // default delivery partner id
       };
 
       const orderRef = await firebase.handleCreateNewDoc(payload, "orders");
@@ -131,7 +134,7 @@ const Cart = () => {
       </div>
     );
   }
-// dummy commit
+  // dummy commit
 
 
   return (

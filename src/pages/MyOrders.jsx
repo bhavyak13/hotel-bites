@@ -14,7 +14,7 @@ const ORDER_STATUSES = [
   "Cancelled"
 ];
 
-const AllOrders = () => {
+const MyOrders = () => {
   const firebase = useFirebase();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -157,4 +157,4 @@ const AllOrders = () => {
   );
 };
 
-export default AllOrders;
+export default MyOrders;

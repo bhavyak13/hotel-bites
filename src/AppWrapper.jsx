@@ -5,13 +5,19 @@ const AppWrapper = ({ children, status }) => {
     const firebase = useFirebase();
     const requiresAdmin = status?.requiresAdmin || false;
     const requiresLogin = status?.requiresLogin || false;
+    const deliveryScreen = status?.deliveryScreen || false;
 
-    if (requiresAdmin && firebase.isAdmin) {
+
+    if (requiresAdmin && firebase?.isAdmin) {
         return children; // Admin access granted
     }
 
-    if (requiresLogin && firebase.user) {
+    if (requiresLogin && firebase?.user) {
         return children; // Logged-in user access granted
+    }
+
+    if(deliveryScreen && firebase?.isDeliveryPartner){
+        return children; // delivery bhaiya..
     }
 
     if(!requiresAdmin && !requiresLogin){

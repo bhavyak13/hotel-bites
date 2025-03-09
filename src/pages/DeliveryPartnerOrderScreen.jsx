@@ -1,37 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { useFirebase } from "../context/Firebase";
-import { Card, ListGroup, Alert, Spinner, Form } from "react-bootstrap";
+import { Card, ListGroup, Alert, Spinner, Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import OrderFoodCard from "../components/OrderFoodCard";
 
 const ORDER_STATUSES = [
-  "Created",
+  // "Created",
   // "Processing",
-  "Preparing",
-  "Ready for Pickup",
+  // "Preparing",
+  // "Ready for Pickup",
   "Out for Delivery",
   "Delivered",
   "Cancelled"
 ];
 
-const AllOrders = () => {
+const DeliveryPartnerOrderScreen = () => {
   const firebase = useFirebase();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  console.log("BK orders:", orders);
-
-  useEffect(() => {
-    if (!firebase?.isAdmin) {
-      navigate("/");
-    }
-  }, [firebase, navigate]);
+  console.log("BK DeliveryPartnerOrderScreen orders:", orders);
 
   const getOrders = async () => {
     try {
-      const fetchedOrders = await firebase.fetchAllOrders();
-      console.log("BK fetchedOrders", fetchedOrders);
+      const deliveryAgentId = firebase?.user?.uid;
+      console.log("BK DeliveryPartnerOrderScreen deliveryAgentId", deliveryAgentId);
+      const fetchedOrders = await firebase.fetchOrdersForDeliveryAgent(deliveryAgentId);
+      console.log("BK DeliveryPartnerOrderScreen fetchedOrders", fetchedOrders);
 
       // Map through orders and update each one's purchased items
       const ordersWithDetails = await Promise.all(
@@ -44,13 +40,13 @@ const AllOrders = () => {
         })
       );
 
-      console.log("BK ordersWithDetails", ordersWithDetails);
+      console.log("BK DeliveryPartnerOrderScreen ordersWithDetails", ordersWithDetails);
       // Sort orders by latest date (descending order)
       const sortedOrders = ordersWithDetails.sort((a, b) =>
         new Date(b._createdDate) - new Date(a._createdDate)
       );
 
-      console.log("BK sortedOrders", sortedOrders);
+      console.log("BK DeliveryPartnerOrderScreen sortedOrders", sortedOrders);
 
       setOrders(sortedOrders);
     } catch (error) {
@@ -106,7 +102,7 @@ const AllOrders = () => {
 
   return (
     <div className="container mt-5">
-      <h3 className="mb-4">All Orders</h3>
+      <h3 className="mb-4">My Orders</h3>
       {orders?.map((order) => (
         <Card key={order.orderId} className="mb-3">
           <Card.Header>
@@ -114,24 +110,14 @@ const AllOrders = () => {
           </Card.Header>
           <Card.Body>
             <h6>
-              Status:
-              {firebase?.isAdmin ? (
-                <Form.Select
-                  value={order.status}
-                  onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                  className="ms-2 d-inline w-auto"
-                >
-                  {ORDER_STATUSES.map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </Form.Select>
-              ) : (
-                <span className="text-primary ms-2">{order.status}</span>
-              )}
+              Status: {order.status}
             </h6>
+
+
+
             <h6>Final Price: ₹{order.finalPrice}</h6>
+            <h6>Address: {order?.address}</h6>
+
 
             {/* Display created date */}
             {order?._createdDate && (
@@ -140,8 +126,6 @@ const AllOrders = () => {
                 {formattedDate(order?._createdDate)}
               </h6>
             )}
-            <h6>address: {order?.address}</h6>
-            <h6>deliveryPartnerId: {order?.deliveryPartnerId}</h6>
 
             <hr />
             <h6>Purchased Items:</h6>
@@ -156,6 +140,25 @@ const AllOrders = () => {
                 </ListGroup.Item>
               ))}
             </ListGroup>
+            <Button
+              onClick={() => {
+                handleStatusChange(order.id, 'Delivered')
+              }}
+              variant="success"
+              disabled={order.status === 'Delivered' || order.status === 'Cancelled'}
+            >
+              Order delivered
+            </Button>
+
+            <Button
+              onClick={() => {
+                handleStatusChange(order.id, 'Cancelled')
+              }}
+              variant="danger"
+              disabled={order.status === 'Delivered' || order.status === 'Cancelled'}
+            >
+              Order Cancelled
+            </Button>
           </Card.Body>
         </Card>
       ))}
@@ -163,4 +166,4 @@ const AllOrders = () => {
   );
 };
 
-export default AllOrders;
+export default DeliveryPartnerOrderScreen;
