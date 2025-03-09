@@ -20,9 +20,14 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("login in a user...");
-    const result = await firebase.singinUserWithEmailAndPass(email, password);
-    console.log("Successfull", result);
+    try {
+      console.log("login in a user...");
+      const result = await firebase.singinUserWithEmailAndPass(email, password);
+      console.log("Successfull", result);
+    } catch (err) {
+      console.log("Unsuccessfull", err.message, err);
+      firebase.displayToastMessage(err.message);
+    }
   };
 
   return (
