@@ -11,6 +11,7 @@ import BookDetailPage from "./pages/Detail";
 import AddNewVariant from "./pages/AddNewVariant";
 import AddNewProduct from "./pages/AddNewProduct";
 import Cart from "./pages/Cart";
+import FooterBar from "./components/FooterBar";
 
 
 import { ToastContainer, toast } from 'react-toastify';
@@ -72,6 +73,7 @@ function App() {
                     element={<AppWrapper status={{ requiresAdmin: true }}><AllOrders /></AppWrapper>}
                 />
             </Routes>
+            <FooterBar />
         </div>
     );
 }

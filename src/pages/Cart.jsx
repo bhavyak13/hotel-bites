@@ -12,11 +12,11 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 const initialAddresses = [
-  "123, MG Road, Bangalore, Karnataka - 560001",
-  "456, Connaught Place, New Delhi, Delhi - 110001",
-  "789, Koregaon Park, Pune, Maharashtra - 411001",
-  "101, Park Street, Kolkata, West Bengal - 700016",
-  "55, Anna Salai, Chennai, Tamil Nadu - 600002"
+  "Old OPD , Safdarjung Hospital , New Delhi, Delhi - 110029",
+  "Main OPD , Safdarjung Hospital , New Delhi, Delhi - 110029",
+  "NEB , Safdarjung Hospital , New Delhi, Delhi - 110029",
+  "SSB , Safdarjung Hospital , New Delhi, Delhi - 110029",
+  "SIC , Safdarjung Hospital , New Delhi, Delhi - 110029"
 ];
 
 
@@ -26,6 +26,8 @@ const Cart = () => {
   const [finalPrice, setFinalPrice] = useState(0);
   const [selectedAddress, setSelectedAddress] = useState(""); // State for selected address
   const [addresses, setAddresses] = useState(initialAddresses); // Available addresses
+  const [landmark, setLandmark] = useState(""); // State for landmark
+  const [cookingInstructions, setCookingInstructions] = useState(""); // State for cooking instructions
   const [loading, setLoading] = useState(true);
 
 
@@ -96,7 +98,8 @@ const Cart = () => {
         })
       );
 
-
+      // Combine selected address with landmark
+      const fullAddress = `${selectedAddress}, Landmark: ${landmark}`;
 
       // ORDER PAYLOAD!!
       const payload = {
@@ -105,7 +108,8 @@ const Cart = () => {
         finalPrice: parseFloat(finalPrice),
         userId: firebase?.user?.uid || "",
         purchasedItems: purchasedItemsIds, // Store only the IDs of purchased items
-        address: selectedAddress,
+        address: fullAddress,
+        cookingInstructions: cookingInstructions, // Include cooking instructions
         _createdDate: new Date().toISOString(),
         deliveryPartnerId: 'EEqRTrY732ZaK27XRkjkJbjMq5E2', // default delivery partner id
       };
@@ -164,6 +168,17 @@ const Cart = () => {
               ))}
             </CardGroup>
 
+            {/* Cooking Instructions Input */}
+            <Form.Group className="mt-3">
+              <Form.Label>Enter Cooking Instructions/Preferences</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter any specific cooking instructions"
+                value={cookingInstructions}
+                onChange={(e) => setCookingInstructions(e.target.value)}
+              />
+            </Form.Group>
+
             {/* Address Dropdown */}
             <Form.Group className="mt-3">
               <Form.Label>Select Delivery Address</Form.Label>
@@ -178,6 +193,17 @@ const Cart = () => {
                   </option>
                 ))}
               </Form.Select>
+            </Form.Group>
+
+            {/* Landmark Input */}
+            <Form.Group className="mt-3">
+              <Form.Label>Enter Landmark</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter landmark near the address"
+                value={landmark}
+                onChange={(e) => setLandmark(e.target.value)}
+              />
             </Form.Group>
 
             <div className="final-price">

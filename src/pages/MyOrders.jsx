@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useFirebase } from "../context/Firebase";
-import { Card, ListGroup, Alert, Spinner, Form } from "react-bootstrap";
+import { Card, ListGroup, Alert, Spinner, Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import OrderFoodCard from "../components/OrderFoodCard";
 
@@ -19,9 +19,8 @@ const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
-  // console.log("BK orders:", orders);
-
+  const printRef = useRef(null); // Ref for printing
+//console.log("BK orders", orders);
   const getOrders = async () => {
     try {
       const fetchedOrders = await firebase.fetchOrders();
@@ -54,7 +53,6 @@ const MyOrders = () => {
     }
   };
 
-
   useEffect(() => {
     getOrders();
   }, [firebase]);
@@ -65,7 +63,6 @@ const MyOrders = () => {
     await getOrders();
     setLoading(false);
   };
-
 
   const formattedDate = (_createdDate) => {
     if (_createdDate)
@@ -78,8 +75,15 @@ const MyOrders = () => {
         second: '2-digit',
       });
     else return "";
-  }
+  };
 
+  const handlePrint = (orderId) => {
+    const printContent = document.getElementById(`order-${orderId}`);
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(printContent.innerHTML);
+    printWindow.document.close();
+    printWindow.print();
+  };
 
   if (loading) {
     return (
@@ -106,7 +110,7 @@ const MyOrders = () => {
           <Card.Header>
             <h5>Order ID: {order.orderId}</h5>
           </Card.Header>
-          <Card.Body>
+          <Card.Body id={`order-${order.orderId}`} ref={printRef}>
             <h6>
               Status:
               {firebase?.isAdmin ? (
@@ -126,6 +130,10 @@ const MyOrders = () => {
               )}
             </h6>
             <h6>Final Price: ₹{order.finalPrice}</h6>
+            <h6>
+              <strong>Cooking Instructions:</strong>{" "}
+              <span style={{ color: "red" }}>{order.cookingInstructions || "None"}</span>
+            </h6>
             <h6>Address: {order?.address}</h6>
 
 
@@ -136,7 +144,6 @@ const MyOrders = () => {
                 {formattedDate(order?._createdDate)}
               </h6>
             )}
-
             <hr />
             <h6>Purchased Items:</h6>
             <ListGroup>
@@ -151,6 +158,11 @@ const MyOrders = () => {
               ))}
             </ListGroup>
           </Card.Body>
+          <Card.Footer>
+            <Button variant="secondary" onClick={() => handlePrint(order.orderId)}>
+              Print Order
+            </Button>
+          </Card.Footer>
         </Card>
       ))}
     </div>

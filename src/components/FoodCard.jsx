@@ -43,7 +43,7 @@ const FoodCard = (data) => {
         <Card.Title>{name}</Card.Title>
         <Card.Text>{description}</Card.Text>
         <Card.Text>Status: <strong>{status}</strong></Card.Text>
-        <Card.Text>Price: <strong>{firstVariant?.priceOriginal || firstVariant?.priceOffer}</strong></Card.Text>
+        <Card.Text>Price: <strong>₹ {firstVariant?.priceOriginal || firstVariant?.priceOffer}</strong></Card.Text>
         <Button onClick={() => redirectToOtherPages("detail")} variant="primary">
           Details
         </Button>
