@@ -63,7 +63,7 @@ const DeliveryPartnerOrderScreen = () => {
 
   const handleStatusChange = async (orderId, newStatus) => {
     setLoading(true);
-    await firebase.updateOrderStatus(orderId, newStatus);
+    await firebase.updateOrderStatus(orderId, { status: newStatus });
     await getOrders();
     setLoading(false);
   };
