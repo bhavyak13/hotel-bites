@@ -40,8 +40,8 @@ import crypto from "crypto";
 
 initializeApp();
 
-const RAZORPAY_KEY_ID = "rzp_test_wQl3eEbOSfKEg6";
-const RAZORPAY_KEY_SECRET = "hcs4NcSwM7QxlWYDbrN9eQ4m";
+const RAZORPAY_KEY_ID = "";
+const RAZORPAY_KEY_SECRET = "";
 
 const razorpay = new Razorpay({
     key_id: RAZORPAY_KEY_ID,// process.env.RAZORPAY_KEY_ID,
