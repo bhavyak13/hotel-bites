@@ -114,6 +114,7 @@ const Cart = () => {
       data.map((item) => firebase.removeDocumentWithId("shoppingCartItems", item.id))
     );
     // navigate(`/orders/${orderRef.id}`);
+    setLoading(false); // LOADING START
     navigate(`/orders`);
     firebase.displayToastMessage("Order Placed successfully!");
   }
@@ -151,9 +152,16 @@ const Cart = () => {
 
 
   const handleCreateRazorpayPaymentsSuccess = async (payload) => {
-    await firebase.createRazorpayPaymentsSuccess(payload);
-    // postBuyNow();
-    postBuyNow(payload.orderId);
+    try {
+
+      await firebase.createRazorpayPaymentsSuccess(payload);
+      // postBuyNow();
+      postBuyNow(payload.orderId);
+    } catch (e) {
+      console.log(e);
+      setLoading(false);
+
+    }
 
   }
 
@@ -195,11 +203,14 @@ const Cart = () => {
       const rzp = new window.Razorpay(options);
       rzp.on("payment.failed", async function (response) {
         showFailureAlert();
+        setLoading(false);
       });
       rzp.open();
     }
     catch (e) {
       console.log("error in handlePayment function  : ", e)
+      setLoading(false);
+    } finally {
     }
   };
 
@@ -207,24 +218,24 @@ const Cart = () => {
 
   const handleBuyNow = async () => {
     try {
+
       if (!selectedAddress) { firebase.displayToastMessage("Please select an address before placing the order.", "error"); return; }
       if (data.length === 0) return;
-
+      setLoading(true); // LOADING START
       const createOrderPayload = {
         finalPrice,
         paymentMethod
       }
-
       const torderId = await firebase.createOrder(createOrderPayload);
-
       if (paymentMethod === 'online') {
         await handlePayment(torderId);
       } else {
         postBuyNow(torderId);
       }
-
     } catch (error) {
       console.error("Error placing order:", error);
+      setLoading(false);
+    } finally {
     }
   };
 
@@ -232,7 +243,7 @@ const Cart = () => {
     return (
       <div className="text-center mt-5">
         <Spinner animation="border" />
-        <p>loading Cart..</p>
+        <p>Processing..</p>
       </div>
     );
   }
