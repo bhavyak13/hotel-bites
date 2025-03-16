@@ -416,7 +416,7 @@ export const FirebaseProvider = (props) => {
   const createRazorpayOrder = async (orderPayload) => {
     try {
       const response = await axios.post(
-        "http://127.0.0.1:5001/hotel-bites/us-central1/createRazorPayOrder",
+        "https://us-central1-hotel-bites.cloudfunctions.net/createRazorPayOrder",
         orderPayload,
       );
       console.log("Order Created:", response.data);
@@ -441,7 +441,7 @@ export const FirebaseProvider = (props) => {
       const razorpayPaymentSuccessId = razorpayPaymentSuccessRef.id;
 
       const response = await axios.post(
-        "http://127.0.0.1:5001/hotel-bites/us-central1/verifyPaymentSignature",
+        "https://us-central1-hotel-bites.cloudfunctions.net/verifyPaymentSignature",
         { razorpayPaymentSuccessId },
       );
       console.log(response.data);
