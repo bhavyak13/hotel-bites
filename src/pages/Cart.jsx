@@ -101,6 +101,7 @@ const Cart = () => {
       cookingInstructions: cookingInstructions, // Include cooking instructions
       deliveryPartnerId: 'EEqRTrY732ZaK27XRkjkJbjMq5E2', // default delivery partner id
       paymentMethod,
+      status: 'Created',
     };
 
     console.log(orderPayload);

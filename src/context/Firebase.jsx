@@ -297,13 +297,20 @@ export const FirebaseProvider = (props) => {
       }
 
       const ordersRef = collection(firestore, "orders");
-      const q = query(ordersRef, where("userId", "==", user.uid));
+
+      const q = query(
+        ordersRef,
+        where("userId", "==", user.uid),
+        // where("status", "!=", "razorpayOrderCreationStart")
+      );
+
       const querySnapshot = await getDocs(q);
 
-      const ordersList = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const ordersList = querySnapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(order => order.status !== "razorpayOrderCreationStart"); // Manual filtering
+
+      return ordersList;
 
       return ordersList;
     } catch (error) {
@@ -311,6 +318,7 @@ export const FirebaseProvider = (props) => {
       return [];
     }
   };
+
 
 
   const fetchOrdersForDeliveryAgent = async (deliveryPartnerId) => {
@@ -327,7 +335,7 @@ export const FirebaseProvider = (props) => {
       const ordersList = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-      }));
+      })).filter(order => order.status !== "razorpayOrderCreationStart");
 
       return ordersList;
     } catch (error) {
@@ -349,7 +357,7 @@ export const FirebaseProvider = (props) => {
       const ordersList = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-      }));
+      })).filter(order => order.status !== "razorpayOrderCreationStart");
 
       return ordersList;
     } catch (error) {
@@ -458,7 +466,7 @@ export const FirebaseProvider = (props) => {
     const { finalPrice, paymentMethod } = createOrderPayload;
     let orderPayload = {
       orderId: generateUniqueId(), // Generate a unique order ID
-      status: paymentMethod === 'online' ? "razorpayOrderCreationStart" : 'CREATED',
+      status: paymentMethod === 'online' ? "razorpayOrderCreationStart" : 'Created',
       finalPrice: parseFloat(finalPrice),
       _createdDate: new Date().toISOString(),
     }
