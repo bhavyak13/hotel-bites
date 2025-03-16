@@ -380,7 +380,7 @@ export const FirebaseProvider = (props) => {
 
   const updateOrderStatus = async (orderId, payload) => {
     try {
-      console.log("BK orderId,payload", orderId, payload)
+      // console.log("bk orderId,payload", orderId, payload)
       if (!orderId || !payload) {
         throw new Error("Order ID and payload are required.");
       }
@@ -434,7 +434,7 @@ export const FirebaseProvider = (props) => {
   const createRazorpayPaymentsSuccess = async (payload) => {
     try {
 
-      console.log("BK HERE", payload);;
+      // console.log("bk HERE", payload);;
       const finalPayload = {
         razorpayOrderId: payload.razorpayOrderId,
         razorpayPaymentId: payload.paymentId,
@@ -456,7 +456,7 @@ export const FirebaseProvider = (props) => {
       if (razorpayPaymentSuccessSnap.data().paymentStatus === 'Done') {
         await updateDoc(orderRef, { razorpayPaymentId: payload.paymentId });
       }
-      console.log("BK pass 1");
+      // console.log("bk pass 1");
     }
     catch (e) {
       console.log("error in createRazorpayPaymentsSuccess function  : ", e)

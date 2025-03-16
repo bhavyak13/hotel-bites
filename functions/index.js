@@ -35,7 +35,7 @@ export const createRazorPayOrder = onRequest(async (req, res) => {
             return res.status(500).json({ error: "Missing Razorpay API keys!" });
         }
 
-        console.log("BK req body:", req.body);
+        // console.log("bk req body:", req.body);
 
         if (req.body.status !== "razorpayOrderCreationStart") {
             return res.status(400).json({ error: "Order status not matched" });

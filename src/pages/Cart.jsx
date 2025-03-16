@@ -75,7 +75,7 @@ const Cart = () => {
 
 
   const postBuyNow = async (orderId) => {
-    console.log("BK pass 2");
+    // console.log("bk pass 2");
 
     // Add each item to the "purchasedItems" collection and store only their IDs
     const purchasedItemsIds = await Promise.all(
@@ -106,7 +106,7 @@ const Cart = () => {
 
     console.log(orderPayload);
 
-    console.log("BK orderId,orderPayload", orderId, orderPayload)
+    // console.log("bk orderId,orderPayload", orderId, orderPayload)
     await firebase.updateOrderStatus(orderId, orderPayload);
 
     // Clear the shopping cart after successful order creation
