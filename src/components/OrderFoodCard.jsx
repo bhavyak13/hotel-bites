@@ -33,7 +33,7 @@ const OrderFoodCard = (data) => {
         <Card.Title>{name}</Card.Title>
         <Card.Text>quantity: {quantity}</Card.Text>
         <Card.Text>Price: <strong>₹ {variant?.priceOriginal || variant?.priceOffer}</strong></Card.Text>
-        <Card.Text>Total Price: <strong>₹ {finalPrice}</strong></Card.Text>
+        <Card.Text>Total Price: <strong>₹ {quantity * (variant?.priceOriginal || variant?.priceOffer)}</strong></Card.Text>
       </Card.Body>
     </Card>
   );
