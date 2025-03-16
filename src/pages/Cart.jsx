@@ -99,7 +99,7 @@ const Cart = () => {
       );
 
       // Combine selected address with landmark
-      const fullAddress = `${selectedAddress}, Landmark: ${landmark}`;
+      const fullAddress = selectedAddress + landmark ?? `Landmark: ${landmark}`;
 
       // ORDER PAYLOAD!!
       const payload = {
