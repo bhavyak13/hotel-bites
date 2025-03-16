@@ -152,6 +152,7 @@ const AllOrders = () => {
                     key={item.id}
                     id={item.id}
                     {...item}
+                    finalPrice={order?.finalPrice}
                   />
                 </ListGroup.Item>
               ))}
