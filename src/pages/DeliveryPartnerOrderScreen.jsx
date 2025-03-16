@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useFirebase } from "../context/Firebase";
-import { Card, ListGroup, Alert, Spinner, Form, Button, Image } from "react-bootstrap";
+import { Card, ListGroup, Alert, Spinner, Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import OrderFoodCard from "../components/OrderFoodCard";
 
 const ORDER_STATUSES = [
+  // "Created",
+  // "Processing",
+  // "Preparing",
+  // "Ready for Pickup",
   "Out for Delivery",
   "Delivered",
   "Cancelled"
@@ -14,8 +18,6 @@ const DeliveryPartnerOrderScreen = () => {
   const firebase = useFirebase();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedPaymentMode, setSelectedPaymentMode] = useState({}); // Track payment mode for each order
-  const [qrCodeUrl, setQrCodeUrl] = useState(null); // Store QR code URL
   const navigate = useNavigate();
 
   // console.log("BK DeliveryPartnerOrderScreen orders:", orders);
@@ -54,6 +56,7 @@ const DeliveryPartnerOrderScreen = () => {
     }
   };
 
+
   useEffect(() => {
     getOrders();
   }, [firebase]);
@@ -65,20 +68,6 @@ const DeliveryPartnerOrderScreen = () => {
     setLoading(false);
   };
 
-  const handlePaymentModeChange = async (orderId, mode) => {
-    setSelectedPaymentMode((prev) => ({
-      ...prev,
-      [orderId]: mode
-    }));
-
-    if (mode === "Spot Online Payment") {
-      // Fetch QR code URL from Firebase Storage
-      const qrUrl = await firebase.getQrCodeUrl(); // Replace with your Firebase function to fetch the QR code URL
-      setQrCodeUrl(qrUrl);
-    } else {
-      setQrCodeUrl(null); // Clear QR code if "Cash" is selected
-    }
-  };
 
   const formattedDate = (_createdDate) => {
     if (_createdDate)
@@ -91,7 +80,8 @@ const DeliveryPartnerOrderScreen = () => {
         second: '2-digit',
       });
     else return "";
-  };
+  }
+
 
   if (loading) {
     return (
@@ -119,7 +109,12 @@ const DeliveryPartnerOrderScreen = () => {
             <h5>Order ID: {order.orderId}</h5>
           </Card.Header>
           <Card.Body>
-            <h6>Status: {order.status}</h6>
+            <h6>
+              Status: {order.status}
+            </h6>
+
+
+
             <h6>Final Price: ₹{order.finalPrice}</h6>
             <h6>Address: {order?.address}</h6>
 
@@ -127,7 +122,8 @@ const DeliveryPartnerOrderScreen = () => {
             {/* Display created date */}
             {order?._createdDate && (
               <h6>
-                Created Date: {formattedDate(order?._createdDate)}
+                Created Date:{" "}
+                {formattedDate(order?._createdDate)}
               </h6>
             )}
 
@@ -136,52 +132,33 @@ const DeliveryPartnerOrderScreen = () => {
             <ListGroup>
               {order.purchasedItems?.map((item, idx) => (
                 <ListGroup.Item key={idx}>
-                  <OrderFoodCard key={item.id} id={item.id} {...item} />
+                  <OrderFoodCard
+                    key={item.id}
+                    id={item.id}
+                    {...item}
+                  />
                 </ListGroup.Item>
               ))}
             </ListGroup>
+            <Button
+              onClick={() => {
+                handleStatusChange(order.id, 'Delivered')
+              }}
+              variant="success"
+              disabled={order.status === 'Delivered' || order.status === 'Cancelled'}
+            >
+              Order delivered
+            </Button>
 
-            <div className="mt-3">
-              <h6>Select Payment Mode:</h6>
-              <Button
-                variant={selectedPaymentMode[order.id] === "Cash" ? "primary" : "outline-primary"}
-                onClick={() => handlePaymentModeChange(order.id, "Cash")}
-                className="me-2"
-              >
-                Cash
-              </Button>
-              <Button
-                variant={selectedPaymentMode[order.id] === "Spot Online Payment" ? "primary" : "outline-primary"}
-                onClick={() => handlePaymentModeChange(order.id, "Spot Online Payment")}
-              >
-                Spot Online Payment
-              </Button>
-            </div>
-
-            {selectedPaymentMode[order.id] === "Spot Online Payment" && qrCodeUrl && (
-              <div className="mt-3 text-center">
-                <h6>Scan the QR Code for Payment:</h6>
-                <Image src={qrCodeUrl} alt="QR Code" fluid style={{ maxWidth: "200px" }} />
-              </div>
-            )}
-
-            <div className="mt-3">
-              <Button
-                onClick={() => handleStatusChange(order.id, "Delivered")}
-                variant="success"
-                disabled={order.status === "Delivered" || order.status === "Cancelled"}
-                className="me-2"
-              >
-                Order Delivered
-              </Button>
-              <Button
-                onClick={() => handleStatusChange(order.id, "Cancelled")}
-                variant="danger"
-                disabled={order.status === "Delivered" || order.status === "Cancelled"}
-              >
-                Order Cancelled
-              </Button>
-            </div>
+            <Button
+              onClick={() => {
+                handleStatusChange(order.id, 'Cancelled')
+              }}
+              variant="danger"
+              disabled={order.status === 'Delivered' || order.status === 'Cancelled'}
+            >
+              Order Cancelled
+            </Button>
           </Card.Body>
         </Card>
       ))}
