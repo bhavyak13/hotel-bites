@@ -40,8 +40,10 @@ import crypto from "crypto";
 
 initializeApp();
 
-const RAZORPAY_KEY_ID = "";
-const RAZORPAY_KEY_SECRET = "";
+
+// ✅ Use environment variables stored in Firebase
+const RAZORPAY_KEY_ID = functions.config().razorpay.key_id || '';
+const RAZORPAY_KEY_SECRET = functions.config().razorpay.key_secret || '';
 
 const razorpay = new Razorpay({
     key_id: RAZORPAY_KEY_ID,// process.env.RAZORPAY_KEY_ID,
