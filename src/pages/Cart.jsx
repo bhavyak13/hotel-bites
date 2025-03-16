@@ -18,6 +18,18 @@ const initialAddresses = [
 
 
 const Cart = () => {
+
+  const paymentMethods = [
+    {
+      label: 'Online',
+      value: 'online'
+    },
+    {
+      label: 'COD',
+      value: 'cash-on-delivery',
+    },
+  ]
+
   const firebase = useFirebase();
   const [data, setData] = useState([]);
   const [finalPrice, setFinalPrice] = useState(0);
@@ -26,6 +38,8 @@ const Cart = () => {
   const [landmark, setLandmark] = useState(""); // State for landmark
   const [cookingInstructions, setCookingInstructions] = useState(""); // State for cooking instructions
   const [loading, setLoading] = useState(true);
+  const [paymentMethod, setPaymentMethod] = useState("online");
+
 
 
 
@@ -222,6 +236,9 @@ const Cart = () => {
   // dummy commit
 
 
+  
+
+
   return (
     <div className="home-page">
       {/* Advertisement Space */}
@@ -290,6 +307,27 @@ const Cart = () => {
             <div className="final-price">
               final price : {finalPrice}
             </div>
+
+            {/* Payment Method Selection */}
+            <div className="mt-3">
+              <h5>Select Payment Method</h5>
+              {paymentMethods.map((item, index) => (
+                <div key={index} className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="paymentMethod"
+                    id={item.value}
+                    value={item.value}
+                    checked={paymentMethod === item.value}
+                    onChange={() => setPaymentMethod(item.value)}
+                  />
+                  <label htmlFor={item.value} className="form-check-label">{item.label}</label>
+                </div>
+              ))}
+            </div>
+
+
             <Button onClick={() => handleBuyNow()} variant="primary">
               Place Order
             </Button>
