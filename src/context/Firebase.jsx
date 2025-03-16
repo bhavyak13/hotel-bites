@@ -418,12 +418,16 @@ export const FirebaseProvider = (props) => {
       const response = await axios.post(
         "https://us-central1-hotel-bites.cloudfunctions.net/createRazorPayOrder",
         orderPayload,
+        {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
       );
       console.log("Order Created:", response.data);
-
-      return response.data; // This contains order details from Razorpay
+      return response.data;
     } catch (error) {
-      console.error("Error creating order:", error);
+      console.error("Error creating order:", error.response?.data || error.message);
     }
   };
 
