@@ -7,6 +7,7 @@ import { Alert, Button, Form, Spinner } from "react-bootstrap";
 import CartFoodCard from "../components/CartFoodCard";
 import { useNavigate } from "react-router-dom";
 import "../pages/home.css";
+import { paymentMethods } from "../context/utils";
 
 const initialAddresses = [
   "Old OPD , Safdarjung Hospital , New Delhi, Delhi - 110029",
@@ -19,16 +20,6 @@ const initialAddresses = [
 
 const Cart = () => {
 
-  const paymentMethods = [
-    {
-      label: 'Online',
-      value: 'online'
-    },
-    {
-      label: 'COD',
-      value: 'cash-on-delivery',
-    },
-  ]
 
   const firebase = useFirebase();
   const [data, setData] = useState([]);
@@ -109,6 +100,7 @@ const Cart = () => {
       landmark,
       cookingInstructions: cookingInstructions, // Include cooking instructions
       deliveryPartnerId: 'EEqRTrY732ZaK27XRkjkJbjMq5E2', // default delivery partner id
+      paymentMethod,
     };
 
     console.log(orderPayload);
