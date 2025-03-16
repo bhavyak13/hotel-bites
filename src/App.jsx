@@ -17,10 +17,9 @@ import FooterBar from "./components/FooterBar";
 import { ToastContainer, toast } from 'react-toastify';
 import PaymentPage from "./pages/Payment";
 import OrderSuccess from "./pages/OrderSuccess";
-import MyOrders from "./pages/MyOrders";
-import AllOrders from "./pages/AllOrders";
 import AppWrapper from "./AppWrapper";
 import DeliveryPartnerOrderScreen from "./pages/DeliveryPartnerOrderScreen";
+import OrdersComponent from "./pages/Orders";
 
 function App() {
     return (
@@ -64,13 +63,15 @@ function App() {
                 />
                 <Route
                     path="/orders"
-                    element={<AppWrapper status={{ requiresLogin: true }}><MyOrders /></AppWrapper>}
+                    element={<AppWrapper status={{ requiresLogin: true }}><OrdersComponent /></AppWrapper>}
                 />
 
                 {/* Requires Admin */}
                 <Route
                     path="/orders/all"
-                    element={<AppWrapper status={{ requiresAdmin: true }}><AllOrders /></AppWrapper>}
+                    element={<AppWrapper status={{ requiresAdmin: true }}>
+                        <OrdersComponent isAdminView={true} />
+                    </AppWrapper>}
                 />
             </Routes>
             <FooterBar />

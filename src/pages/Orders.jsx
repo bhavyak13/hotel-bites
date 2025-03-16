@@ -14,37 +14,30 @@ const ORDER_STATUSES = [
   "Cancelled"
 ];
 
-const MyOrders = () => {
+const OrdersComponent = ({ isAdminView }) => {
   const firebase = useFirebase();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const printRef = useRef(null); // Ref for printing
-//console.log("BK orders", orders);
+  const printRef = useRef(null);
+
+  useEffect(() => {
+    if (isAdminView && !firebase?.isAdmin) {
+      navigate("/");
+    }
+  }, [firebase, isAdminView, navigate]);
+
   const getOrders = async () => {
     try {
-      const fetchedOrders = await firebase.fetchOrders();
-      // console.log("BK fetchedOrders", fetchedOrders);
-
-      // Map through orders and update each one's purchased items
+      const fetchedOrders = isAdminView ? await firebase.fetchAllOrders() : await firebase.fetchOrders();
       const ordersWithDetails = await Promise.all(
         fetchedOrders.map(async (order) => {
           const updatedPurchasedItems = await firebase.fetchPurchasedItemWithDetails(order.purchasedItems);
-          return {
-            ...order,
-            purchasedItems: updatedPurchasedItems
-          };
+          return { ...order, purchasedItems: updatedPurchasedItems };
         })
       );
 
-      // console.log("BK ordersWithDetails", ordersWithDetails);
-      // Sort orders by latest date (descending order)
-      const sortedOrders = ordersWithDetails.sort((a, b) =>
-        new Date(b._createdDate) - new Date(a._createdDate)
-      );
-
-      // console.log("BK sortedOrders", sortedOrders);
-
+      const sortedOrders = ordersWithDetails.sort((a, b) => new Date(b._createdDate) - new Date(a._createdDate));
       setOrders(sortedOrders);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -65,16 +58,9 @@ const MyOrders = () => {
   };
 
   const formattedDate = (_createdDate) => {
-    if (_createdDate)
-      return new Date(_createdDate).toLocaleString('en-GB', {
-        year: 'numeric',
-        month: 'long',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      });
-    else return "";
+    return _createdDate ? new Date(_createdDate).toLocaleString('en-GB', {
+      year: 'numeric', month: 'long', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'
+    }) : "";
   };
 
   const handlePrint = (orderId) => {
@@ -104,7 +90,7 @@ const MyOrders = () => {
 
   return (
     <div className="container mt-5">
-      <h3 className="mb-4">My Orders</h3>
+      <h3 className="mb-4">{isAdminView ? "All Orders" : "My Orders"}</h3>
       {orders?.map((order) => (
         <Card key={order.orderId} className="mb-3">
           <Card.Header>
@@ -120,9 +106,7 @@ const MyOrders = () => {
                   className="ms-2 d-inline w-auto"
                 >
                   {ORDER_STATUSES.map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
+                    <option key={status} value={status}>{status}</option>
                   ))}
                 </Form.Select>
               ) : (
@@ -130,45 +114,31 @@ const MyOrders = () => {
               )}
             </h6>
             <h6>Final Price: ₹{order.finalPrice}</h6>
-            <h6>
-              <strong>Cooking Instructions:</strong>{" "}
-              <span style={{ color: "red" }}>{order.cookingInstructions || "None"}</span>
-            </h6>
+            {order.cookingInstructions && <h6><strong>Cooking Instructions:</strong> <span style={{ color: "red" }}>{order.cookingInstructions}</span></h6>}
             <h6>Address: {order?.address}</h6>
-
-
-            {/* Display created date */}
-            {order?._createdDate && (
-              <h6>
-                Created Date:{" "}
-                {formattedDate(order?._createdDate)}
-              </h6>
-            )}
+            {isAdminView && <h6>Delivery Partner ID: {order?.deliveryPartnerId}</h6>}
+            {order?._createdDate && <h6>Created Date: {formattedDate(order?._createdDate)}</h6>}
             <hr />
             <h6>Purchased Items:</h6>
             <ListGroup>
               {order.purchasedItems?.map((item, idx) => (
                 <ListGroup.Item key={idx}>
-                  <OrderFoodCard
-                    key={item.id}
-                    id={item.id}
-                    {...item}
-                    finalPrice={order?.finalPrice}
-
-                  />
+                  <OrderFoodCard key={item.id} id={item.id} {...item} finalPrice={order?.finalPrice} />
                 </ListGroup.Item>
               ))}
             </ListGroup>
           </Card.Body>
-          <Card.Footer>
-            <Button variant="secondary" onClick={() => handlePrint(order.orderId)}>
-              Print Order
-            </Button>
-          </Card.Footer>
+          {!isAdminView && (
+            <Card.Footer>
+              <Button variant="secondary" onClick={() => handlePrint(order.orderId)}>
+                Print Order
+              </Button>
+            </Card.Footer>
+          )}
         </Card>
       ))}
     </div>
   );
 };
 
-export default MyOrders;
+export default OrdersComponent;
