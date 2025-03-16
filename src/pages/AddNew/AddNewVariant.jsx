@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { useFirebase } from "../context/Firebase";
+import { useFirebase } from "../../context/Firebase";
+
 import { useNavigate, useParams } from "react-router-dom";
 
 // Reusable input component
