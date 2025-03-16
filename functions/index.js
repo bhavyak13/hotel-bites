@@ -33,17 +33,14 @@ import { getFirestore } from "firebase-admin/firestore";
 
 import Razorpay from "razorpay";
 import crypto from "crypto";
-
-
-
-
+import dotenv from "dotenv";
 
 initializeApp();
+dotenv.config(); 
 
+const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
+const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
 
-// ✅ Use environment variables stored in Firebase
-const RAZORPAY_KEY_ID = functions.config().razorpay.key_id || '';
-const RAZORPAY_KEY_SECRET = functions.config().razorpay.key_secret || '';
 
 const razorpay = new Razorpay({
     key_id: RAZORPAY_KEY_ID,// process.env.RAZORPAY_KEY_ID,
@@ -51,6 +48,10 @@ const razorpay = new Razorpay({
 });
 
 export const createRazorPayOrder = onRequest(async (req, res) => {
+    if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+        throw new Error("Missing Razorpay API keys!");
+    }
+    
     logger.log("BK req body:", req.body);
 
     if (req.body.status !== 'razorpayOrderCreationStart') {
