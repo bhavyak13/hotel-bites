@@ -5,16 +5,16 @@ import FoodCard from "../components/FoodCard";
 import "../pages/home.css";
 import { Spinner } from "react-bootstrap";
 import { Button } from "react-bootstrap";
-import FooterBar from "../components/FooterBar"; 
+import FooterBar from "../components/FooterBar";
 
 const HomePage = () => {
   const firebase = useFirebase();
   const [data, setData] = useState([]); // Original data fetched from Firebase
   const [filteredData, setFilteredData] = useState([]); // Data filtered based on search input
   const [loading, setLoading] = useState(true);
-  const [loadingStatus, setLoadingStatus] = useState(true);
+  // const [loadingStatus, setLoadingStatus] = useState(true);
   const [searchQuery, setSearchQuery] = useState(""); // State for search input
-  const [siteIsOpen, setSiteIsOpen] = useState(true); // Assume site is open by default
+  // const [siteIsOpen, setSiteIsOpen] = useState(true); // Assume site is open by default
 
 
   useEffect(() => {
@@ -28,14 +28,14 @@ const HomePage = () => {
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-        const fetchSiteStatus = async () => {
-          const isOpen = await firebase.getSiteStatus();
-          setSiteIsOpen(isOpen);
-          setLoadingStatus(false);
-        };
-        fetchSiteStatus();
-      }, []);
+  // useEffect(() => {
+  //       const fetchSiteStatus = async () => {
+  //         const isOpen = await firebase.getSiteStatus();
+  //         setSiteIsOpen(isOpen);
+  //         setLoadingStatus(false);
+  //       };
+  //       fetchSiteStatus();
+  //     }, []);
 
   // Handle search input changes
   const handleSearch = (e) => {
@@ -51,7 +51,6 @@ const HomePage = () => {
   };
 
   if (loading) {
-    
     return (
       <div className="text-center mt-5">
         <Spinner animation="border" />
@@ -60,19 +59,20 @@ const HomePage = () => {
     );
   }
 
-  
+
+
   return (
     <div className="home-page">
       {/* Advertisement Space */}
       <div className="ad-container">Advertising space</div>
 
       {/* Header */}
-      {/* <div className="header">
+      <div className="header">
         <div className="menu-title">Menu</div>
         <div className="cart-icon-container">
           <div className="cart-icon">🛒</div>
         </div>
-      </div> */}
+      </div>
 
       {/* Search Bar */}
       <div className="search-container">
