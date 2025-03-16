@@ -8,8 +8,6 @@ import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
 import MyNavbar from "./components/Navbar";
 import BookDetailPage from "./pages/Detail";
-import AddNewVariant from "./pages/AddNewVariant";
-import AddNewProduct from "./pages/AddNewProduct";
 import Cart from "./pages/Cart";
 import FooterBar from "./components/FooterBar";
 
@@ -20,6 +18,8 @@ import OrderSuccess from "./pages/OrderSuccess";
 import AppWrapper from "./AppWrapper";
 import DeliveryPartnerOrderScreen from "./pages/DeliveryPartnerOrderScreen";
 import OrdersComponent from "./pages/Orders";
+import AddNewProduct from "./pages/AddNew/AddNewProduct";
+import AddNewVariant from "./pages/AddNew/AddNewVariant";
 
 function App() {
     return (
