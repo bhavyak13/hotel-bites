@@ -11,7 +11,7 @@ import crypto from "crypto";
 import dotenv from "dotenv";
 
 initializeApp();
-dotenv.config(); 
+dotenv.config();
 
 const RAZORPAY_KEY_ID = process.env.VITE_RAZORPAY_KEY_ID;
 const RAZORPAY_KEY_SECRET = process.env.VITE_RAZORPAY_KEY_SECRET;
@@ -23,33 +23,38 @@ const razorpay = new Razorpay({
     key_secret: RAZORPAY_KEY_SECRET,// process.env.RAZORPAY_KEY_SECRET,
 });
 
+
+
+import cors from "cors";
+
+const corsHandler = cors({ origin: true });
+
 export const createRazorPayOrder = onRequest(async (req, res) => {
-    if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
-        throw new Error("Missing Razorpay API keys!");
-    }
-    
-    logger.log("BK req body:", req.body);
+    return corsHandler(req, res, async () => {
+        if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+            return res.status(500).json({ error: "Missing Razorpay API keys!" });
+        }
 
-    if (req.body.status !== 'razorpayOrderCreationStart') {
-        return res.status(500).send('order status not matched');
-    }
+        console.log("BK req body:", req.body);
 
-    try {
-        const options = {
-            amount: req.body.finalPrice * 100, // Amount in paise
-            currency: "INR",
-            receipt: `order_rcptid_${Date.now()}`,
-            payment_capture: 1,
-        };
+        if (req.body.status !== "razorpayOrderCreationStart") {
+            return res.status(400).json({ error: "Order status not matched" });
+        }
 
-        const response = await razorpay.orders.create(options);
-        // logger.log("BK response:", response);
-        res.json(response);
+        try {
+            const options = {
+                amount: req.body.finalPrice * 100, // Amount in paise
+                currency: "INR",
+                receipt: `order_rcptid_${Date.now()}`,
+                payment_capture: 1,
+            };
 
-
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
+            const response = await razorpay.orders.create(options);
+            res.status(200).json(response);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    });
 });
 
 
@@ -71,51 +76,50 @@ const getDocById = async (id, collectionName) => {
 };
 
 // 🔹 Function to verify Razorpay payment signature
-export const verifyPaymentSignature = onRequest(async (req, res) => {
-    try {
-        const { razorpayPaymentSuccessId } = req.body; // Use `req.body` instead of `req`
-        if (!razorpayPaymentSuccessId) {
-            return res.status(400).json({ error: "razorpayPaymentSuccessId ID is required" });
+export const verifyPaymentSignature = onRequest((req, res) => {
+    corsHandler(req, res, async () => {
+        try {
+            const { razorpayPaymentSuccessId } = req.body;
+            if (!razorpayPaymentSuccessId) {
+                return res.status(400).json({ error: "razorpayPaymentSuccessId ID is required" });
+            }
+            console.log("razorpayPaymentSuccessId:", razorpayPaymentSuccessId);
+
+            // Fetch order details from Firestore
+            const razorpayPaymentSuccessRef = await getDocById(razorpayPaymentSuccessId, "razorpayPaymentSuccess");
+            const data = razorpayPaymentSuccessRef.data();
+            const { orderId } = data;
+
+            const orderRef = await getDocById(orderId, "orders");
+
+            console.log("razorpayPaymentSuccessData:", data);
+
+            if (!data || !data.razorpayOrderId || !data.razorpayPaymentId || !data.razorpaySignature) {
+                return res.status(400).json({ error: "Invalid razorpayPaymentSuccessData data" });
+            }
+
+            if (!orderRef || !orderRef.id) {
+                return res.status(400).json({ error: "Invalid order data" });
+            }
+
+            // Generate HMAC SHA256 signature
+            const hmac = crypto.createHmac("sha256", RAZORPAY_KEY_SECRET);
+            hmac.update(data.razorpayOrderId + "|" + data.razorpayPaymentId);
+            const generatedSignature = hmac.digest("hex");
+
+            if (generatedSignature === data.razorpaySignature) {
+                // Update order status in Firestore
+                await orderRef.ref.update({ razorpayPaymentStatus: "Done" });
+
+                console.log("Payment verification successful for order:", orderId);
+                return res.json({ success: true, message: "Payment verified successfully" });
+            } else {
+                console.error("Payment signature verification failed for order:", orderId);
+                return res.status(400).json({ error: "Signature verification failed" });
+            }
+        } catch (error) {
+            console.error("Error verifying payment signature:", error);
+            return res.status(500).json({ error: error.message });
         }
-        logger.log("razorpayPaymentSuccessId:", razorpayPaymentSuccessId);
-
-
-        // Fetch order details from Firestore
-        const razorpayPaymentSuccessRef = await getDocById(razorpayPaymentSuccessId, "razorpayPaymentSuccess");
-        const data = razorpayPaymentSuccessRef.data();
-        const { orderId } = data;
-
-        const orderRef = await getDocById(orderId, "orders");
-
-
-        logger.log("razorpayPaymentSuccessData:", data);
-
-
-        if (!data || !data.razorpayOrderId || !data.razorpayPaymentId || !data.razorpaySignature) {
-            return res.status(400).json({ error: "Invalid razorpayPaymentSuccessData data" });
-        }
-
-        if (!orderRef || !orderRef.id) {
-            return res.status(400).json({ error: "Invalid order data" });
-        }
-
-        // Generate HMAC SHA256 signature
-        const hmac = crypto.createHmac("sha256", RAZORPAY_KEY_SECRET);
-        hmac.update(data.razorpayOrderId + "|" + data.razorpayPaymentId);
-        const generatedSignature = hmac.digest("hex");
-
-        if (generatedSignature === data.razorpaySignature) {
-            // Update order status in Firestore
-            await orderRef.ref.update({ razorpayPaymentStatus: "Done" });
-
-            logger.log("Payment verification successful for order:", orderId);
-            return res.json({ success: true, message: "Payment verified successfully" });
-        } else {
-            logger.error("Payment signature verification failed for order:", orderId);
-            return res.status(400).json({ error: "Signature verification failed" });
-        }
-    } catch (error) {
-        logger.error("Error verifying payment signature:", error);
-        return res.status(500).json({ error: error.message });
-    }
+    });
 });
