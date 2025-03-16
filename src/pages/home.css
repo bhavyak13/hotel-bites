@@ -2,6 +2,8 @@
 .home-page {
     font-family: Arial, sans-serif;
     padding: 20px;
+    background-color: var(--secondary-color);
+
   }
   
   /* Advertisement */
@@ -25,6 +27,7 @@
   .menu-title {
     font-size: 2rem;
     font-weight: bold;
+    color: var(--primary-color);
   }
   .cart-icon-container {
       margin-right: 10px;

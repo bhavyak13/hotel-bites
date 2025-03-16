@@ -4,6 +4,7 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import { useFirebase } from "../context/Firebase";
+import "./Navbar.css"; // Import the CSS file
 
 const BASE_URL = "/hotel-bites";
 
@@ -13,9 +14,9 @@ const MyNavbar = () => {
   const { isAdmin, isDeliveryPartner } = firebase;
 
   return (
-    <Navbar bg="dark" variant="dark">
+    <Navbar>
       <Container>
-        <Navbar.Brand as={Link} to={`/`}>Menu</Navbar.Brand>
+        <Navbar.Brand as={Link} to={`/`}>Kalra Catrers</Navbar.Brand>
         <Nav className="ms-auto"> {/* Added ms-auto to shift items to the right */}
           {isAdmin &&
             <Nav.Link as={Link} to={`/products/new`}>Add New Product</Nav.Link>
