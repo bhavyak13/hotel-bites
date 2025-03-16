@@ -27,6 +27,10 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 import Razorpay from "razorpay";
 import { toast } from "react-toastify";
+import axios from "axios";
+
+import { v4 as uuidv4 } from 'uuid';
+
 
 const FirebaseContext = createContext(null);
 
@@ -366,18 +370,17 @@ export const FirebaseProvider = (props) => {
     toast(toastMessage);
   }
 
-
-  const updateOrderStatus = async (orderId, newStatus) => {
+  const updateOrderStatus = async (orderId, payload) => {
     try {
-      if (!orderId || !newStatus) {
-        throw new Error("Order ID and new status are required.");
+      console.log("BK orderId,payload",orderId,payload)
+      if (!orderId || !payload) {
+        throw new Error("Order ID and payload are required.");
       }
-      // console.log("BK orderId || !newStatus", orderId, newStatus)
 
       const orderRef = doc(firestore, "orders", orderId);
-      await updateDoc(orderRef, { status: newStatus });
+      await updateDoc(orderRef, payload);
 
-      console.log(`Order ${orderId} status updated to ${newStatus}`);
+      console.log(`Order ${orderId} updated!`)
     } catch (error) {
       console.error("Error updating order status:", error);
     }
@@ -394,24 +397,90 @@ export const FirebaseProvider = (props) => {
 
   /*************** RAZORPAY function begin  **************/
 
-  const createOrder = async () => {
-    // // console.log("BK createOrder begin");
-    // var instance = new Razorpay({
-    //   key_id: import.meta.env.VITE_RAZORPAY_KEY_ID,
-    //   key_secret: import.meta.env.VITE_RAZORPAY_KEY_SECRET,
-    // })
-    // // // console.log("BK instance :", instance);
 
-    // const res = await instance.orders.create({
-    //   amount: 5000,
-    //   currency: "INR",
-    //   receipt: "receipt#1",
-    //   notes: {
-    //     key1: "value3",
-    //     key2: "value2"
-    //   }
-    // })
-    // // // console.log("BK res :", res);
+
+
+  const generateUniqueId = () => {
+    return uuidv4();
+  };
+
+
+  const createRazorpayOrder = async (orderPayload) => {
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:5001/hotel-bites/us-central1/createRazorPayOrder",
+        orderPayload,
+      );
+      console.log("Order Created:", response.data);
+
+      return response.data; // This contains order details from Razorpay
+    } catch (error) {
+      console.error("Error creating order:", error);
+    }
+  };
+
+  const createRazorpayPaymentsSuccess = async (payload) => {
+    try {
+
+      console.log("BK HERE", payload);;
+      const finalPayload = {
+        razorpayOrderId: payload.razorpayOrderId,
+        razorpayPaymentId: payload.paymentId,
+        razorpaySignature: payload.signature,
+        orderId: payload.orderId
+      };
+      const razorpayPaymentSuccessRef = await handleCreateNewDoc(finalPayload, 'razorpayPaymentSuccess')
+      const razorpayPaymentSuccessId = razorpayPaymentSuccessRef.id;
+
+      const response = await axios.post(
+        "http://127.0.0.1:5001/hotel-bites/us-central1/verifyPaymentSignature",
+        { razorpayPaymentSuccessId },
+      );
+      console.log(response.data);
+
+      const razorpayPaymentSuccessSnap = await getDoc(razorpayPaymentSuccessRef);
+
+      const orderRef = doc(firestore, "orders", payload.orderId);
+      if (razorpayPaymentSuccessSnap.data().paymentStatus === 'Done') {
+        await updateDoc(orderRef, { razorpayPaymentId: payload.paymentId });
+      }
+      console.log("BK pass 1");
+    }
+    catch (e) {
+      console.log("error in createRazorpayPaymentsSuccess function  : ", e)
+    }
+  }
+
+  
+  const createOrder = async (finalPrice) => {
+    // ORDER PAYLOAD!!
+    let orderPayload = {
+      orderId: generateUniqueId(), // Generate a unique order ID
+      status: "razorpayOrderCreationStart",
+      finalPrice: parseFloat(finalPrice)
+    }
+
+    // create razorpay order
+    const razorpayOrderRef = await createRazorpayOrder(orderPayload); // Amount in INR
+    const razorpayOrderId = razorpayOrderRef.id;
+
+    orderPayload = {
+      ...orderPayload,
+      razorpayOrderId,
+    }
+
+    // create order 
+    const orderRef = await handleCreateNewDoc(orderPayload, "orders");
+
+    // Fetch the document snapshot
+    // const orderSnap = await getDoc(orderRef);
+    // const orderData = {
+    //   ...orderSnap.data(),
+    //   id: orderRef.id
+    // };
+    // console.log("BK orderRef.id,razorpayOrderRef, orderSnap.data(), orderData", orderRef.id, razorpayOrderRef, orderSnap.data(), orderData);
+    // await handlePayment(orderData);
+    return orderRef.id;
   }
 
 
@@ -489,7 +558,9 @@ export const FirebaseProvider = (props) => {
 
         displayToastMessage,
         checkIsItemAlreadyInCart,
+        // createRazorpayOrder,
         createOrder,
+        createRazorpayPaymentsSuccess,
       }}
     >
       {props.children}
