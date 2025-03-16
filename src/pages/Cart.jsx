@@ -38,7 +38,7 @@ const Cart = () => {
   const [landmark, setLandmark] = useState(""); // State for landmark
   const [cookingInstructions, setCookingInstructions] = useState(""); // State for cooking instructions
   const [loading, setLoading] = useState(true);
-  const [paymentMethod, setPaymentMethod] = useState("online");
+  const [paymentMethod, setPaymentMethod] = useState("cash-on-delivery");
 
 
 
