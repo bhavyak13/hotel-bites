@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { useFirebase } from "../context/firebase";
+import { useFirebase } from "../context/Firebase";
 
 
 const RegisterPage = () => {
@@ -22,12 +22,17 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Signin up a user...");
-    const result = await firebase.signupUserWithEmailAndPassword(
-      email,
-      password
-    );
-    console.log("Successfull", result);
+    try {
+      console.log("Signin up a user...");
+      const result = await firebase.signupUserWithEmailAndPassword(
+        email,
+        password
+      );
+      console.log("Successfull", result);
+    } catch (err) {
+      console.log("Unsuccessfull", err.message,err);
+      firebase.displayToastMessage(err.message);
+    }
   };
 
   return (

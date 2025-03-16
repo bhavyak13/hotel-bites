@@ -1,0 +1,19 @@
+.footer-bar {
+  position: sticky;
+  bottom: 0;
+  background-color: var(--primary-color); /* Use the primary color */
+    z-index: 1000;
+    box-shadow: var(--box-shadow); /* Add a subtle shadow */
+    padding: 10px 20px;
+}
+
+.footer-bar a {
+    color: var(--text-light-color); /* Ensure links match the footer text color */
+    text-decoration: none; /* Remove underline from links */
+    margin: 0 5px; /* Add spacing between links */
+    font-weight: bold; /* Make links bold */
+  }
+
+  .main-content {
+    flex: 1; /* Push the footer to the bottom */
+  }

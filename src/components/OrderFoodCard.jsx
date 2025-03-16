@@ -11,7 +11,7 @@ const OrderFoodCard = (data) => {
   const { name, description, status, productImage } = data?.product;
   const { variant , finalPrice} = data;
 
-  console.log("BK data", data);
+  // console.log("BK data", data);
 
   const firebase = useFirebase();
   const navigate = useNavigate();
@@ -32,8 +32,8 @@ const OrderFoodCard = (data) => {
       <Card.Body>
         <Card.Title>{name}</Card.Title>
         <Card.Text>quantity: {quantity}</Card.Text>
-        <Card.Text>Price: <strong>{variant?.priceOriginal || variant?.priceOffer}</strong></Card.Text>
-        <Card.Text>Total Price: <strong>INR {finalPrice}</strong></Card.Text>
+        <Card.Text>Price: <strong>₹ {variant?.priceOriginal || variant?.priceOffer}</strong></Card.Text>
+        <Card.Text>Total Price: <strong>₹ {finalPrice}</strong></Card.Text>
       </Card.Body>
     </Card>
   );

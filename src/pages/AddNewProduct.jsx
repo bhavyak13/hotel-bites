@@ -53,7 +53,7 @@ const AddNewProduct = () => {
 
   // Handle input changes
   const handleChange = (e) => {
-    // // console.log("BK : e: ", e, e.target.name, e.target.value);
+    // // // console.log("BK : e: ", e, e.target.name, e.target.value);
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -71,7 +71,7 @@ const AddNewProduct = () => {
       productImage: coverPic,
     };
 
-    // // console.log("BK finaldata",finalData,coverPic);
+    // // // console.log("BK finaldata",finalData,coverPic);
 
     await firebase.handleCreateNewDoc(
       finalData,

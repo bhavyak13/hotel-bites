@@ -68,7 +68,7 @@ export const FirebaseProvider = (props) => {
 
   const handleCreateNewDoc = async (data, collectionName) => {
     let uploadResult = '';
-    // console.log("BK data2",data);
+    // // console.log("BK data2",data);
     if (data && data?.productImage) {
       const { productImage } = data;
       const imageRef = ref(storage, `uploads/images/${Date.now()}-${productImage.name}`);
@@ -77,14 +77,14 @@ export const FirebaseProvider = (props) => {
         ...data,
         productImage: uploadResult?.ref?.fullPath || '',
       }
-      // console.log("BK imageRef,uploadResult", imageRef, uploadResult);
+      // // console.log("BK imageRef,uploadResult", imageRef, uploadResult);
     }
     let docRef;
     docRef = await addDoc(collection(firestore, collectionName), {
       ...data,
       userId: user?.uid || "",
     });
-    // console.log("BK handleCreateNewDoc docRef.id, docRef:", docRef.id, docRef);
+    // // console.log("BK handleCreateNewDoc docRef.id, docRef:", docRef.id, docRef);
     return docRef;
   };
 
@@ -95,7 +95,7 @@ export const FirebaseProvider = (props) => {
       ...data,
       userId: user?.uid || "",
     });
-    // console.log("BK handleCreateNewDoc docRef.id, docRef:", docRef.id, docRef);
+    // // console.log("BK handleCreateNewDoc docRef.id, docRef:", docRef.id, docRef);
     return docRef;
   };
 
@@ -109,7 +109,7 @@ export const FirebaseProvider = (props) => {
   const getSubCollectionAllDocuments = async (collection1Name, collection1Id, collection2Name) => {
     const collectionRef = collection(firestore, collection1Name, collection1Id, collection2Name);
     const querySnapshot = await getDocs(collectionRef);
-    // console.log("BK getSubCollectionAllDocuments res", querySnapshot);
+    // // console.log("BK getSubCollectionAllDocuments res", querySnapshot);
     return querySnapshot;
   };
 
@@ -174,7 +174,7 @@ export const FirebaseProvider = (props) => {
     try {
       // Step 1: Fetch all cart items (single query)
 
-      if(!user)return null;
+      if (!user) return null;
 
       const cartRef = collection(firestore, collectionName);
       const q = query(cartRef, where("userId", "==", user.uid));
@@ -219,24 +219,24 @@ export const FirebaseProvider = (props) => {
     try {
       // Step 1: Fetch all cart items (single query)
 
-      if(!user)return null;
-      if(!data?.length)return null;
-      console.log("BK Data2",data);
-      
-      
+      if (!user) return null;
+      if (!data?.length) return null;
+      // console.log("BK Data2", data);
+
+
       const purchasedItemPromises = data.map(cartItem =>
         getDoc(doc(firestore, "purchasedItems", cartItem))
       );
-      
+
       let purchasedItemSnapshots = await Promise.all(purchasedItemPromises);
 
-      console.log("BK purchasedItemSnapshots",purchasedItemSnapshots);
+      // console.log("BK purchasedItemSnapshots", purchasedItemSnapshots);
       purchasedItemSnapshots = purchasedItemSnapshots.map((cartItem, index) => (
         cartItem.data()
       ));
-      console.log("BK purchasedItemSnapshots2",purchasedItemSnapshots);
-      
-      
+      // console.log("BK purchasedItemSnapshots2", purchasedItemSnapshots);
+
+
       // Step 2: Prepare product & variant fetch promises
       const productPromises = purchasedItemSnapshots.map(cartItem =>
         getDoc(doc(firestore, "products", cartItem.productId))
@@ -308,6 +308,30 @@ export const FirebaseProvider = (props) => {
     }
   };
 
+
+  const fetchOrdersForDeliveryAgent = async (deliveryPartnerId) => {
+    try {
+      if (!deliveryPartnerId) {
+        console.error("No delivery partner found");
+        return [];
+      }
+
+      const ordersRef = collection(firestore, "orders");
+      const q = query(ordersRef, where("deliveryPartnerId", "==", deliveryPartnerId));
+      const querySnapshot = await getDocs(q);
+
+      const ordersList = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      return ordersList;
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      return [];
+    }
+  };
+
   const fetchAllOrders = async () => {
     try {
       if (!user || !user?.uid) {
@@ -348,7 +372,7 @@ export const FirebaseProvider = (props) => {
       if (!orderId || !newStatus) {
         throw new Error("Order ID and new status are required.");
       }
-      console.log("BK orderId || !newStatus", orderId, newStatus)
+      // console.log("BK orderId || !newStatus", orderId, newStatus)
 
       const orderRef = doc(firestore, "orders", orderId);
       await updateDoc(orderRef, { status: newStatus });
@@ -371,12 +395,12 @@ export const FirebaseProvider = (props) => {
   /*************** RAZORPAY function begin  **************/
 
   const createOrder = async () => {
-    // console.log("BK createOrder begin");
+    // // console.log("BK createOrder begin");
     // var instance = new Razorpay({
     //   key_id: import.meta.env.VITE_RAZORPAY_KEY_ID,
     //   key_secret: import.meta.env.VITE_RAZORPAY_KEY_SECRET,
     // })
-    // // console.log("BK instance :", instance);
+    // // // console.log("BK instance :", instance);
 
     // const res = await instance.orders.create({
     //   amount: 5000,
@@ -387,7 +411,7 @@ export const FirebaseProvider = (props) => {
     //     key2: "value2"
     //   }
     // })
-    // // console.log("BK res :", res);
+    // // // console.log("BK res :", res);
   }
 
 
@@ -396,6 +420,7 @@ export const FirebaseProvider = (props) => {
 
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isDeliveryPartner, setIsDeliveryPartner] = useState(false);
 
   useEffect(() => {
     onAuthStateChanged(firebaseAuth, (user) => {
@@ -418,11 +443,17 @@ export const FirebaseProvider = (props) => {
   };
 
   useEffect(() => {
-    console.log("BK user", user, user?.uid)
-    if (user && user?.uid == "ukEdfieQ7FaI4rpITgxbtWyBuZZ2") {
-      setIsAdmin(true);
-    } else {
+    // console.log("BK user", user, user?.uid)
+    if (user) {
+      if (user?.uid == "ukEdfieQ7FaI4rpITgxbtWyBuZZ2") {
+        setIsAdmin(true);
+      } else if (user?.uid == "EEqRTrY732ZaK27XRkjkJbjMq5E2") {
+        setIsDeliveryPartner(true);
+      }
+    }
+    else {
       if (isAdmin) setIsAdmin(false);
+      if (isDeliveryPartner) setIsDeliveryPartner(false);
     }
   }, [user])
 
@@ -433,6 +464,8 @@ export const FirebaseProvider = (props) => {
         isLoggedIn,
         user,
         isAdmin,
+        isDeliveryPartner,
+        fetchOrdersForDeliveryAgent,
 
         singinUserWithEmailAndPass,
         signupUserWithEmailAndPassword,

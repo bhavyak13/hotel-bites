@@ -1,0 +1,31 @@
+.navbar {
+    position: sticky;
+    top: 0;
+    background-color: var(--primary-color); /* Use the primary color */
+    z-index: 1000;
+    box-shadow: var(--box-shadow); /* Add a subtle shadow */
+    padding: 10px 20px;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: var(--text-light-color); /* Use the light text color */
+}
+
+.btn-light {
+background-color: var(--text-light-color); /* White */
+color: var(--primary-color); /* Primary color text */
+border: none; /* Remove border */
+border-radius: var(--border-radius);
+padding: 8px 16px;
+transition: background-color 0.3s ease;
+}
+
+.btn-light:hover {
+background-color: var(--accent-color); /* Accent color on hover */
+}
+
+.navbar-nav .nav-link {
+    color: var(--text-light-color);
+}

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useFirebase } from "../context/Firebase";
-import { Card, ListGroup, Alert, Spinner, Form } from "react-bootstrap";
+import { Card, ListGroup, Alert, Spinner, Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import OrderFoodCard from "../components/OrderFoodCard";
 
@@ -14,18 +14,17 @@ const ORDER_STATUSES = [
   "Cancelled"
 ];
 
-const AllOrders = () => {
+const MyOrders = () => {
   const firebase = useFirebase();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
-  console.log("BK orders:", orders);
-
+  const printRef = useRef(null); // Ref for printing
+//console.log("BK orders", orders);
   const getOrders = async () => {
     try {
       const fetchedOrders = await firebase.fetchOrders();
-      console.log("BK fetchedOrders", fetchedOrders);
+      // console.log("BK fetchedOrders", fetchedOrders);
 
       // Map through orders and update each one's purchased items
       const ordersWithDetails = await Promise.all(
@@ -38,13 +37,13 @@ const AllOrders = () => {
         })
       );
 
-      console.log("BK ordersWithDetails", ordersWithDetails);
+      // console.log("BK ordersWithDetails", ordersWithDetails);
       // Sort orders by latest date (descending order)
       const sortedOrders = ordersWithDetails.sort((a, b) =>
         new Date(b._createdDate) - new Date(a._createdDate)
       );
 
-      console.log("BK sortedOrders", sortedOrders);
+      // console.log("BK sortedOrders", sortedOrders);
 
       setOrders(sortedOrders);
     } catch (error) {
@@ -53,7 +52,6 @@ const AllOrders = () => {
       setLoading(false);
     }
   };
-
 
   useEffect(() => {
     getOrders();
@@ -66,7 +64,6 @@ const AllOrders = () => {
     setLoading(false);
   };
 
-
   const formattedDate = (_createdDate) => {
     if (_createdDate)
       return new Date(_createdDate).toLocaleString('en-GB', {
@@ -78,8 +75,15 @@ const AllOrders = () => {
         second: '2-digit',
       });
     else return "";
-  }
+  };
 
+  const handlePrint = (orderId) => {
+    const printContent = document.getElementById(`order-${orderId}`);
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(printContent.innerHTML);
+    printWindow.document.close();
+    printWindow.print();
+  };
 
   if (loading) {
     return (
@@ -106,7 +110,7 @@ const AllOrders = () => {
           <Card.Header>
             <h5>Order ID: {order.orderId}</h5>
           </Card.Header>
-          <Card.Body>
+          <Card.Body id={`order-${order.orderId}`} ref={printRef}>
             <h6>
               Status:
               {firebase?.isAdmin ? (
@@ -126,6 +130,10 @@ const AllOrders = () => {
               )}
             </h6>
             <h6>Final Price: ₹{order.finalPrice}</h6>
+            <h6>
+              <strong>Cooking Instructions:</strong>{" "}
+              <span style={{ color: "red" }}>{order.cookingInstructions || "None"}</span>
+            </h6>
             <h6>Address: {order?.address}</h6>
 
 
@@ -136,7 +144,6 @@ const AllOrders = () => {
                 {formattedDate(order?._createdDate)}
               </h6>
             )}
-
             <hr />
             <h6>Purchased Items:</h6>
             <ListGroup>
@@ -151,10 +158,15 @@ const AllOrders = () => {
               ))}
             </ListGroup>
           </Card.Body>
+          <Card.Footer>
+            <Button variant="secondary" onClick={() => handlePrint(order.orderId)}>
+              Print Order
+            </Button>
+          </Card.Footer>
         </Card>
       ))}
     </div>
   );
 };
 
-export default AllOrders;
+export default MyOrders;
