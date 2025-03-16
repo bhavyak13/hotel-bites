@@ -372,7 +372,7 @@ export const FirebaseProvider = (props) => {
 
   const updateOrderStatus = async (orderId, payload) => {
     try {
-      console.log("BK orderId,payload",orderId,payload)
+      console.log("BK orderId,payload", orderId, payload)
       if (!orderId || !payload) {
         throw new Error("Order ID and payload are required.");
       }
@@ -451,23 +451,28 @@ export const FirebaseProvider = (props) => {
     }
   }
 
-  
-  const createOrder = async (finalPrice) => {
+
+  const createOrder = async (createOrderPayload) => {
     // ORDER PAYLOAD!!
+
+    const { finalPrice, paymentMethod } = createOrderPayload;
     let orderPayload = {
       orderId: generateUniqueId(), // Generate a unique order ID
-      status: "razorpayOrderCreationStart",
+      status: paymentMethod === 'online' ? "razorpayOrderCreationStart" : 'CREATED',
       finalPrice: parseFloat(finalPrice),
       _createdDate: new Date().toISOString(),
     }
 
     // create razorpay order
-    const razorpayOrderRef = await createRazorpayOrder(orderPayload); // Amount in INR
-    const razorpayOrderId = razorpayOrderRef.id;
 
-    orderPayload = {
-      ...orderPayload,
-      razorpayOrderId,
+    if (paymentMethod === 'online') {
+      const razorpayOrderRef = await createRazorpayOrder(orderPayload); // Amount in INR
+      const razorpayOrderId = razorpayOrderRef.id;
+
+      orderPayload = {
+        ...orderPayload,
+        razorpayOrderId,
+      }
     }
 
     // create order 

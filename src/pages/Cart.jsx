@@ -217,8 +217,18 @@ const Cart = () => {
       if (!selectedAddress) { firebase.displayToastMessage("Please select an address before placing the order.", "error"); return; }
       if (data.length === 0) return;
 
-      const torderId = await firebase.createOrder(finalPrice);
-      await handlePayment(torderId);
+      const createOrderPayload = {
+        finalPrice,
+        paymentMethod
+      }
+
+      const torderId = await firebase.createOrder(createOrderPayload);
+
+      if (paymentMethod === 'online') {
+        await handlePayment(torderId);
+      } else {
+        postBuyNow(torderId);
+      }
 
     } catch (error) {
       console.error("Error placing order:", error);
@@ -236,7 +246,7 @@ const Cart = () => {
   // dummy commit
 
 
-  
+
 
 
   return (
