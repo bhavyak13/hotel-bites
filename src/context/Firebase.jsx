@@ -457,7 +457,8 @@ export const FirebaseProvider = (props) => {
     let orderPayload = {
       orderId: generateUniqueId(), // Generate a unique order ID
       status: "razorpayOrderCreationStart",
-      finalPrice: parseFloat(finalPrice)
+      finalPrice: parseFloat(finalPrice),
+      _createdDate: new Date().toISOString(),
     }
 
     // create razorpay order

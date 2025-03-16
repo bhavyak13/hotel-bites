@@ -94,7 +94,6 @@ const Cart = () => {
       address: fullAddress,
       landmark,
       cookingInstructions: cookingInstructions, // Include cooking instructions
-      _createdDate: new Date().toISOString(),
       deliveryPartnerId: 'EEqRTrY732ZaK27XRkjkJbjMq5E2', // default delivery partner id
     };
 
