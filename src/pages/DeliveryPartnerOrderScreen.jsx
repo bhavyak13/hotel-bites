@@ -127,6 +127,11 @@ const DeliveryPartnerOrderScreen = () => {
               </h6>
             )}
 
+            {order?.paymentMethod && <h6>Payment Method: {order?.paymentMethod}</h6>}
+            {order?.razorpayPaymentStatus &&
+              <h6>Payment Status: {order?.razorpayPaymentStatus === 'Done' ? "Paid" : 'Pending'}</h6>
+            }
+
             <hr />
             <h6>Purchased Items:</h6>
             <ListGroup>
