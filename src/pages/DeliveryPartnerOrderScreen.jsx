@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useFirebase } from "../context/Firebase";
-import { Card, ListGroup, Alert, Spinner, Form, Button } from "react-bootstrap";
+import { Card, ListGroup, Alert, Spinner, Button, Image } from "react-bootstrap"; // Import Image
 import { useNavigate } from "react-router-dom";
 import OrderFoodCard from "../components/OrderFoodCard";
 
 const ORDER_STATUSES = [
-  // "Created",
-  // "Processing",
-  // "Preparing",
-  // "Ready for Pickup",
   "Out for Delivery",
   "Delivered",
-  "Cancelled"
+  "Cancelled",
 ];
 
 const DeliveryPartnerOrderScreen = () => {
@@ -20,33 +16,27 @@ const DeliveryPartnerOrderScreen = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // console.log("BK DeliveryPartnerOrderScreen orders:", orders);
-
   const getOrders = async () => {
     try {
       const deliveryAgentId = firebase?.user?.uid;
-      // console.log("BK DeliveryPartnerOrderScreen deliveryAgentId", deliveryAgentId);
-      const fetchedOrders = await firebase.fetchOrdersForDeliveryAgent(deliveryAgentId);
-      // console.log("BK DeliveryPartnerOrderScreen fetchedOrders", fetchedOrders);
+      const fetchedOrders = await firebase.fetchOrdersForDeliveryAgent(
+        deliveryAgentId
+      );
 
-      // Map through orders and update each one's purchased items
       const ordersWithDetails = await Promise.all(
         fetchedOrders.map(async (order) => {
-          const updatedPurchasedItems = await firebase.fetchPurchasedItemWithDetails(order.purchasedItems);
+          const updatedPurchasedItems =
+            await firebase.fetchPurchasedItemWithDetails(order.purchasedItems);
           return {
             ...order,
-            purchasedItems: updatedPurchasedItems
+            purchasedItems: updatedPurchasedItems,
           };
         })
       );
 
-      // console.log("BK DeliveryPartnerOrderScreen ordersWithDetails", ordersWithDetails);
-      // Sort orders by latest date (descending order)
-      const sortedOrders = ordersWithDetails.sort((a, b) =>
-        new Date(b._createdDate) - new Date(a._createdDate)
+      const sortedOrders = ordersWithDetails.sort(
+        (a, b) => new Date(b._createdDate) - new Date(a._createdDate)
       );
-
-      // console.log("BK DeliveryPartnerOrderScreen sortedOrders", sortedOrders);
 
       setOrders(sortedOrders);
     } catch (error) {
@@ -56,32 +46,42 @@ const DeliveryPartnerOrderScreen = () => {
     }
   };
 
-
   useEffect(() => {
     getOrders();
   }, [firebase]);
 
   const handleStatusChange = async (orderId, newStatus) => {
-    setLoading(true);
-    await firebase.updateOrderStatus(orderId, { status: newStatus });
-    await getOrders();
-    setLoading(false);
+    try {
+      setLoading(true);
+      await firebase.updateOrderStatus(orderId, { status: newStatus });
+      await getOrders();
+      console.log(`Order ${orderId} status updated to ${newStatus}`);
+    } catch (error) {
+      console.error("Error updating order status:", error);
+      alert("Error updating order status. Please try again."); // User friendly error message.
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const handleConfirmDelivery = async (orderId) => {
+    if (window.confirm("Are you sure you want to mark this order as delivered?")) {
+      await handleStatusChange(orderId, "Delivered");
+    }
+  };
 
   const formattedDate = (_createdDate) => {
     if (_createdDate)
-      return new Date(_createdDate).toLocaleString('en-GB', {
-        year: 'numeric',
-        month: 'long',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
+      return new Date(_createdDate).toLocaleString("en-GB", {
+        year: "numeric",
+        month: "long",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
       });
     else return "";
-  }
-
+  };
 
   if (loading) {
     return (
@@ -109,29 +109,23 @@ const DeliveryPartnerOrderScreen = () => {
             <h5>Order ID: {order.orderId}</h5>
           </Card.Header>
           <Card.Body>
-            <h6>
-              Status: {order.status}
-            </h6>
-
-
-
+            <h6>Status: {order.status}</h6>
             <h6>Final Price: ₹{order.finalPrice}</h6>
             <h6>Address: {order?.address}</h6>
-
-
-            {/* Display created date */}
             {order?._createdDate && (
               <h6>
-                Created Date:{" "}
-                {formattedDate(order?._createdDate)}
+                Created Date: {formattedDate(order?._createdDate)}
               </h6>
             )}
-
-            {order?.paymentMethod && <h6>Payment Method: {order?.paymentMethod}</h6>}
-            {order?.razorpayPaymentStatus &&
-              <h6>Payment Status: {order?.razorpayPaymentStatus === 'Done' ? "Paid" : 'Pending'}</h6>
-            }
-
+            {order?.paymentMethod && (
+              <h6>Payment Method: {order?.paymentMethod}</h6>
+            )}
+            {order?.razorpayPaymentStatus && (
+              <h6>
+                Payment Status:{" "}
+                {order?.razorpayPaymentStatus === "Done" ? "Paid" : "Pending"}
+              </h6>
+            )}
             <hr />
             <h6>Purchased Items:</h6>
             <ListGroup>
@@ -142,27 +136,31 @@ const DeliveryPartnerOrderScreen = () => {
                     id={item.id}
                     {...item}
                     finalPrice={order?.finalPrice}
-
                   />
                 </ListGroup.Item>
               ))}
             </ListGroup>
-            <Button
-              onClick={() => {
-                handleStatusChange(order.id, 'Delivered')
-              }}
-              variant="success"
-              disabled={order.status === 'Delivered' || order.status === 'Cancelled'}
-            >
-              Order delivered
-            </Button>
+
+            {/* Added QR Code Image */}
+            <div className="text-center mt-3">
+              <Image src="/images/paytm-qr.png" alt="Paytm QR Code" fluid />
+            </div>
 
             <Button
               onClick={() => {
-                handleStatusChange(order.id, 'Cancelled')
+                handleConfirmDelivery(order.id);
+              }}
+              variant="success"
+              disabled={order.status === "Delivered" || order.status === "Cancelled"}
+            >
+              Order delivered
+            </Button>
+            <Button
+              onClick={() => {
+                handleStatusChange(order.id, "Cancelled");
               }}
               variant="danger"
-              disabled={order.status === 'Delivered' || order.status === 'Cancelled'}
+              disabled={order.status === "Delivered" || order.status === "Cancelled"}
             >
               Order Cancelled
             </Button>
