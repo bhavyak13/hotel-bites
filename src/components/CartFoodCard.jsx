@@ -34,8 +34,8 @@ const CartFoodCard = (data) => {
         <Card.Text>{description}</Card.Text>
         <Card.Text>Status: <strong>{status}</strong></Card.Text>
         <Card.Text>quantity: {quantity}</Card.Text>
-        <Card.Text>Price: <strong>{variant?.priceOriginal || variant?.priceOffer}</strong></Card.Text>
-        <Card.Text>Total Price: <strong>INR {quantity * (variant?.priceOriginal || variant?.priceOffer)}</strong></Card.Text>
+        <Card.Text>Price: <strong>{variant?.priceOffer || variant?.priceOriginal}</strong></Card.Text>
+        <Card.Text>Total Price: <strong>INR {quantity * (variant?.priceOffer || variant?.priceOriginal)}</strong></Card.Text>
 
         <Button onClick={async () => {
           await handleRemoveDocument(id);

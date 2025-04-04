@@ -56,7 +56,7 @@ const FoodCard = (data) => {
           <Card.Text>Status: <strong>{status}</strong></Card.Text>
         )}
         <Card.Text>
-          Price: <strong>₹ {firstVariant?.priceOriginal || firstVariant?.priceOffer}</strong>
+          Price: <strong>₹ {firstVariant?.priceOffer || firstVariant?.priceOriginal}</strong>
         </Card.Text>
         {!firebase.isAdmin && isActive && (
           <Button onClick={() => redirectToOtherPages("detail")} variant="primary">

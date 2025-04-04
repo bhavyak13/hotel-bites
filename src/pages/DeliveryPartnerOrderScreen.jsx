@@ -63,7 +63,7 @@ const DeliveryPartnerOrderScreen = () => {
 
   const handleStatusChange = async (orderId, newStatus) => {
     setLoading(true);
-    await firebase.updateOrderStatus(orderId, newStatus);
+    await firebase.updateOrderStatus(orderId, { status: newStatus });
     await getOrders();
     setLoading(false);
   };
@@ -127,6 +127,11 @@ const DeliveryPartnerOrderScreen = () => {
               </h6>
             )}
 
+            {order?.paymentMethod && <h6>Payment Method: {order?.paymentMethod}</h6>}
+            {order?.razorpayPaymentStatus &&
+              <h6>Payment Status: {order?.razorpayPaymentStatus === 'Done' ? "Paid" : 'Pending'}</h6>
+            }
+
             <hr />
             <h6>Purchased Items:</h6>
             <ListGroup>
@@ -136,6 +141,8 @@ const DeliveryPartnerOrderScreen = () => {
                     key={item.id}
                     id={item.id}
                     {...item}
+                    finalPrice={order?.finalPrice}
+
                   />
                 </ListGroup.Item>
               ))}
