@@ -43,8 +43,6 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_APP_ID,
 };
 
-// // console.("BK firebaseConfig", firebaseConfig);
-
 
 export const useFirebase = () => useContext(FirebaseContext);
 
@@ -72,7 +70,6 @@ export const FirebaseProvider = (props) => {
 
   const handleCreateNewDoc = async (data, collectionName) => {
     let uploadResult = '';
-    // // console.log("BK data2",data);
     if (data && data?.productImage) {
       const { productImage } = data;
       const imageRef = ref(storage, `uploads/images/${Date.now()}-${productImage.name}`);
@@ -81,14 +78,12 @@ export const FirebaseProvider = (props) => {
         ...data,
         productImage: uploadResult?.ref?.fullPath || '',
       }
-      // // console.log("BK imageRef,uploadResult", imageRef, uploadResult);
     }
     let docRef;
     docRef = await addDoc(collection(firestore, collectionName), {
       ...data,
       userId: user?.uid || "",
     });
-    // // console.log("BK handleCreateNewDoc docRef.id, docRef:", docRef.id, docRef);
     return docRef;
   };
 
@@ -99,13 +94,11 @@ export const FirebaseProvider = (props) => {
       ...data,
       userId: user?.uid || "",
     });
-    // // console.log("BK handleCreateNewDoc docRef.id, docRef:", docRef.id, docRef);
     return docRef;
   };
 
   const getDocuments = async (collectionName) => {
     const querySnapshot = await getDocs(collection(firestore, collectionName));
-    // // console.log("Document data:", querySnapshot);
     return querySnapshot;
   };
 
@@ -113,7 +106,6 @@ export const FirebaseProvider = (props) => {
   const getSubCollectionAllDocuments = async (collection1Name, collection1Id, collection2Name) => {
     const collectionRef = collection(firestore, collection1Name, collection1Id, collection2Name);
     const querySnapshot = await getDocs(collectionRef);
-    // // console.log("BK getSubCollectionAllDocuments res", querySnapshot);
     return querySnapshot;
   };
 
@@ -124,39 +116,37 @@ export const FirebaseProvider = (props) => {
     return result;
   };
 
-  const fetchProductsWithFirstVariant = async () => {
-    try {
-      // Step 1: Fetch all products
-      const productsSnapshot = await getDocs(collection(firestore, "products"));
-      const products = productsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+    const fetchProductsWithFirstVariant = async () => {
+        try {
+            // Step 1: Fetch all products
+            const productsSnapshot = await getDocs(collection(firestore, "products"));
+            const products = productsSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
 
-      // Step 2: Fetch first variant for each product
-      const variantPromises = products.map(async (product) => {
-        const variantQuery = query(
-          collection(firestore, `products/${product.id}/variants`),
-          limit(1) // Get only the first variant
-        );
+            // Step 2: Fetch first variant for each product
+            const variantPromises = products.map(async (product) => {
+                const variantQuery = query(
+                    collection(firestore, `products/${product.id}/variants`),
+                    limit(1) // Get only the first variant
+                );
 
-        const variantSnapshot = await getDocs(variantQuery);
-        const firstVariant = variantSnapshot.docs.length > 0
-          ? { id: variantSnapshot.docs[0].id, ...variantSnapshot.docs[0].data() }
-          : null;
+                const variantSnapshot = await getDocs(variantQuery);
+                const firstVariant = variantSnapshot.docs.length > 0
+                    ? { id: variantSnapshot.docs[0].id, ...variantSnapshot.docs[0].data() }
+                    : null;
 
-        return { ...product, firstVariant }; // Attach first variant to product
-      });
+                return { ...product, firstVariant }; // Attach first variant to product
+            });
 
-      // Step 3: Resolve all promises in parallel
-      const productsWithVariants = await Promise.all(variantPromises);
-      // console.log("Products with first variants:", productsWithVariants);
-
-      return productsWithVariants;
-    } catch (error) {
-      console.error("Error fetching products with variants:", error);
-    }
-  };
+            // Step 3: Resolve all promises in parallel
+            const productsWithVariants = await Promise.all(variantPromises);
+            return productsWithVariants;
+        } catch (error) {
+            console.error("Error fetching products with variants:", error);
+        }
+    };
 
   const removeDocumentWithId = async (collectionName, docId) => {
     try {
@@ -167,56 +157,54 @@ export const FirebaseProvider = (props) => {
       const docRef = doc(firestore, collectionName, docId);
       await deleteDoc(docRef);
 
-      // console.log(`Document with ID ${docId} deleted successfully from ${collectionName}`);
     } catch (error) {
       console.error("Error deleting document:", error);
     }
   }
 
 
-  const fetchCartWithDetails = async (collectionName) => {
-    try {
-      // Step 1: Fetch all cart items (single query)
+    const fetchCartWithDetails = async (collectionName) => {
+        try {
+            // Step 1: Fetch all cart items (single query)
 
-      if (!user) return null;
+            if (!user) return null;
 
-      const cartRef = collection(firestore, collectionName);
-      const q = query(cartRef, where("userId", "==", user.uid));
-      const cartSnapshot = await getDocs(q);
+            const cartRef = collection(firestore, collectionName);
+            const q = query(cartRef, where("userId", "==", user.uid));
+            const cartSnapshot = await getDocs(q);
 
 
 
-      const cartItems = cartSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(), // Contains productId & variantId
-      }));
+            const cartItems = cartSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(), // Contains productId & variantId
+            }));
 
-      // Step 2: Prepare product & variant fetch promises
-      const productPromises = cartItems.map(cartItem =>
-        getDoc(doc(firestore, "products", cartItem.productId))
-      );
+            // Step 2: Prepare product & variant fetch promises
+            const productPromises = cartItems.map(cartItem =>
+                getDoc(doc(firestore, "products", cartItem.productId))
+            );
 
-      const variantPromises = cartItems.map(cartItem =>
-        getDoc(doc(firestore, `products/${cartItem.productId}/variants`, cartItem.variantId))
-      );
+            const variantPromises = cartItems.map(cartItem =>
+                getDoc(doc(firestore, `products/${cartItem.productId}/variants`, cartItem.variantId))
+            );
 
-      // Step 3: Fetch all products & variants concurrently
-      const productSnapshots = await Promise.all(productPromises);
-      const variantSnapshots = await Promise.all(variantPromises);
+            // Step 3: Fetch all products & variants concurrently
+            const productSnapshots = await Promise.all(productPromises);
+            const variantSnapshots = await Promise.all(variantPromises);
 
-      // Step 4: Map cart items with product & variant details
-      const cartWithDetails = cartItems.map((cartItem, index) => ({
-        ...cartItem,
-        product: productSnapshots[index].exists() ? { id: productSnapshots[index].id, ...productSnapshots[index].data() } : null,
-        variant: variantSnapshots[index].exists() ? { id: variantSnapshots[index].id, ...variantSnapshots[index].data() } : null,
-      }));
+            // Step 4: Map cart items with product & variant details
+            const cartWithDetails = cartItems.map((cartItem, index) => ({
+                ...cartItem,
+                product: productSnapshots[index].exists() ? { id: productSnapshots[index].id, ...productSnapshots[index].data() } : null,
+                variant: variantSnapshots[index].exists() ? { id: variantSnapshots[index].id, ...variantSnapshots[index].data() } : null,
+            }));
 
-      // console.log("Cart with product & variant details:", cartWithDetails);
-      return cartWithDetails;
-    } catch (error) {
-      console.error("Error fetching cart details:", error);
-    }
-  };
+            return cartWithDetails;
+        } catch (error) {
+            console.error("Error fetching cart details:", error);
+        }
+    };
 
 
   const fetchPurchasedItemWithDetails = async (data) => {
@@ -225,8 +213,6 @@ export const FirebaseProvider = (props) => {
 
       if (!user) return null;
       if (!data?.length) return null;
-      // console.log("BK Data2", data);
-
 
       const purchasedItemPromises = data.map(cartItem =>
         getDoc(doc(firestore, "purchasedItems", cartItem))
@@ -234,11 +220,9 @@ export const FirebaseProvider = (props) => {
 
       let purchasedItemSnapshots = await Promise.all(purchasedItemPromises);
 
-      // console.log("BK purchasedItemSnapshots", purchasedItemSnapshots);
       purchasedItemSnapshots = purchasedItemSnapshots.map((cartItem, index) => (
         cartItem.data()
       ));
-      // console.log("BK purchasedItemSnapshots2", purchasedItemSnapshots);
 
 
       // Step 2: Prepare product & variant fetch promises
@@ -261,7 +245,6 @@ export const FirebaseProvider = (props) => {
         variant: variantSnapshots[index].exists() ? { id: variantSnapshots[index].id, ...variantSnapshots[index].data() } : null,
       }));
 
-      // console.log("Cart with product & variant details:", cartWithDetails);
       return cartWithDetails;
     } catch (error) {
       console.error("Error fetching cart details:", error);
@@ -289,37 +272,37 @@ export const FirebaseProvider = (props) => {
   };
 
 
-  const fetchOrders = async () => {
-    try {
-      if (!user?.uid) {
-        console.error("User is not logged in");
-        return [];
-      }
+    const fetchOrders = async () => {
+        try {
+            if (!user?.uid) {
+                console.error("User is not logged in");
+                return [];
+            }
 
-      const ordersRef = collection(firestore, "orders");
+            const ordersRef = collection(firestore, "orders");
+            const q = query(
+                ordersRef,
+                where("userId", "==", user.uid),
+                // where("status", "!=", "razorpayOrderCreationStart")  // Removed this line
+            );
+            const querySnapshot = await getDocs(q);
 
-      const q = query(
-        ordersRef,
-        where("userId", "==", user.uid),
-        // where("status", "!=", "razorpayOrderCreationStart")
-      );
+            const ordersList = querySnapshot.docs.map(doc => {
+                const orderData = doc.data();
+                console.log("Order Data for orderId", doc.id, ":", orderData);
+                return {
+                    id: doc.id,
+                    ...orderData,
+                };
+            });
+            // .filter(order => order.status !== "razorpayOrderCreationStart"); // Removed filter
 
-      const querySnapshot = await getDocs(q);
-
-      const ordersList = querySnapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter(order => order.status !== "razorpayOrderCreationStart"); // Manual filtering
-
-      return ordersList;
-
-      return ordersList;
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-      return [];
-    }
-  };
-
-
+            return ordersList;
+        } catch (error) {
+            console.error("Error fetching orders:", error);
+            return [];
+        }
+    };
 
   const fetchOrdersForDeliveryAgent = async (deliveryPartnerId) => {
     try {
@@ -344,28 +327,31 @@ export const FirebaseProvider = (props) => {
     }
   };
 
-  const fetchAllOrders = async () => {
-    try {
-      if (!user || !user?.uid) {
-        console.error("User is not logged in");
-        return [];
-      }
+    const fetchAllOrders = async () => {
+        try {
+            if (!user || !user?.uid) {
+                console.error("User is not logged in");
+                return [];
+            }
 
-      const ordersRef = collection(firestore, "orders");
-      const querySnapshot = await getDocs(ordersRef);
+            const ordersRef = collection(firestore, "orders");
+            const querySnapshot = await getDocs(ordersRef);
 
-      const ordersList = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      })).filter(order => order.status !== "razorpayOrderCreationStart");
+            const ordersList = querySnapshot.docs.map(doc => {
+              const orderData = doc.data();
+              console.log("All Order Data for orderId", doc.id, ":", orderData);
+                return {
+                    id: doc.id,
+                    ...doc.data(),
+                }
+            }).filter(order => order.status !== "razorpayOrderCreationStart");
 
-      return ordersList;
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-      return [];
-    }
-  };
-
+            return ordersList;
+        } catch (error) {
+            console.error("Error fetching orders:", error);
+            return [];
+        }
+    };
 
 
   const getImageURL = (path) => {
@@ -380,7 +366,6 @@ export const FirebaseProvider = (props) => {
 
   const updateOrderStatus = async (orderId, payload) => {
     try {
-      // console.log("bk orderId,payload", orderId, payload)
       if (!orderId || !payload) {
         throw new Error("Order ID and payload are required.");
       }
@@ -434,7 +419,6 @@ export const FirebaseProvider = (props) => {
   const createRazorpayPaymentsSuccess = async (payload) => {
     try {
 
-      // console.log("bk HERE", payload);;
       const finalPayload = {
         razorpayOrderId: payload.razorpayOrderId,
         razorpayPaymentId: payload.paymentId,
@@ -456,7 +440,6 @@ export const FirebaseProvider = (props) => {
       if (razorpayPaymentSuccessSnap.data().paymentStatus === 'Done') {
         await updateDoc(orderRef, { razorpayPaymentId: payload.paymentId });
       }
-      // console.log("bk pass 1");
     }
     catch (e) {
       console.log("error in createRazorpayPaymentsSuccess function  : ", e)
@@ -465,20 +448,16 @@ export const FirebaseProvider = (props) => {
 
 
   const createOrder = async (createOrderPayload) => {
-    // ORDER PAYLOAD!!
-
     const { finalPrice, paymentMethod } = createOrderPayload;
     let orderPayload = {
-      orderId: generateUniqueId(), // Generate a unique order ID
+      orderId: generateUniqueId(),
       status: paymentMethod === 'online' ? "razorpayOrderCreationStart" : 'Created',
       finalPrice: parseFloat(finalPrice),
       _createdDate: new Date().toISOString(),
     }
 
-    // create razorpay order
-
     if (paymentMethod === 'online') {
-      const razorpayOrderRef = await createRazorpayOrder(orderPayload); // Amount in INR
+      const razorpayOrderRef = await createRazorpayOrder(orderPayload);
       const razorpayOrderId = razorpayOrderRef.id;
 
       orderPayload = {
@@ -487,17 +466,9 @@ export const FirebaseProvider = (props) => {
       }
     }
 
-    // create order 
     const orderRef = await handleCreateNewDoc(orderPayload, "orders");
 
-    // Fetch the document snapshot
-    // const orderSnap = await getDoc(orderRef);
-    // const orderData = {
-    //   ...orderSnap.data(),
-    //   id: orderRef.id
-    // };
-    // console.log("BK orderRef.id,razorpayOrderRef, orderSnap.data(), orderData", orderRef.id, razorpayOrderRef, orderSnap.data(), orderData);
-    // await handlePayment(orderData);
+
     return orderRef.id;
   }
 
@@ -530,7 +501,6 @@ export const FirebaseProvider = (props) => {
   };
 
   useEffect(() => {
-    // console.log("BK user", user, user?.uid)
     if (user) {
       if (user?.uid == "ukEdfieQ7FaI4rpITgxbtWyBuZZ2") {
         setIsAdmin(true);
@@ -576,7 +546,6 @@ export const FirebaseProvider = (props) => {
 
         displayToastMessage,
         checkIsItemAlreadyInCart,
-        // createRazorpayOrder,
         createOrder,
         createRazorpayPaymentsSuccess,
       }}

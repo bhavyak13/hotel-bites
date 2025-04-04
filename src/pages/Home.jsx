@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
-import CardGroup from "react-bootstrap/CardGroup";
+import { Spinner } from "react-bootstrap";
 import { useFirebase } from "../context/Firebase";
 import FoodCard from "../components/FoodCard";
 import "../pages/home.css";
-import { Spinner } from "react-bootstrap";
-import { Button } from "react-bootstrap";
-import FooterBar from "../components/FooterBar";
 
 const HomePage = () => {
   const firebase = useFirebase();
@@ -16,9 +13,12 @@ const HomePage = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      await firebase.fetchProductsWithFirstVariant().then((data) => {
-        setData(data);
-        setFilteredData(data);
+      await firebase.fetchProductsWithFirstVariant().then((products) => {
+        const activeProducts = products.filter(
+          (product) => product.status === "active"
+        ); // Filter active products here
+        setData(activeProducts);
+        setFilteredData(activeProducts); // Initialize filtered data with active products
       });
       setLoading(false);
     };
@@ -33,7 +33,7 @@ const HomePage = () => {
       (item) =>
         (item.name.toLowerCase().includes(query) ||
           item.description.toLowerCase().includes(query)) &&
-        item.status === "active" // Ensure only active items are shown
+        item.status === "active"
     );
     setFilteredData(filtered);
   };
@@ -68,9 +68,9 @@ const HomePage = () => {
       <div className="menu-container">
         <div className="menu-list">
           {filteredData.length > 0 ? (
-            filteredData
-              .filter((item) => item.status === "active") // Filtering inactive items
-              .map((item) => <FoodCard key={item.id} {...item} />)
+            filteredData.map((item) => (
+              <FoodCard key={item.id} {...item} />
+            ))
           ) : (
             <p className="text-center mt-4">No items match your search.</p>
           )}
