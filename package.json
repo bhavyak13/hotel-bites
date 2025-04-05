@@ -1,5 +1,6 @@
 {
-  "name": "my-app",
+  "name": "hotel-bites",
+  "homepage": "https://bhavyak13.github.io/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
