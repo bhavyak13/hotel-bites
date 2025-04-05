@@ -4,8 +4,8 @@
     --accent-color: #FFD700; /* Gold (Accent - for buttons, highlights) */
     --text-color: #333333; /* Dark Gray (Text) */
     --text-light-color: #FFFFFF; /* White (for text over dark backgrounds) */
-     --heading-font: 'Montserrat', sans-serif;
-     --body-font: 'Open Sans', sans-serif;
+    --heading-font: 'Montserrat', sans-serif;
+    --body-font: 'Open Sans', sans-serif;
     --border-radius: 8px; /* Consistent border radius */
     --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
@@ -13,10 +13,30 @@
 body {
     font-family: var(--body-font);
     color: var(--text-color);
-    padding-bottom: 100px;
     background-color: var(--secondary-color);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--heading-font);
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.content-wrapper {
+    flex: 1;
+}
+
+footer {
+    background: #333;
+    color: white;
+    text-align: center;
+    padding: 10px;
 }

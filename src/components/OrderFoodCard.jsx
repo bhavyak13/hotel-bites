@@ -25,7 +25,6 @@ const OrderFoodCard = (data) => {
 
 
 
-
   return (
     <Card style={{ width: "18rem", margin: "25px" }}>
       {url && <Card.Img variant="top" src={url} alt={name} />}

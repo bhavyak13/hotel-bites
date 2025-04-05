@@ -53,7 +53,9 @@ const FoodCard = (data) => {
         <Card.Title>{name}</Card.Title>
         <Card.Text>{description}</Card.Text>
         {firebase.isAdmin && (
-          <Card.Text>Status: <strong>{status}</strong></Card.Text>
+          <Card.Text>
+            Status: <strong>{status}</strong>
+          </Card.Text>
         )}
         <Card.Text>
           Price: <strong>₹ {firstVariant?.priceOffer || firstVariant?.priceOriginal}</strong>
@@ -65,7 +67,7 @@ const FoodCard = (data) => {
         )}
         {firebase.isAdmin && (
           <Button onClick={() => redirectToOtherPages("variant")} variant="primary">
-            Add New Variant
+            Edit New Variant {/* Changed button text here */}
           </Button>
         )}
       </Card.Body>

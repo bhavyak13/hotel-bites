@@ -6,7 +6,6 @@ import OrderFoodCard from "../components/OrderFoodCard";
 
 const ORDER_STATUSES = [
   "Created",
-  // "Processing",
   "Preparing",
   "Ready for Pickup",
   "Out for Delivery",
@@ -20,6 +19,7 @@ const OrdersComponent = ({ isAdminView }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const printRef = useRef(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (isAdminView && !firebase?.isAdmin) {
@@ -27,24 +27,34 @@ const OrdersComponent = ({ isAdminView }) => {
     }
   }, [firebase, isAdminView, navigate]);
 
-  const getOrders = async () => {
-    try {
-      const fetchedOrders = isAdminView ? await firebase.fetchAllOrders() : await firebase.fetchOrders();
-      const ordersWithDetails = await Promise.all(
-        fetchedOrders.map(async (order) => {
-          const updatedPurchasedItems = await firebase.fetchPurchasedItemWithDetails(order.purchasedItems);
-          return { ...order, purchasedItems: updatedPurchasedItems };
-        })
-      );
+    const getOrders = async () => {
+        try {
+            if (!firebase?.user?.uid) {
+                console.error("User is not logged in");
+                return [];
+            }
 
-      const sortedOrders = ordersWithDetails.sort((a, b) => new Date(b._createdDate) - new Date(a._createdDate));
-      setOrders(sortedOrders);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+            const fetchedOrders = isAdminView
+                ? await firebase.fetchAllOrders()
+                : await firebase.fetchOrders();
+
+            const ordersWithDetails = await Promise.all(
+                fetchedOrders.map(async (order) => {
+                    const updatedPurchasedItems = await firebase.fetchPurchasedItemWithDetails(order.purchasedItems);
+                    return { ...order, purchasedItems: updatedPurchasedItems };
+                })
+            );
+
+            const sortedOrders = ordersWithDetails.sort(
+                (a, b) => new Date(b._createdDate) - new Date(a._createdDate)
+            );
+            setOrders(sortedOrders);
+        } catch (error) {
+            console.error("Error fetching orders:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
   useEffect(() => {
     getOrders();
@@ -58,9 +68,16 @@ const OrdersComponent = ({ isAdminView }) => {
   };
 
   const formattedDate = (_createdDate) => {
-    return _createdDate ? new Date(_createdDate).toLocaleString('en-GB', {
-      year: 'numeric', month: 'long', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'
-    }) : "";
+    return _createdDate
+      ? new Date(_createdDate).toLocaleString('en-GB', {
+        year: 'numeric',
+        month: 'long',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      })
+      : "";
   };
 
   const handlePrint = (orderId) => {
@@ -70,6 +87,22 @@ const OrdersComponent = ({ isAdminView }) => {
     printWindow.document.close();
     printWindow.print();
   };
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredOrders = orders.filter(order => {
+    const searchFields = [
+      order.orderId,
+      order.address,
+      order.status,
+      order.paymentMethod,
+      ...order.purchasedItems.map(item => item.name)
+    ].join(" ").toLowerCase();
+
+    return searchFields.includes(searchQuery.toLowerCase());
+  });
 
   if (loading) {
     return (
@@ -91,7 +124,17 @@ const OrdersComponent = ({ isAdminView }) => {
   return (
     <div className="container mt-5">
       <h3 className="mb-4">{isAdminView ? "All Orders" : "My Orders"}</h3>
-      {orders?.map((order) => (
+
+      <Form.Group className="mb-4">
+        <Form.Control
+          type="text"
+          placeholder="Search Orders..."
+          value={searchQuery}
+          onChange={handleSearch}
+        />
+      </Form.Group>
+
+      {filteredOrders?.map((order) => (
         <Card key={order.orderId} className="mb-3">
           <Card.Header>
             <h5>Order ID: {order.orderId}</h5>
