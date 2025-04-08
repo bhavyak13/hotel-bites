@@ -1,0 +1,11 @@
+.page-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  .page-container h1 {
+    margin-bottom: 10px;
+  }
+  .page-container ul {
+    list-style: disc;
+    padding-left: 20px;
+  }

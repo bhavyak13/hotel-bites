@@ -109,7 +109,19 @@ const AddNewProduct = () => {
             type="file"
           />
         </Form.Group>
-        <FormInput label="Status" name="status" value={formData.status} onChange={handleChange} placeholder="Enter Status (active/non-active)" />
+        {/* <FormInput label="Status" name="status" value={formData.status} onChange={handleChange} placeholder="Enter Status (active/non-active)" /> */}
+        <Form.Group className="mb-3">
+  <Form.Label>Status</Form.Label>
+  <Form.Select
+    name="status"
+    value={formData.status}
+    onChange={handleChange}
+  >
+    <option value="">-- Select Status --</option>
+    <option value="active">Active</option>
+    <option value="non-active">Non-Active</option>
+  </Form.Select>
+</Form.Group>
 
         <Button variant="primary" type="submit">Create</Button>
       </Form>

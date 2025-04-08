@@ -10,7 +10,7 @@ const FooterBar = () => {
         <Navbar.Text>
           Contact us: 
           <a href="tel:+91 7011974522"> +91 7011974522</a>, 
-          <a href="tel:+91 9990708731"> +91 9990708731</a> |
+          <a href="tel:+91 9311764250"> +91 9311764250</a> |
           Webapp creator: 
           <a href="https://www.example.com" target="_blank" rel="noopener noreferrer"> www.example.com</a>
         </Navbar.Text>

@@ -91,7 +91,19 @@ const AddNewVariant = () => {
         <FormInput label="Offer Price" name="priceOffer" value={formData.priceOffer} onChange={handleChange} placeholder="Enter Offer Price" type="number" />
         <FormInput label="Original Price" name="priceOriginal" value={formData.priceOriginal} onChange={handleChange} placeholder="Enter Original Price" type="number" />
         <FormInput label="Inventory Quantity" name="inventoryQuantity" value={formData.inventoryQuantity} onChange={handleChange} placeholder="Enter Inventory Quantity" type="number" />
-        <FormInput label="Status" name="status" value={formData.status} onChange={handleChange} placeholder="Enter Status (active/non-active)" />
+        {/* <FormInput label="Status" name="status" value={formData.status} onChange={handleChange} placeholder="Enter Status (active/non-active)" /> */}
+        <Form.Group className="mb-3">
+  <Form.Label>Status</Form.Label>
+  <Form.Select
+    name="status"
+    value={formData.status}
+    onChange={handleChange}
+  >
+    <option value="">-- Select Status --</option>
+    <option value="active">Active</option>
+    <option value="non-active">Non-Active</option>
+  </Form.Select>
+</Form.Group>
         {/* <FileInput label="Product Images" onChange={handleFileChange} /> */}
 
         <Button variant="primary" type="submit">Create</Button>

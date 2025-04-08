@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import { SiteStatusProvider } from "./context/siteStatusContext"; // Import SiteStatusProvider
 
 // CSS
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -11,72 +12,46 @@ import BookDetailPage from "./pages/Detail";
 import Cart from "./pages/Cart";
 import FooterBar from "./components/FooterBar";
 
-
-import { ToastContainer, toast } from 'react-toastify';
-import PaymentPage from "./pages/Payment";
-import OrderSuccess from "./pages/OrderSuccess";
+import { ToastContainer } from "react-toastify";
 import AppWrapper from "./AppWrapper";
 import DeliveryPartnerOrderScreen from "./pages/DeliveryPartnerOrderScreen";
 import OrdersComponent from "./pages/Orders";
 import AddNewProduct from "./pages/AddNew/AddNewProduct";
 import AddNewVariant from "./pages/AddNew/AddNewVariant";
+import ShippingPolicy from "./pages/ShippingDelivery";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsAndConditions from "./pages/TermsConditions";
+import CancellationRefundPolicy from "./pages/CancellationRefund";
+import ContactUs from "./pages/Contact-us";
 
 function App() {
-    return (
-        <div>
-            <MyNavbar />
-            <ToastContainer />
-
-            <Routes>
-                <Route path="/" element={<AppWrapper><HomePage /></AppWrapper>} />
-                <Route path="/login" element={<AppWrapper><LoginPage /></AppWrapper>} />
-                <Route path="/register" element={<AppWrapper><RegisterPage /></AppWrapper>} />
-
-                {/* Requires Login */}
-                <Route
-                    path="/products"
-                    element={<AppWrapper ><HomePage /></AppWrapper>}
-                />
-                <Route
-                    path="/products/new"
-                    element={<AppWrapper status={{ requiresAdmin: true }}><AddNewProduct /></AppWrapper>}
-                />
-                <Route
-                    path="/products/:productId"
-                    element={<AppWrapper status={{}}><BookDetailPage /></AppWrapper>}
-                />
-                <Route
-                    path="/products/:productId/variants/new"
-                    element={<AppWrapper status={{ requiresAdmin: true }}><AddNewVariant /></AppWrapper>}
-                />
-                <Route
-                    path="/cart"
-                    element={<AppWrapper status={{ requiresLogin: true }}><Cart /></AppWrapper>}
-                />
-                {/* <Route
-                  path="/payment"
-                  element={<AppWrapper status={{ requiresLogin: true }}><PaymentPage /></AppWrapper>}
-              /> */}
-                <Route
-                    path="/orders/delivery-partner"
-                    element={<AppWrapper status={{ deliveryScreen: true }}><DeliveryPartnerOrderScreen /></AppWrapper>}
-                />
-                <Route
-                    path="/orders"
-                    element={<AppWrapper status={{ requiresLogin: true }}><OrdersComponent /></AppWrapper>}
-                />
-
-                {/* Requires Admin */}
-                <Route
-                    path="/orders/all"
-                    element={<AppWrapper status={{ requiresAdmin: true }}>
-                        <OrdersComponent isAdminView={true} />
-                    </AppWrapper>}
-                />
-            </Routes>
-            <FooterBar />
-        </div>
-    );
+  return (
+    <SiteStatusProvider> {/* Wrap the entire app */}
+      <div>
+        <MyNavbar />
+        <ToastContainer />
+        <Routes>
+          <Route path="/" element={<AppWrapper><HomePage /></AppWrapper>} />
+          <Route path="/contact" element={<AppWrapper><ContactUs /></AppWrapper>} />
+          <Route path="/privacy-policy" element={<AppWrapper><PrivacyPolicy /></AppWrapper>} />
+          <Route path="/terms-condition" element={<AppWrapper><TermsAndConditions /></AppWrapper>} />
+          <Route path="/cancel-refund" element={<AppWrapper><CancellationRefundPolicy /></AppWrapper>} />
+          <Route path="/shipping-policy" element={<AppWrapper><ShippingPolicy /></AppWrapper>} />
+          <Route path="/login" element={<AppWrapper><LoginPage /></AppWrapper>} />
+          <Route path="/register" element={<AppWrapper><RegisterPage /></AppWrapper>} />
+          <Route path="/products" element={<AppWrapper><HomePage /></AppWrapper>} />
+          <Route path="/products/new" element={<AppWrapper status={{ requiresAdmin: true }}><AddNewProduct /></AppWrapper>} />
+          <Route path="/products/:productId" element={<AppWrapper status={{}}><BookDetailPage /></AppWrapper>} />
+          <Route path="/products/:productId/variants/new" element={<AppWrapper status={{ requiresAdmin: true }}><AddNewVariant /></AppWrapper>} />
+          <Route path="/cart" element={<AppWrapper status={{ requiresLogin: true }}><Cart /></AppWrapper>} />
+          <Route path="/orders/delivery-partner" element={<AppWrapper status={{ deliveryScreen: true }}><DeliveryPartnerOrderScreen /></AppWrapper>} />
+          <Route path="/orders" element={<AppWrapper status={{ requiresLogin: true }}><OrdersComponent /></AppWrapper>} />
+          <Route path="/orders/all" element={<AppWrapper status={{ requiresAdmin: true }}><OrdersComponent isAdminView={true} /></AppWrapper>} />
+        </Routes>
+        <FooterBar />
+      </div>
+    </SiteStatusProvider>
+  );
 }
 
 export default App;
