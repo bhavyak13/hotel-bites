@@ -10,7 +10,7 @@ import { BASE_URL } from './context/utils.js'
 
 createRoot(document.getElementById('root')).render(
   // <StrictMode>
-  <BrowserRouter basename={BASE_URL} >
+  <BrowserRouter >
     <FirebaseProvider>
       <App />
     </FirebaseProvider>
