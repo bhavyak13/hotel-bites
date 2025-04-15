@@ -58,10 +58,24 @@
   }
   
   /* Food Menu */
-  .menu-container {
+  /* .menu-container {
     width: 100%;
-  }
+  } */
   
+  /* Ensure the menu container takes up the full width */
+.menu-container {
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  gap: 20px; /* Add spacing between items */
+  padding: 20px;
+}
+
+/* Style for individual menu items */
+.menu-item {
+  display: flex;
+  justify-content: center; /* Center the FoodCard horizontally */
+  width: 100%; /* Ensure the item spans the full width */
+}
   .menu-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */

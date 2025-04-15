@@ -1,19 +1,23 @@
 .footer-bar {
-  position: sticky;
+  position: fixed; /* Ensure the footer stays at the bottom */
   bottom: 0;
+  left: 0;
+  width: 100%; /* Make the footer span the full width */
   background-color: var(--primary-color); /* Use the primary color */
-    z-index: 1000;
-    box-shadow: var(--box-shadow); /* Add a subtle shadow */
-    padding: 10px 20px;
+  z-index: 1000; /* Ensure it stays above other elements */
+  box-shadow: var(--box-shadow); /* Add a subtle shadow */
+  padding: 10px 20px;
+  color: var(--text-light-color); /* Light text color */
+  text-align: center; /* Center-align the content */
 }
 
 .footer-bar a {
-    color: var(--text-light-color); /* Ensure links match the footer text color */
-    text-decoration: none; /* Remove underline from links */
-    margin: 0 5px; /* Add spacing between links */
-    font-weight: bold; /* Make links bold */
-  }
+  color: var(--text-light-color); /* Ensure links match the footer text color */
+  text-decoration: none; /* Remove underline from links */
+  margin: 0 5px; /* Add spacing between links */
+  font-weight: bold; /* Make links bold */
+}
 
-  .main-content {
-    flex: 1; /* Push the footer to the bottom */
-  }
+.main-content {
+  flex: 1; /* Push the footer to the bottom */
+}

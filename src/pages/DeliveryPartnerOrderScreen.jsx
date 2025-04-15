@@ -5,10 +5,6 @@ import { useNavigate } from "react-router-dom";
 import OrderFoodCard from "../components/OrderFoodCard";
 
 const ORDER_STATUSES = [
-  // "Created",
-  // "Processing",
-  // "Preparing",
-  // "Ready for Pickup",
   "Out for Delivery",
   "Delivered",
   "Cancelled"
@@ -56,7 +52,6 @@ const DeliveryPartnerOrderScreen = () => {
     }
   };
 
-
   useEffect(() => {
     getOrders();
   }, [firebase]);
@@ -67,7 +62,6 @@ const DeliveryPartnerOrderScreen = () => {
     await getOrders();
     setLoading(false);
   };
-
 
   const formattedDate = (_createdDate) => {
     if (_createdDate)
@@ -80,8 +74,7 @@ const DeliveryPartnerOrderScreen = () => {
         second: '2-digit',
       });
     else return "";
-  }
-
+  };
 
   if (loading) {
     return (
@@ -109,28 +102,16 @@ const DeliveryPartnerOrderScreen = () => {
             <h5>Order ID: {order.orderId}</h5>
           </Card.Header>
           <Card.Body>
-            <h6>
-              Status: {order.status}
-            </h6>
-
-
-
+            <h6>Status: {order.status}</h6>
             <h6>Final Price: ₹{order.finalPrice}</h6>
             <h6>Address: {order?.address}</h6>
-
-
-            {/* Display created date */}
             {order?._createdDate && (
-              <h6>
-                Created Date:{" "}
-                {formattedDate(order?._createdDate)}
-              </h6>
+              <h6>Created Date: {formattedDate(order?._createdDate)}</h6>
             )}
-
             {order?.paymentMethod && <h6>Payment Method: {order?.paymentMethod}</h6>}
-            {order?.razorpayPaymentStatus &&
+            {order?.razorpayPaymentStatus && (
               <h6>Payment Status: {order?.razorpayPaymentStatus === 'Done' ? "Paid" : 'Pending'}</h6>
-            }
+            )}
 
             <hr />
             <h6>Purchased Items:</h6>
@@ -147,6 +128,17 @@ const DeliveryPartnerOrderScreen = () => {
                 </ListGroup.Item>
               ))}
             </ListGroup>
+
+            {/* Add the QR Code Image */}
+            <div className="text-center my-3">
+              <img
+                src="/paytm-qr.jpg"
+                alt="QR Code"
+                style={{ maxWidth: "200px", borderRadius: "8px" }}
+              />
+            </div>
+
+            {/* Added buttons */}
             <Button
               onClick={() => {
                 handleStatusChange(order.id, 'Delivered')

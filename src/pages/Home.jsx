@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import CardGroup from "react-bootstrap/CardGroup"; //We may no longer use this in our new layout, so it can be deleted later if you want.
+import React, { useEffect, useState, useContext } from "react";
 import { useFirebase } from "../context/Firebase";
+import { SiteStatusContext } from "../context/siteStatusContext";
 import FoodCard from "../components/FoodCard";
 import "../pages/home.css";
 import { Spinner } from "react-bootstrap";
@@ -9,43 +9,31 @@ import FooterBar from "../components/FooterBar";
 
 const HomePage = () => {
   const firebase = useFirebase();
-  const [data, setData] = useState([]); // Original data fetched from Firebase
-  const [filteredData, setFilteredData] = useState([]); // Data filtered based on search input
-  const [loading, setLoading] = useState(true);
-  // const [loadingStatus, setLoadingStatus] = useState(true);
-  const [searchQuery, setSearchQuery] = useState(""); // State for search input
-  // const [siteIsOpen, setSiteIsOpen] = useState(true); // Assume site is open by default
+  const { isAdmin } = firebase;
+  const { isSiteOpen, toggleSiteStatus } = useContext(SiteStatusContext);
 
+  const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchProducts = async () => {
       await firebase.fetchProductsWithFirstVariant().then((data) => {
         setData(data);
-        setFilteredData(data); // Initialize filtered data with all products
+        setFilteredData(data);
       });
       setLoading(false);
     };
     fetchProducts();
   }, []);
 
-  // useEffect(() => {
-  //       const fetchSiteStatus = async () => {
-  //         const isOpen = await firebase.getSiteStatus();
-  //         setSiteIsOpen(isOpen);
-  //         setLoadingStatus(false);
-  //       };
-  //       fetchSiteStatus();
-  //     }, []);
-
-  // Handle search input changes
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
-
-    // Filter the data based on the search query
     const filtered = data.filter((item) =>
-      item.name.toLowerCase().includes(query) || // Match by name
-      item.description.toLowerCase().includes(query) // Match by description
+      item.name.toLowerCase().includes(query) ||
+      item.description.toLowerCase().includes(query)
     );
     setFilteredData(filtered);
   };
@@ -59,10 +47,27 @@ const HomePage = () => {
     );
   }
 
-
+  // If the site is closed and the user is not an admin, show the "Site Closed" message
+  if (!isSiteOpen && !isAdmin) {
+    return (
+      <div className="text-center mt-5">
+        <h1>Site Closed</h1>
+        <p>We are currently on vacation. Please check back later!</p>
+      </div>
+    );
+  }
 
   return (
     <div className="home-page">
+      {/* Admin Toggle Button */}
+      {isAdmin && (
+        <div className="text-center mb-4">
+          <Button variant={isSiteOpen ? "danger" : "success"} onClick={toggleSiteStatus}>
+            {isSiteOpen ? "Close Site" : "Open Site"}
+          </Button>
+        </div>
+      )}
+
       {/* Advertisement Space */}
       <div className="ad-container">Advertising space</div>
 
@@ -81,21 +86,21 @@ const HomePage = () => {
           className="search-input"
           placeholder="Search for food..."
           value={searchQuery}
-          onChange={handleSearch} // Call handleSearch on input change
+          onChange={handleSearch}
         />
       </div>
 
       {/* Food Menu */}
       <div className="menu-container">
-        <div className="menu-list">
-          {filteredData.length > 0 ? (
-            filteredData.map((item) => (
-              <FoodCard key={item.id} {...item} />
-            ))
-          ) : (
-            <p className="text-center mt-4">No items match your search.</p>
-          )}
-        </div>
+        {filteredData.length > 0 ? (
+          filteredData.map((item) => (
+            <div key={item.id} className="menu-item">
+              <FoodCard {...item} />
+            </div>
+          ))
+        ) : (
+          <p className="text-center mt-4">No items match your search.</p>
+        )}
       </div>
     </div>
   );

@@ -29,3 +29,19 @@ background-color: var(--accent-color); /* Accent color on hover */
 .navbar-nav .nav-link {
     color: var(--text-light-color);
 }
+
+/* Customize the dropdown menu to match the navbar color */
+.dropdown-menu {
+    background-color: var(--primary-color); /* Match the navbar's primary color */
+    border: none; /* Remove the border */
+    box-shadow: var(--box-shadow); /* Add a subtle shadow */
+  }
+  
+  .dropdown-item {
+    color: var(--text-light-color); /* Use the light text color for dropdown items */
+  }
+  
+  .dropdown-item:hover {
+    background-color: var(--accent-color); /* Highlight on hover with the accent color */
+    color: var(--text-light-color); /* Keep text color consistent */
+  }
