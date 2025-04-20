@@ -7,6 +7,7 @@ import {
   onAuthStateChanged,
   RecaptchaVerifier,
   signInWithPhoneNumber,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 
 import {
@@ -96,6 +97,18 @@ export const FirebaseProvider = (props) => {
 
   const singinUserWithEmailAndPass = (email, password) =>
     signInWithEmailAndPassword(firebaseAuth, email, password);
+
+  // Add this function inside the FirebaseProvider
+const resetPassword = async (email) => {
+  try {
+    await sendPasswordResetEmail(firebaseAuth, email);
+    console.log("Password reset email sent successfully.");
+    displayToastMessage("Password reset email sent successfully!");
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    displayToastMessage(error.message, "error");
+  }
+};
 
   // OTP Login Functions
   const sendOtp = async (phoneNumber) => {
@@ -627,6 +640,7 @@ export const FirebaseProvider = (props) => {
 
         sendOtp,
         verifyOtp,
+        resetPassword,
       }}
     >
       {props.children}
