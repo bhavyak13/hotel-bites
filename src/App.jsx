@@ -23,6 +23,8 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsAndConditions from "./pages/TermsConditions";
 import CancellationRefundPolicy from "./pages/CancellationRefund";
 import ContactUs from "./pages/Contact-us";
+import AddNewAddress from "./pages/AddNew/AddNewAddress";
+
 
 function App() {
   return (
@@ -47,6 +49,7 @@ function App() {
           <Route path="/orders/delivery-partner" element={<AppWrapper status={{ deliveryScreen: true }}><DeliveryPartnerOrderScreen /></AppWrapper>} />
           <Route path="/orders" element={<AppWrapper status={{ requiresLogin: true }}><OrdersComponent /></AppWrapper>} />
           <Route path="/orders/all" element={<AppWrapper status={{ requiresAdmin: true }}><OrdersComponent isAdminView={true} /></AppWrapper>} />
+          <Route path="/address" element={<AppWrapper status={{ requiresAdmin: true }}><AddNewAddress /></AppWrapper>} />
         </Routes>
         <FooterBar />
       </div>

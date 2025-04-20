@@ -18,6 +18,9 @@ const MyNavbar = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
+          {isAdmin && (
+              <Nav.Link as={Link} to={`/address`}>Add New Address</Nav.Link>
+            )}
             {isAdmin && (
               <Nav.Link as={Link} to={`/products/new`}>Add New Product</Nav.Link>
             )}
