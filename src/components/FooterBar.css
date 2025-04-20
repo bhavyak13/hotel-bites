@@ -1,21 +1,58 @@
+/* Ensure the footer stays at the bottom */
 .footer-bar {
-  position: fixed; /* Ensure the footer stays at the bottom */
+  position: fixed;
   bottom: 0;
   left: 0;
-  width: 100%; /* Make the footer span the full width */
-  background-color: var(--primary-color); /* Use the primary color */
-  z-index: 1000; /* Ensure it stays above other elements */
-  box-shadow: var(--box-shadow); /* Add a subtle shadow */
+  width: 100%; /* Full width */
+  background-color: var(--primary-color);
+  z-index: 1000;
+  box-shadow: var(--box-shadow);
   padding: 10px 20px;
-  color: var(--text-light-color); /* Light text color */
-  text-align: center; /* Center-align the content */
+  color: var(--text-light-color);
+  text-align: center;
+  font-size: 1rem; /* Default font size */
+  display: flex;
+  justify-content: space-between; /* Space between items */
+  align-items: center; /* Center vertically */
 }
 
+/* Links inside the footer */
 .footer-bar a {
-  color: var(--text-light-color); /* Ensure links match the footer text color */
-  text-decoration: none; /* Remove underline from links */
-  margin: 0 5px; /* Add spacing between links */
-  font-weight: bold; /* Make links bold */
+  color: var(--text-light-color);
+  text-decoration: none;
+  margin: 0 5px;
+  font-weight: bold;
+}
+
+.footer-bar a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+  .footer-bar {
+    font-size: 0.9rem; /* Reduce font size */
+    padding: 8px 10px; /* Reduce padding */
+    flex-direction: column; /* Stack items vertically */
+    gap: 5px; /* Add spacing between items */
+  }
+
+  .footer-bar a {
+    margin: 3px 0; /* Reduce spacing between links */
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-bar {
+    font-size: 0.8rem; /* Further reduce font size */
+    padding: 5px 8px; /* Further reduce padding */
+    text-align: center; /* Center-align text */
+  }
+
+  .footer-bar a {
+    display: inline-block; /* Keep links inline */
+    margin: 2px 5px; /* Adjust spacing */
+  }
 }
 
 .main-content {
