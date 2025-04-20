@@ -72,6 +72,9 @@ const MyNavbar = () => {
           {!firebase?.user && (
             <Nav.Link as={Link} to={`/login`}>Login</Nav.Link>
           )}
+          {!firebase?.user && (
+            <Nav.Link as={Link} to={`/otp-login`}>OTP Login</Nav.Link>
+          )}
         </Nav>
       </Container>
     </Navbar>

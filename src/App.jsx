@@ -6,6 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import HomePage from "./pages/Home";
 import LoginPage from "./pages/Login";
+import OtpLogin from "./pages/OtpLogin";
 import RegisterPage from "./pages/Register";
 import MyNavbar from "./components/Navbar";
 import BookDetailPage from "./pages/Detail";
@@ -40,6 +41,7 @@ function App() {
           <Route path="/cancel-refund" element={<AppWrapper><CancellationRefundPolicy /></AppWrapper>} />
           <Route path="/shipping-policy" element={<AppWrapper><ShippingPolicy /></AppWrapper>} />
           <Route path="/login" element={<AppWrapper><LoginPage /></AppWrapper>} />
+          <Route path="/otp-login" element={<AppWrapper><OtpLogin /></AppWrapper>} />
           <Route path="/register" element={<AppWrapper><RegisterPage /></AppWrapper>} />
           <Route path="/products" element={<AppWrapper><HomePage /></AppWrapper>} />
           <Route path="/products/new" element={<AppWrapper status={{ requiresAdmin: true }}><AddNewProduct /></AppWrapper>} />

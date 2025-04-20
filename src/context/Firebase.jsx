@@ -5,6 +5,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
 } from "firebase/auth";
 
 import {
@@ -24,13 +26,11 @@ import {
 
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-
 import Razorpay from "razorpay";
 import { toast } from "react-toastify";
 import axios from "axios";
 
 import { v4 as uuidv4 } from 'uuid';
-
 
 const FirebaseContext = createContext(null);
 
@@ -48,25 +48,92 @@ const firebaseConfig = {
 
 export const useFirebase = () => useContext(FirebaseContext);
 
-
 const firebaseApp = initializeApp(firebaseConfig);
 const firebaseAuth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
 
-
-
 export const FirebaseProvider = (props) => {
+  const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isDeliveryPartner, setIsDeliveryPartner] = useState(false);
 
+  useEffect(() => {
+    onAuthStateChanged(firebaseAuth, (user) => {
+      if (user) setUser(user);
+      else setUser(null);
+    });
+  }, []);
+
+  const isLoggedIn = user ? true : false;
+
+  const logoutUser = async () => {
+    try {
+      await firebaseAuth.signOut();
+      console.log("User signed out successfully");
+      setUser(null);
+    } catch (error) {
+      console.error("Sign Out Error", error);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      if (user?.uid == "ukEdfieQ7FaI4rpITgxbtWyBuZZ2") {
+        setIsAdmin(true);
+      } else if (user?.uid == "EEqRTrY732ZaK27XRkjkJbjMq5E2") {
+        setIsDeliveryPartner(true);
+      }
+    } else {
+      if (isAdmin) setIsAdmin(false);
+      if (isDeliveryPartner) setIsDeliveryPartner(false);
+    }
+  }, [user]);
+
+  // Authentication functions
   const signupUserWithEmailAndPassword = (email, password) =>
     createUserWithEmailAndPassword(firebaseAuth, email, password);
 
   const singinUserWithEmailAndPass = (email, password) =>
     signInWithEmailAndPassword(firebaseAuth, email, password);
 
+  // OTP Login Functions
+  const sendOtp = async (phoneNumber) => {
+    try {
+      const recaptchaVerifier = new RecaptchaVerifier(
+        "recaptcha-container",
+        {
+          size: "invisible",
+          callback: (response) => {
+            console.log("reCAPTCHA verified:", response);
+          },
+        },
+        firebaseAuth
+      );
 
+      const confirmationResult = await signInWithPhoneNumber(
+        firebaseAuth,
+        phoneNumber,
+        recaptchaVerifier
+      );
 
+      return confirmationResult; // Return the confirmation result to verify OTP later
+    } catch (error) {
+      console.error("Error sending OTP:", error);
+      throw error;
+    }
+  };
 
+  const verifyOtp = async (confirmationResult, otp) => {
+    try {
+      const userCredential = await confirmationResult.confirm(otp);
+      console.log("User signed in successfully:", userCredential.user);
+      return userCredential.user;
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+      throw error;
+    }
+  };
 
   /*************** data-related function start  **************/
 
@@ -109,14 +176,12 @@ export const FirebaseProvider = (props) => {
     return querySnapshot;
   };
 
-
   const getSubCollectionAllDocuments = async (collection1Name, collection1Id, collection2Name) => {
     const collectionRef = collection(firestore, collection1Name, collection1Id, collection2Name);
     const querySnapshot = await getDocs(collectionRef);
     // // console.log("BK getSubCollectionAllDocuments res", querySnapshot);
     return querySnapshot;
   };
-
 
   const getDocById = async (id, collectionName) => {
     const docRef = doc(firestore, collectionName, id);
@@ -173,7 +238,6 @@ export const FirebaseProvider = (props) => {
     }
   }
 
-
   const fetchCartWithDetails = async (collectionName) => {
     try {
       // Step 1: Fetch all cart items (single query)
@@ -183,8 +247,6 @@ export const FirebaseProvider = (props) => {
       const cartRef = collection(firestore, collectionName);
       const q = query(cartRef, where("userId", "==", user.uid));
       const cartSnapshot = await getDocs(q);
-
-
 
       const cartItems = cartSnapshot.docs.map(doc => ({
         id: doc.id,
@@ -217,7 +279,6 @@ export const FirebaseProvider = (props) => {
       console.error("Error fetching cart details:", error);
     }
   };
-
 
   const fetchPurchasedItemWithDetails = async (data) => {
     try {
@@ -268,7 +329,6 @@ export const FirebaseProvider = (props) => {
     }
   };
 
-
   const checkIsItemAlreadyInCart = async (collectionName, productId, variantId) => {
     try {
       const cartRef = collection(firestore, collectionName);
@@ -287,7 +347,6 @@ export const FirebaseProvider = (props) => {
       return null;
     }
   };
-
 
   const fetchOrders = async () => {
     try {
@@ -318,8 +377,6 @@ export const FirebaseProvider = (props) => {
       return [];
     }
   };
-
-
 
   const fetchOrdersForDeliveryAgent = async (deliveryPartnerId) => {
     try {
@@ -366,13 +423,9 @@ export const FirebaseProvider = (props) => {
     }
   };
 
-
-
   const getImageURL = (path) => {
     return getDownloadURL(ref(storage, path));
   };
-
-
 
   const displayToastMessage = (toastMessage) => {
     toast(toastMessage);
@@ -394,7 +447,6 @@ export const FirebaseProvider = (props) => {
     }
   };
 
-
   /*************** data-related function end  **************/
 
 
@@ -405,13 +457,9 @@ export const FirebaseProvider = (props) => {
 
   /*************** RAZORPAY function begin  **************/
 
-
-
-
   const generateUniqueId = () => {
     return uuidv4();
   };
-
 
   const createRazorpayOrder = async (orderPayload) => {
     try {
@@ -463,7 +511,6 @@ export const FirebaseProvider = (props) => {
     }
   }
 
-
   const createOrder = async (createOrderPayload) => {
     // ORDER PAYLOAD!!
 
@@ -501,48 +548,47 @@ export const FirebaseProvider = (props) => {
     return orderRef.id;
   }
 
-
   /*************** RAZORPAY function end  **************/
 
 
-  const [user, setUser] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isDeliveryPartner, setIsDeliveryPartner] = useState(false);
+  // const [user, setUser] = useState(null);
+  // const [isAdmin, setIsAdmin] = useState(false);
+  // const [isDeliveryPartner, setIsDeliveryPartner] = useState(false);
 
-  useEffect(() => {
-    onAuthStateChanged(firebaseAuth, (user) => {
-      if (user) setUser(user);
-      else setUser(null);
-    });
-  }, []);
+  // useEffect(() => {
+  //   onAuthStateChanged(firebaseAuth, (user) => {
+  //     if (user) setUser(user);
+  //     else setUser(null);
+  //   });
+  // }, []);
 
-  const isLoggedIn = user ? true : false;
+  // const isLoggedIn = user ? true : false;
 
-  const logoutUser = async () => {
-    try {
-      await firebaseAuth.signOut();
-      console.log("User signed out successfully");
-      setUser(null);
+  // const logoutUser = async () => {
+  //   try {
+  //     await firebaseAuth.signOut();
+  //     console.log("User signed out successfully");
+  //     setUser(null);
 
-    } catch (error) {
-      console.error("Sign Out Error", error);
-    }
-  };
+  //   } catch (error) {
+  //     console.error("Sign Out Error", error);
+  //   }
+  // };
 
-  useEffect(() => {
-    // console.log("BK user", user, user?.uid)
-    if (user) {
-      if (user?.uid == "ukEdfieQ7FaI4rpITgxbtWyBuZZ2") {
-        setIsAdmin(true);
-      } else if (user?.uid == "EEqRTrY732ZaK27XRkjkJbjMq5E2") {
-        setIsDeliveryPartner(true);
-      }
-    }
-    else {
-      if (isAdmin) setIsAdmin(false);
-      if (isDeliveryPartner) setIsDeliveryPartner(false);
-    }
-  }, [user])
+  // useEffect(() => {
+  //   // console.log("BK user", user, user?.uid)
+  //   if (user) {
+  //     if (user?.uid == "ukEdfieQ7FaI4rpITgxbtWyBuZZ2") {
+  //       setIsAdmin(true);
+  //     } else if (user?.uid == "EEqRTrY732ZaK27XRkjkJbjMq5E2") {
+  //       setIsDeliveryPartner(true);
+  //     }
+  //   }
+  //   else {
+  //     if (isAdmin) setIsAdmin(false);
+  //     if (isDeliveryPartner) setIsDeliveryPartner(false);
+  //   }
+  // }, [user])
 
 
   return (
@@ -576,9 +622,11 @@ export const FirebaseProvider = (props) => {
 
         displayToastMessage,
         checkIsItemAlreadyInCart,
-        // createRazorpayOrder,
         createOrder,
         createRazorpayPaymentsSuccess,
+
+        sendOtp,
+        verifyOtp,
       }}
     >
       {props.children}
