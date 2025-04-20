@@ -49,6 +49,22 @@ const OrdersComponent = ({ isAdminView }) => {
 
   useEffect(() => {
     getOrders();
+  
+    // Listen for new orders
+    const unsubscribe = firebase.listenForNewOrders((newOrders) => {
+      if (newOrders.length > 0) {
+        // Play notification sound and display toast message for specific roles
+        if (firebase?.user && !firebase?.isAdmin && !firebase?.isDeliveryPartner) {
+          firebase.playNotificationSound(); // Play the notification sound
+          firebase.displayToastMessage("New order received!");
+        }
+  
+        // Add new orders to the list
+        setOrders((prevOrders) => [...newOrders, ...prevOrders]);
+      }
+    });
+  
+    return () => unsubscribe(); // Cleanup the listener on unmount
   }, [firebase]);
 
   const handleStatusChange = async (orderId, newStatus) => {

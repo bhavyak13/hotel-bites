@@ -13,6 +13,8 @@ import {
 import {
   getFirestore,
   collection,
+  onSnapshot,
+  orderBy,
   addDoc,
   getDocs,
   getDoc,
@@ -140,6 +142,25 @@ const fetchPhoneNumber = async (userId) => {
     console.error("Error fetching phone number:", error);
     throw error;
   }
+};
+
+const listenForNewOrders = (callback) => {
+  const ordersCollectionRef = collection(firestore, "orders");
+  const q = query(ordersCollectionRef, orderBy("_createdDate", "desc"));
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    const newOrders = snapshot.docChanges().filter((change) => change.type === "added");
+    if (newOrders.length > 0) {
+      callback(newOrders.map((change) => ({ id: change.doc.id, ...change.doc.data() })));
+    }
+  });
+
+  return unsubscribe; // Return the unsubscribe function for cleanup
+};
+
+const playNotificationSound = () => {
+  const audio = new Audio("/notification.wav"); // Path to the sound file in the public folder
+  audio.play();
 };
 
   // OTP Login Functions
@@ -673,7 +694,9 @@ const fetchPhoneNumber = async (userId) => {
         verifyOtp,
         resetPassword,
         saveUserDetails,
-        fetchPhoneNumber
+        fetchPhoneNumber,
+        listenForNewOrders,
+        playNotificationSound
       }}
     >
       {props.children}
