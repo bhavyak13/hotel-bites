@@ -33,7 +33,8 @@ const OrdersComponent = ({ isAdminView }) => {
       const ordersWithDetails = await Promise.all(
         fetchedOrders.map(async (order) => {
           const updatedPurchasedItems = await firebase.fetchPurchasedItemWithDetails(order.purchasedItems);
-          return { ...order, purchasedItems: updatedPurchasedItems };
+          const phoneNumber = await firebase.fetchPhoneNumber(order.userId);
+          return { ...order, purchasedItems: updatedPurchasedItems, phoneNumber };
         })
       );
 
@@ -113,6 +114,7 @@ const OrdersComponent = ({ isAdminView }) => {
                 <span className="text-primary ms-2">{order.status}</span>
               )}
             </h6>
+            <h6>Phone Number: {order.phoneNumber || "N/A"}</h6>
             <h6>Final Price: ₹{order.finalPrice}</h6>
             {order.cookingInstructions && <h6><strong>Cooking Instructions:</strong> <span style={{ color: "red" }}>{order.cookingInstructions}</span></h6>}
             <h6>Address: {order?.address}</h6>

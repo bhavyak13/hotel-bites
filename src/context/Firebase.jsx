@@ -17,6 +17,7 @@ import {
   getDocs,
   getDoc,
   doc,
+  setDoc,
   query,
   where,
   limit,
@@ -107,6 +108,37 @@ const resetPassword = async (email) => {
   } catch (error) {
     console.error("Error sending password reset email:", error);
     displayToastMessage(error.message, "error");
+  }
+};
+
+// Add this function inside the FirebaseProvider
+const saveUserDetails = async (userId, userDetails) => {
+  try {
+    const userDocRef = doc(firestore, "users", userId); // Save user details in the "users" collection
+    await setDoc(userDocRef, userDetails);
+    console.log("User details saved successfully.");
+  } catch (error) {
+    console.error("Error saving user details:", error);
+    throw error;
+  }
+};
+
+// Function to fetch phone number from the "users" collection
+const fetchPhoneNumber = async (userId) => {
+  try {
+    const userDocRef = doc(firestore, "users", userId); // Reference to the user's document
+    const userDoc = await getDoc(userDocRef); // Fetch the document
+
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      return userData.phoneNumber || null; // Return the phone number if it exists
+    } else {
+      console.error("No such user document!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching phone number:", error);
+    throw error;
   }
 };
 
@@ -384,7 +416,6 @@ const resetPassword = async (email) => {
 
       return ordersList;
 
-      return ordersList;
     } catch (error) {
       console.error("Error fetching orders:", error);
       return [];
@@ -641,6 +672,8 @@ const resetPassword = async (email) => {
         sendOtp,
         verifyOtp,
         resetPassword,
+        saveUserDetails,
+        fetchPhoneNumber
       }}
     >
       {props.children}
