@@ -1,74 +1,55 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useFirebase } from "../../context/Firebase";
 import { Card, Button, Form, Spinner, Alert } from "react-bootstrap";
 
 const AddNewAddress = () => {
   const firebase = useFirebase();
-  const [newAddress, setNewAddress] = useState(""); // State for the new address input
-  const [addresses, setAddresses] = useState([]); // State for all addresses
-  const [loading, setLoading] = useState(true); // Loading state
-
-  // Fetch all addresses from Firestore
-    const fetchAddresses = async () => {
-        setLoading(true);
-        try {
-          // const userId = firebase.getUserId(); // No longer needed for fetching ALL addresses
-          // console.log("Fetching all addresses (Admin View)"); // Optional: Update log message
-    
-          // Fetch ALL documents from the collection, without filtering by userId
-          const snapshot = await firebase.db
-            .collection("delivery_addresses")
-            .get(); // <-- Removed the .where("userId", "==", userId) clause
-    
-          const addressesData = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-    
-          console.log("Fetched Addresses:", addressesData); // Debugging
-          setAddresses(addressesData);
-        } catch (error) {
-          console.error("Error fetching addresses:", error);
-          // Consider adding user feedback here, e.g., using a toast message
-          firebase.displayToastMessage("Error loading addresses.", "error");
-        } finally {
-          setLoading(false);
-        }
-      };
-    
-
-  // Add a new address to Firestore
-  const handleAddAddress = async () => {
-    if (!newAddress.trim()) {
-      alert("Address cannot be empty!");
-      return;
-    }
-
-    const payload = {
-      address: newAddress,
-      userId: firebase.getUserId(), // Ensure userId is stored
-    };
-
-    await firebase.handleCreateNewDoc(payload, "delivery_addresses");
-    setNewAddress("");
-    fetchAddresses();
-  };
-
-  // Delete an address from Firestore
-  const handleDeleteAddress = async (id) => {
-    await firebase.removeDocumentWithId("delivery_addresses", id); // Updated collection name
-    fetchAddresses(); // Refresh the address list
-  };
+  const [addresses, setAddresses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [newAddress, setNewAddress] = useState("");
 
   useEffect(() => {
-    fetchAddresses();
-  }, []);
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const fetchedAddresses = await firebase.fetchAddresses(); // Fetch addresses
+        setAddresses(fetchedAddresses);
+      } catch (error) {
+        console.error("Error fetching addresses:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [firebase]);
+
+  const handleAddAddress = async () => {
+    try {
+      const newAddressData = { address: newAddress };
+      await firebase.handleCreateNewDoc(newAddressData, "delivery_addresses");
+      setNewAddress(""); // Clear the input field
+      const updatedAddresses = await firebase.fetchAddresses(); // Refresh the addresses
+      setAddresses(updatedAddresses);
+    } catch (error) {
+      console.error("Error adding address:", error);
+    }
+  };
+
+  const handleDeleteAddress = async (id) => {
+    try {
+      await firebase.removeDocumentWithId("delivery_addresses", id);
+      const updatedAddresses = await firebase.fetchAddresses(); // Refresh the addresses
+      setAddresses(updatedAddresses);
+    } catch (error) {
+      console.error("Error deleting address:", error);
+    }
+  };
 
   return (
     <div className="container mt-5">
       <h3 className="mb-4">Manage Addresses</h3>
 
-      {/* Input for adding a new address */}
       <Form.Group className="mb-3">
         <Form.Label>Enter New Address</Form.Label>
         <Form.Control
@@ -82,7 +63,6 @@ const AddNewAddress = () => {
         Add Address
       </Button>
 
-      {/* Card-based layout for displaying addresses */}
       <h4 className="mt-5">Existing Addresses</h4>
       {loading ? (
         <div className="text-center mt-3">

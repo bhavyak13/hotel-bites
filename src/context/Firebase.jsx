@@ -202,6 +202,21 @@ const playNotificationSound = () => {
     }
   };
 
+  const fetchAddresses = async () => {
+    try {
+      const addressesCollectionRef = collection(firestore, "delivery_addresses");
+      const snapshot = await getDocs(addressesCollectionRef);
+      const addresses = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      return addresses; // Return the fetched addresses
+    } catch (error) {
+      console.error("Error fetching addresses:", error);
+      throw error;
+    }
+  };
+
   // Fetch the site status from Firestore
     const fetchSiteStatus = async () => {
       try {
@@ -744,7 +759,8 @@ const playNotificationSound = () => {
         saveUserDetails,
         fetchPhoneNumber,
         listenForNewOrders,
-        playNotificationSound
+        playNotificationSound,
+        fetchAddresses,
       }}
     >
       {props.children}
