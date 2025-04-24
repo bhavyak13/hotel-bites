@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
-import { SiteStatusProvider } from "./context/siteStatusContext"; // Import SiteStatusProvider
-
+// import { SiteStatusProvider } from "./context/siteStatusContext"; // Import SiteStatusProvider
+import { FirebaseProvider } from "./context/Firebase"; // Use FirebaseProvider
 // CSS
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
@@ -29,7 +29,7 @@ import AddNewAddress from "./pages/AddNew/AddNewAddress";
 
 function App() {
   return (
-    <SiteStatusProvider> {/* Wrap the entire app */}
+    <FirebaseProvider> {/* Wrap the entire app */}
       <div>
         <MyNavbar />
         <ToastContainer />
@@ -55,7 +55,7 @@ function App() {
         </Routes>
         <FooterBar />
       </div>
-    </SiteStatusProvider>
+    </FirebaseProvider>
   );
 }
 

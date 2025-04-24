@@ -26,8 +26,8 @@ const ContactUs = () => {
 
       <div className="mb-8">
         <p><strong>Email Address:</strong> kalracaterer4522@gmail.com</p>
-        <p><strong>Mobile Number:</strong> [Your Mobile Number]</p>
-        <p><strong>Operating Address:</strong> [Your Business Address]</p>
+        <p><strong>Mobile Number:</strong> +91 9311764250, +91 9990708731</p>
+        <p><strong>Operating Address:</strong> Girls Hostel Mess, Safadarjung Hospital , Anasri Nagar , New Delhi -110029</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

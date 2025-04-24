@@ -60,6 +60,7 @@ const storage = getStorage(firebaseApp);
 export const FirebaseProvider = (props) => {
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isSiteOpen, setIsSiteOpen] = useState(true); // Default to true while loading
   const [isDeliveryPartner, setIsDeliveryPartner] = useState(false);
 
   useEffect(() => {
@@ -200,6 +201,48 @@ const playNotificationSound = () => {
       throw error;
     }
   };
+
+  // Fetch the site status from Firestore
+    const fetchSiteStatus = async () => {
+      try {
+        const siteStatusDocRef = doc(firestore, "siteStatus", "global");
+        const siteStatusDoc = await getDoc(siteStatusDocRef);
+        if (siteStatusDoc.exists()) {
+          setIsSiteOpen(siteStatusDoc.data().isSiteOpen);
+        } else {
+          console.log("Site status document does not exist. Initializing...");
+          await setDoc(siteStatusDocRef, { isSiteOpen: true }); // Default to true
+          setIsSiteOpen(true);
+        }
+      } catch (error) {
+        console.error("Error fetching site status:", error);
+      }
+    };
+  
+    // Toggle the site status in Firestore
+    const toggleSiteStatus = async () => {
+      try {
+        const newStatus = !isSiteOpen; // Toggle the current status
+        console.log("Toggling site status to:", newStatus); // Debugging log
+        setIsSiteOpen(newStatus); // Update local state
+        await setDoc(doc(firestore, "siteStatus", "global"), { isSiteOpen: newStatus });
+        console.log("Site status updated successfully in Firestore."); // Debugging log
+      } catch (error) {
+        console.error("Error updating site status:", error); // Log any errors
+      }
+    };
+  
+    useEffect(() => {
+      // Fetch site status on component mount
+      fetchSiteStatus();
+    }, []);
+  
+    useEffect(() => {
+      onAuthStateChanged(firebaseAuth, (currentUser) => {
+        if (currentUser) setUser(currentUser);
+        else setUser(null);
+      });
+    }, []);
 
   /*************** data-related function start  **************/
 
@@ -661,6 +704,11 @@ const playNotificationSound = () => {
       value={{
         isLoggedIn,
         user,
+        isSiteOpen,
+        toggleSiteStatus,
+        fetchSiteStatus,
+        firebaseAuth,
+        firestore,
         isAdmin,
         isDeliveryPartner,
         fetchOrdersForDeliveryAgent,

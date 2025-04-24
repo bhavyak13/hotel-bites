@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useFirebase } from "../context/Firebase";
-import { SiteStatusContext } from "../context/siteStatusContext";
+// import { SiteStatusContext } from "../context/siteStatusContext";
 import FoodCard from "../components/FoodCard";
 import "../pages/home.css";
 import { Spinner } from "react-bootstrap";
@@ -9,8 +9,8 @@ import FooterBar from "../components/FooterBar";
 
 const HomePage = () => {
   const firebase = useFirebase();
-  const { isAdmin } = firebase;
-  const { isSiteOpen, toggleSiteStatus } = useContext(SiteStatusContext);
+  const { isAdmin, isSiteOpen, toggleSiteStatus } = firebase;
+  // const { isSiteOpen, toggleSiteStatus } = useContext(SiteStatusContext);
 
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -26,7 +26,7 @@ const HomePage = () => {
       setLoading(false);
     };
     fetchProducts();
-  }, []);
+  }, [firebase]);
 
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
