@@ -28,7 +28,12 @@ import {
 } from "firebase/firestore";
 
 
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getStorage, 
+  ref, 
+  uploadBytes, 
+  getDownloadURL,
+  deleteObject, 
+} from "firebase/storage";
 
 import Razorpay from "razorpay";
 import { toast } from "react-toastify";
@@ -167,6 +172,13 @@ const playNotificationSound = () => {
   // OTP Login Functions
   const sendOtp = async (phoneNumber) => {
     try {
+      // Ensure the recaptcha-container exists in the DOM
+      if (!document.getElementById("recaptcha-container")) {
+        const recaptchaContainer = document.createElement("div");
+        recaptchaContainer.id = "recaptcha-container";
+        document.body.appendChild(recaptchaContainer);
+      }
+
       const recaptchaVerifier = new RecaptchaVerifier(
         "recaptcha-container",
         {
@@ -570,6 +582,114 @@ const playNotificationSound = () => {
     }
   };
 
+  // NEW FUNCTION: Fetch a specific variant by Product ID and Variant ID
+  const fetchVariantById = async (productId, variantId) => {
+    if (!productId || !variantId) {
+      console.error("Product ID and Variant ID are required to fetch variant.");
+      return null;
+    }
+    try {
+      const variantDocRef = doc(
+        firestore,
+        "products",
+        productId,
+        "variants",
+        variantId
+      );
+      const variantDocSnap = await getDoc(variantDocRef);
+
+      if (variantDocSnap.exists()) {
+        // Return the variant data along with its ID
+        return { id: variantDocSnap.id, ...variantDocSnap.data() };
+      } else {
+        console.error("No such variant document found!");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching variant by ID:", error);
+      throw error; // Re-throw the error for the component to handle
+    }
+  };
+
+  // NEW FUNCTION: Update a specific variant
+  const updateVariant = async (productId, variantId, dataToUpdate) => {
+     if (!productId || !variantId) {
+        console.error("Product ID and Variant ID are required to update variant.");
+        throw new Error("Product ID and Variant ID are required.");
+    }
+    try {
+        const variantDocRef = doc(firestore, "products", productId, "variants", variantId);
+
+        // --- Image Handling (Simplified Example - Needs Refinement) ---
+        // This part assumes 'dataToUpdate.productImages' might contain File objects
+        // for new uploads. A more robust solution involves handling this in the component
+        // before calling updateVariant, passing only storage paths/URLs.
+
+        if (dataToUpdate.productImages && dataToUpdate.productImages.length > 0 && dataToUpdate.productImages[0] instanceof File) {
+            console.log("Uploading new images for variant update...");
+            // **Important**: You need a strategy for existing images.
+            // Do you delete old ones? Add to the list? This example replaces them.
+            // Consider fetching the existing variant data first to get old image paths for deletion.
+
+            const uploadPromises = dataToUpdate.productImages.map(async (file) => {
+                 // Use a consistent path structure
+                const imageRef = ref(storage, `products/${productId}/variants/${variantId}/${Date.now()}-${file.name}`);
+                const uploadResult = await uploadBytes(imageRef, file);
+                return uploadResult.ref.fullPath; // Store the storage path
+            });
+
+            const newImagePaths = await Promise.all(uploadPromises);
+            dataToUpdate = { ...dataToUpdate, productImages: newImagePaths }; // Update data with new paths
+
+            // **Optional**: Delete old images here if replacing. You'd need their paths.
+        } else {
+             // If no new File objects, remove the field if it wasn't intended to be updated,
+             // or ensure it holds the correct existing string paths/URLs if you allow reordering/removal without new uploads.
+             // For safety, if it's not an array of strings, remove it to avoid errors.
+            if (dataToUpdate.productImages && !(Array.isArray(dataToUpdate.productImages) && dataToUpdate.productImages.every(item => typeof item === 'string'))) {
+                 delete dataToUpdate.productImages;
+            }
+        }
+        // --- End Image Handling ---
+
+
+        await updateDoc(variantDocRef, dataToUpdate);
+        console.log(`Variant ${variantId} in product ${productId} updated successfully.`);
+        return true; // Indicate success
+    } catch (error) {
+        console.error("Error updating variant:", error);
+        throw error; // Re-throw
+    }
+  };
+
+  const fetchProductById = async (productId) => {
+    try {
+      const productDocRef = doc(firestore, "products", productId); // Reference to the product document
+      const productDoc = await getDoc(productDocRef);
+  
+      if (productDoc.exists()) {
+        return { id: productDoc.id, ...productDoc.data() }; // Return the product data
+      } else {
+        console.error("No such product document!");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching product:", error);
+      throw error;
+    }
+  };
+
+  const updateProduct = async (productId, updatedData) => {
+    try {
+      const productDocRef = doc(firestore, "products", productId); // Reference to the product document
+      await updateDoc(productDocRef, updatedData); // Update the document with the new data
+      console.log("Product updated successfully!");
+    } catch (error) {
+      console.error("Error updating product:", error);
+      throw error;
+    }
+  };
+
   /*************** data-related function end  **************/
 
 
@@ -745,6 +865,8 @@ const playNotificationSound = () => {
         fetchProductsWithFirstVariant,
         fetchCartWithDetails,
         fetchPurchasedItemWithDetails,
+        fetchVariantById,
+        updateVariant,
 
         logoutUser,
 
@@ -761,6 +883,9 @@ const playNotificationSound = () => {
         listenForNewOrders,
         playNotificationSound,
         fetchAddresses,
+        fetchProductById,
+        updateProduct,
+        storage,
       }}
     >
       {props.children}

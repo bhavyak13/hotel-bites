@@ -1,0 +1,146 @@
+/* Center the login form vertically and horizontally */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh; /* Use min-height instead of height */
+    background-color: var(--secondary-color); /* Light background for the page */
+    padding: 20px; /* Add padding for smaller screens */
+  }
+  
+  /* The main box containing the login elements */
+  .login-box {
+    background-color: #ffffff; /* White background for the box */
+    padding: 30px 40px; /* More padding inside the box */
+    border-radius: 15px; /* Rounded corners */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    width: 100%;
+    max-width: 450px; /* Max width for the form */
+    text-align: left; /* Align text left by default */
+  }
+  
+  /* Header styles */
+  .login-header {
+    margin-bottom: 25px;
+    text-align: center;
+  }
+  
+  .login-header-title {
+    font-size: 1.8rem; /* Larger title */
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+  }
+  
+  .login-header-subtitle {
+    font-size: 0.95rem;
+    color: #666;
+  }
+  
+  /* Toggle button container */
+  .login-toggle {
+    display: flex;
+    background-color: #e9ecef; /* Light grey background for the toggle area */
+    border-radius: 25px; /* Rounded container */
+    padding: 5px;
+    margin-bottom: 30px; /* Space below toggle */
+  }
+  
+  /* Individual toggle buttons */
+  .toggle-button {
+  flex: 1; /* Each button takes equal space */
+  padding: 10px 15px;
+  border: none;
+  background-color: transparent; /* No background by default */
+  border-radius: 20px; /* Rounded corners for buttons */
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--text-color); /* Use standard text color */
+  transition: background-color 0.3s ease, color 0.3s ease;
+  text-align: center;
+  font-size: 0.9rem;
+}
+  
+  /* Active toggle button style */
+  .toggle-button.active {
+  background-color: var(--text-light-color); /* Use standard light color for active background */
+  color: var(--primary-color); /* Use primary color for active text */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Slight shadow for active button */
+}
+  
+  /* Form styling */
+  .login-form .form-label {
+    font-weight: 500;
+    margin-bottom: 8px; /* Space below label */
+    font-size: 0.9rem;
+    color: #495057;
+  }
+  
+  .login-form .form-control {
+    border-radius: 10px; /* Rounded input fields */
+    padding: 12px 15px; /* Comfortable padding */
+    border: 1px solid #ced4da; /* Standard border */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    font-size: 0.95rem;
+  }
+  
+  .login-form .form-control:focus {
+    border-color: #86b7fe; /* Bootstrap focus color */
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* Bootstrap focus shadow */
+  }
+  
+  /* Main Submit / Request OTP Button */
+  .btn-submit {
+    padding: 12px 20px; /* Button padding */
+    border-radius: 25px; /* Fully rounded button like image */
+    font-size: 1rem;
+    font-weight: 500;
+    background-color: #5cb85c; /* Green color from image - adjust as needed */
+    border: none; /* Remove default border */
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-submit:hover {
+    background-color: #4cae4c; /* Darker green on hover */
+  }
+  
+  
+  /* Link styles */
+  .forgot-password-link,
+  .back-link {
+    color: #6c757d; /* Subdued color */
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 0; /* Remove default link button padding */
+  }
+  
+  .forgot-password-link:hover,
+  .back-link:hover {
+    color: #0d6efd;
+    text-decoration: underline;
+  }
+  
+  /* Create Account Link */
+  .create-account-link {
+    font-size: 0.9rem;
+    color: #6c757d; /* Grey text */
+  }
+  
+  .create-account-link a {
+    color: #dc3545; /* Red color like image */
+    font-weight: 500;
+    text-decoration: none;
+  }
+  
+  .create-account-link a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Ensure react-bootstrap button variants don't override link styles completely */
+  .btn-link {
+      padding: 0; /* Remove padding for cleaner links */
+      text-decoration: none;
+  }
+  .btn-link:focus {
+      box-shadow: none; /* Remove focus ring for link buttons */
+  }

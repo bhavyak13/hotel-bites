@@ -3,6 +3,7 @@ import { useFirebase } from "../context/Firebase";
 import { Card, ListGroup, Alert, Spinner, Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import OrderFoodCard from "../components/OrderFoodCard";
+import "../pages/orders.css";
 
 const ORDER_STATUSES = [
   "Created",
@@ -17,6 +18,8 @@ const ORDER_STATUSES = [
 const OrdersComponent = ({ isAdminView }) => {
   const firebase = useFirebase();
   const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]); // State for filtered orders
+  const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const printRef = useRef(null);
@@ -67,6 +70,23 @@ const OrdersComponent = ({ isAdminView }) => {
     return () => unsubscribe(); // Cleanup the listener on unmount
   }, [firebase]);
 
+  useEffect(() => {
+    setFilteredOrders(orders); // Sync filtered orders with all orders
+  }, [orders]);
+
+  const handleSearch = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    const filtered = orders.filter((order) =>
+      order.orderId.toLowerCase().includes(query) ||
+      order.phoneNumber?.toLowerCase().includes(query) ||
+      order.address?.toLowerCase().includes(query)
+    );
+
+    setFilteredOrders(filtered);
+  };
+
   const handleStatusChange = async (orderId, newStatus) => {
     setLoading(true);
     await firebase.updateOrderStatus(orderId, { status: newStatus });
@@ -108,7 +128,19 @@ const OrdersComponent = ({ isAdminView }) => {
   return (
     <div className="container mt-5">
       <h3 className="mb-4">{isAdminView ? "All Orders" : "My Orders"}</h3>
-      {orders?.map((order) => (
+
+            {/* Search Bar */}
+      <div className="search-container mb-4">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Search orders by ID, phone number, or address..."
+          value={searchQuery}
+          onChange={handleSearch}
+        />
+      </div>
+
+      {filteredOrders?.map((order) => (
         <Card key={order.orderId} className="mb-3">
           <Card.Header>
             <h5>Order ID: {order.orderId}</h5>
@@ -145,12 +177,21 @@ const OrdersComponent = ({ isAdminView }) => {
             <ListGroup>
               {order.purchasedItems?.map((item, idx) => (
                 <ListGroup.Item key={idx}>
-                  <OrderFoodCard key={item.id} id={item.id} {...item} finalPrice={order?.finalPrice} />
+                        {item ? (
+                <OrderFoodCard
+                  key={item.id}
+                  id={item.id}
+                  {...item}
+                  finalPrice={order?.finalPrice}
+                />
+              ) : (
+                <p>Item details are missing.</p>
+              )}
                 </ListGroup.Item>
               ))}
             </ListGroup>
           </Card.Body>
-          {!isAdminView && (
+          {firebase?.isAdmin && (
             <Card.Footer>
               <Button variant="secondary" onClick={() => handlePrint(order.orderId)}>
                 Print Order
