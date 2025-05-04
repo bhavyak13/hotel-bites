@@ -5,17 +5,17 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { useFirebase } from "../context/Firebase";
 
-
 const RegisterPage = () => {
   const firebase = useFirebase();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState(""); // State for phone number
 
   useEffect(() => {
     if (firebase.isLoggedIn) {
-      // navigate to home
+      // Navigate to home
       navigate("/");
     }
   }, [firebase, navigate]);
@@ -23,14 +23,17 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log("Signin up a user...");
-      const result = await firebase.signupUserWithEmailAndPassword(
-        email,
-        password
-      );
-      console.log("Successfull", result);
+      console.log("Signing up a user...");
+      const result = await firebase.signupUserWithEmailAndPassword(email, password);
+
+      // Save additional user details (e.g., phone number) in Firestore
+      await firebase.saveUserDetails(result.user.uid, { email, phoneNumber });
+
+      console.log("Successfully registered:", result);
+      firebase.displayToastMessage("Account created successfully!");
+      navigate("/");
     } catch (err) {
-      console.log("Unsuccessfull", err.message,err);
+      console.log("Unsuccessful registration:", err.message, err);
       firebase.displayToastMessage(err.message);
     }
   };
@@ -49,6 +52,16 @@ const RegisterPage = () => {
           <Form.Text className="text-muted">
             We'll never share your email with anyone else.
           </Form.Text>
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="formBasicPhone">
+          <Form.Label>Phone Number</Form.Label>
+          <Form.Control
+            type="tel"
+            placeholder="+91 1234567890"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+          />
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="formBasicPassword">

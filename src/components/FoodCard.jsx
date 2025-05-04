@@ -18,14 +18,19 @@ const FoodCard = (data) => {
     }
   }, [productImage]);
 
-  const redirectToOtherPages = (pageName) => {
+  const redirectToOtherPages = (pageName, variantId = null) => {
     const productId = id;
     let link = "";
 
     if (pageName === "detail") {
       link = `/products/${productId}`;
-    } else {
-      link = `/products/${productId}/variants/new`;
+    } else if (pageName === "variant") {
+      link = `/products/${productId}/variants/new`; // Add New Variant
+    } else if (pageName === "edit") {
+      link = `/products/${productId}/variants/edit`; // Edit Variant
+    }
+    else if (pageName === "edit product") {
+      link = `/products/${productId}/edit`; // Edit Variant
     }
 
     navigate(link);
@@ -66,6 +71,22 @@ const FoodCard = (data) => {
         {firebase.isAdmin && (
           <Button onClick={() => redirectToOtherPages("variant")} variant="primary">
             Add New Variant
+          </Button>
+        )}
+        {firebase.isAdmin && (
+          <Button
+            onClick={() => redirectToOtherPages("edit", firstVariant?.id)} // Pass the variant ID
+            variant="primary"
+          >
+            Edit Variant
+          </Button>
+        )}
+        {firebase.isAdmin && (
+          <Button
+            onClick={() => redirectToOtherPages("edit product", firstVariant?.id)} // Pass the variant ID
+            variant="primary"
+          >
+            Edit Product
           </Button>
         )}
       </Card.Body>

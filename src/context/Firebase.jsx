@@ -5,15 +5,21 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 
 import {
   getFirestore,
   collection,
+  onSnapshot,
+  orderBy,
   addDoc,
   getDocs,
   getDoc,
   doc,
+  setDoc,
   query,
   where,
   limit,
@@ -22,15 +28,18 @@ import {
 } from "firebase/firestore";
 
 
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-
+import { getStorage, 
+  ref, 
+  uploadBytes, 
+  getDownloadURL,
+  deleteObject, 
+} from "firebase/storage";
 
 import Razorpay from "razorpay";
 import { toast } from "react-toastify";
 import axios from "axios";
 
 import { v4 as uuidv4 } from 'uuid';
-
 
 const FirebaseContext = createContext(null);
 
@@ -48,25 +57,216 @@ const firebaseConfig = {
 
 export const useFirebase = () => useContext(FirebaseContext);
 
-
 const firebaseApp = initializeApp(firebaseConfig);
 const firebaseAuth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
 
-
-
 export const FirebaseProvider = (props) => {
+  const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isSiteOpen, setIsSiteOpen] = useState(true); // Default to true while loading
+  const [isDeliveryPartner, setIsDeliveryPartner] = useState(false);
 
+  useEffect(() => {
+    onAuthStateChanged(firebaseAuth, (user) => {
+      if (user) setUser(user);
+      else setUser(null);
+    });
+  }, []);
+
+  const isLoggedIn = user ? true : false;
+
+  const logoutUser = async () => {
+    try {
+      await firebaseAuth.signOut();
+      console.log("User signed out successfully");
+      setUser(null);
+    } catch (error) {
+      console.error("Sign Out Error", error);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      if (user?.uid == "ukEdfieQ7FaI4rpITgxbtWyBuZZ2") {
+        setIsAdmin(true);
+      } else if (user?.uid == "EEqRTrY732ZaK27XRkjkJbjMq5E2") {
+        setIsDeliveryPartner(true);
+      }
+    } else {
+      if (isAdmin) setIsAdmin(false);
+      if (isDeliveryPartner) setIsDeliveryPartner(false);
+    }
+  }, [user]);
+
+  // Authentication functions
   const signupUserWithEmailAndPassword = (email, password) =>
     createUserWithEmailAndPassword(firebaseAuth, email, password);
 
   const singinUserWithEmailAndPass = (email, password) =>
     signInWithEmailAndPassword(firebaseAuth, email, password);
 
+  // Add this function inside the FirebaseProvider
+const resetPassword = async (email) => {
+  try {
+    await sendPasswordResetEmail(firebaseAuth, email);
+    console.log("Password reset email sent successfully.");
+    displayToastMessage("Password reset email sent successfully!");
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    displayToastMessage(error.message, "error");
+  }
+};
 
+// Add this function inside the FirebaseProvider
+const saveUserDetails = async (userId, userDetails) => {
+  try {
+    const userDocRef = doc(firestore, "users", userId); // Save user details in the "users" collection
+    await setDoc(userDocRef, userDetails);
+    console.log("User details saved successfully.");
+  } catch (error) {
+    console.error("Error saving user details:", error);
+    throw error;
+  }
+};
 
+// Function to fetch phone number from the "users" collection
+const fetchPhoneNumber = async (userId) => {
+  try {
+    const userDocRef = doc(firestore, "users", userId); // Reference to the user's document
+    const userDoc = await getDoc(userDocRef); // Fetch the document
 
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      return userData.phoneNumber || null; // Return the phone number if it exists
+    } else {
+      console.error("No such user document!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching phone number:", error);
+    throw error;
+  }
+};
+
+const listenForNewOrders = (callback) => {
+  const ordersCollectionRef = collection(firestore, "orders");
+  const q = query(ordersCollectionRef, orderBy("_createdDate", "desc"));
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    const newOrders = snapshot.docChanges().filter((change) => change.type === "added");
+    if (newOrders.length > 0) {
+      callback(newOrders.map((change) => ({ id: change.doc.id, ...change.doc.data() })));
+    }
+  });
+
+  return unsubscribe; // Return the unsubscribe function for cleanup
+};
+
+const playNotificationSound = () => {
+  const audio = new Audio("/notification.wav"); // Path to the sound file in the public folder
+  audio.play();
+};
+
+  // OTP Login Functions
+  const sendOtp = async (phoneNumber) => {
+    try {
+      // Ensure the recaptcha-container exists in the DOM
+      if (!document.getElementById("recaptcha-container")) {
+        const recaptchaContainer = document.createElement("div");
+        recaptchaContainer.id = "recaptcha-container";
+        document.body.appendChild(recaptchaContainer);
+      }
+      const recaptchaVerifier = new RecaptchaVerifier(
+        firebaseAuth,
+        "recaptcha-container",
+        {
+          size: "invisible",
+          callback: (response) => {
+            console.log("reCAPTCHA verified:", response);
+          },
+        },
+      );
+      const confirmationResult = await signInWithPhoneNumber(
+        firebaseAuth,
+        phoneNumber,
+        recaptchaVerifier
+      );
+      return confirmationResult; // Return the confirmation result to verify OTP later
+    } catch (error) {
+      console.error("Error sending OTP:", error);
+      throw error;
+    }
+  };
+
+  const verifyOtp = async (confirmationResult, otp) => {
+    try {
+      const userCredential = await confirmationResult.confirm(otp);
+      console.log("User signed in successfully:", userCredential.user);
+      return userCredential.user;
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+      throw error;
+    }
+  };
+
+  const fetchAddresses = async () => {
+    try {
+      const addressesCollectionRef = collection(firestore, "delivery_addresses");
+      const snapshot = await getDocs(addressesCollectionRef);
+      const addresses = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      return addresses; // Return the fetched addresses
+    } catch (error) {
+      console.error("Error fetching addresses:", error);
+      throw error;
+    }
+  };
+
+  // Fetch the site status from Firestore
+    const fetchSiteStatus = async () => {
+      try {
+        const siteStatusDocRef = doc(firestore, "siteStatus", "global");
+        const siteStatusDoc = await getDoc(siteStatusDocRef);
+        if (siteStatusDoc.exists()) {
+          setIsSiteOpen(siteStatusDoc.data().isSiteOpen);
+        } else {
+          console.log("Site status document does not exist. Initializing...");
+          await setDoc(siteStatusDocRef, { isSiteOpen: true }); // Default to true
+          setIsSiteOpen(true);
+        }
+      } catch (error) {
+        console.error("Error fetching site status:", error);
+      }
+    };
+  
+    // Toggle the site status in Firestore
+    const toggleSiteStatus = async () => {
+      try {
+        const newStatus = !isSiteOpen; // Toggle the current status
+        console.log("Toggling site status to:", newStatus); // Debugging log
+        setIsSiteOpen(newStatus); // Update local state
+        await setDoc(doc(firestore, "siteStatus", "global"), { isSiteOpen: newStatus });
+        console.log("Site status updated successfully in Firestore."); // Debugging log
+      } catch (error) {
+        console.error("Error updating site status:", error); // Log any errors
+      }
+    };
+  
+    useEffect(() => {
+      // Fetch site status on component mount
+      fetchSiteStatus();
+    }, []);
+  
+    useEffect(() => {
+      onAuthStateChanged(firebaseAuth, (currentUser) => {
+        if (currentUser) setUser(currentUser);
+        else setUser(null);
+      });
+    }, []);
 
   /*************** data-related function start  **************/
 
@@ -109,14 +309,12 @@ export const FirebaseProvider = (props) => {
     return querySnapshot;
   };
 
-
   const getSubCollectionAllDocuments = async (collection1Name, collection1Id, collection2Name) => {
     const collectionRef = collection(firestore, collection1Name, collection1Id, collection2Name);
     const querySnapshot = await getDocs(collectionRef);
     // // console.log("BK getSubCollectionAllDocuments res", querySnapshot);
     return querySnapshot;
   };
-
 
   const getDocById = async (id, collectionName) => {
     const docRef = doc(firestore, collectionName, id);
@@ -173,7 +371,6 @@ export const FirebaseProvider = (props) => {
     }
   }
 
-
   const fetchCartWithDetails = async (collectionName) => {
     try {
       // Step 1: Fetch all cart items (single query)
@@ -183,8 +380,6 @@ export const FirebaseProvider = (props) => {
       const cartRef = collection(firestore, collectionName);
       const q = query(cartRef, where("userId", "==", user.uid));
       const cartSnapshot = await getDocs(q);
-
-
 
       const cartItems = cartSnapshot.docs.map(doc => ({
         id: doc.id,
@@ -217,7 +412,6 @@ export const FirebaseProvider = (props) => {
       console.error("Error fetching cart details:", error);
     }
   };
-
 
   const fetchPurchasedItemWithDetails = async (data) => {
     try {
@@ -268,7 +462,6 @@ export const FirebaseProvider = (props) => {
     }
   };
 
-
   const checkIsItemAlreadyInCart = async (collectionName, productId, variantId) => {
     try {
       const cartRef = collection(firestore, collectionName);
@@ -287,7 +480,6 @@ export const FirebaseProvider = (props) => {
       return null;
     }
   };
-
 
   const fetchOrders = async () => {
     try {
@@ -312,14 +504,11 @@ export const FirebaseProvider = (props) => {
 
       return ordersList;
 
-      return ordersList;
     } catch (error) {
       console.error("Error fetching orders:", error);
       return [];
     }
   };
-
-
 
   const fetchOrdersForDeliveryAgent = async (deliveryPartnerId) => {
     try {
@@ -366,13 +555,9 @@ export const FirebaseProvider = (props) => {
     }
   };
 
-
-
   const getImageURL = (path) => {
     return getDownloadURL(ref(storage, path));
   };
-
-
 
   const displayToastMessage = (toastMessage) => {
     toast(toastMessage);
@@ -394,6 +579,113 @@ export const FirebaseProvider = (props) => {
     }
   };
 
+  // NEW FUNCTION: Fetch a specific variant by Product ID and Variant ID
+  const fetchVariantById = async (productId, variantId) => {
+    if (!productId || !variantId) {
+      console.error("Product ID and Variant ID are required to fetch variant.");
+      return null;
+    }
+    try {
+      const variantDocRef = doc(
+        firestore,
+        "products",
+        productId,
+        "variants",
+        variantId
+      );
+      const variantDocSnap = await getDoc(variantDocRef);
+
+      if (variantDocSnap.exists()) {
+        // Return the variant data along with its ID
+        return { id: variantDocSnap.id, ...variantDocSnap.data() };
+      } else {
+        console.error("No such variant document found!");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching variant by ID:", error);
+      throw error; // Re-throw the error for the component to handle
+    }
+  };
+
+  // NEW FUNCTION: Update a specific variant
+  const updateVariant = async (productId, variantId, dataToUpdate) => {
+     if (!productId || !variantId) {
+        console.error("Product ID and Variant ID are required to update variant.");
+        throw new Error("Product ID and Variant ID are required.");
+    }
+    try {
+        const variantDocRef = doc(firestore, "products", productId, "variants", variantId);
+
+        // --- Image Handling (Simplified Example - Needs Refinement) ---
+        // This part assumes 'dataToUpdate.productImages' might contain File objects
+        // for new uploads. A more robust solution involves handling this in the component
+        // before calling updateVariant, passing only storage paths/URLs.
+
+        if (dataToUpdate.productImages && dataToUpdate.productImages.length > 0 && dataToUpdate.productImages[0] instanceof File) {
+            console.log("Uploading new images for variant update...");
+            // **Important**: You need a strategy for existing images.
+            // Do you delete old ones? Add to the list? This example replaces them.
+            // Consider fetching the existing variant data first to get old image paths for deletion.
+
+            const uploadPromises = dataToUpdate.productImages.map(async (file) => {
+                 // Use a consistent path structure
+                const imageRef = ref(storage, `products/${productId}/variants/${variantId}/${Date.now()}-${file.name}`);
+                const uploadResult = await uploadBytes(imageRef, file);
+                return uploadResult.ref.fullPath; // Store the storage path
+            });
+
+            const newImagePaths = await Promise.all(uploadPromises);
+            dataToUpdate = { ...dataToUpdate, productImages: newImagePaths }; // Update data with new paths
+
+            // **Optional**: Delete old images here if replacing. You'd need their paths.
+        } else {
+             // If no new File objects, remove the field if it wasn't intended to be updated,
+             // or ensure it holds the correct existing string paths/URLs if you allow reordering/removal without new uploads.
+             // For safety, if it's not an array of strings, remove it to avoid errors.
+            if (dataToUpdate.productImages && !(Array.isArray(dataToUpdate.productImages) && dataToUpdate.productImages.every(item => typeof item === 'string'))) {
+                 delete dataToUpdate.productImages;
+            }
+        }
+        // --- End Image Handling ---
+
+
+        await updateDoc(variantDocRef, dataToUpdate);
+        console.log(`Variant ${variantId} in product ${productId} updated successfully.`);
+        return true; // Indicate success
+    } catch (error) {
+        console.error("Error updating variant:", error);
+        throw error; // Re-throw
+    }
+  };
+
+  const fetchProductById = async (productId) => {
+    try {
+      const productDocRef = doc(firestore, "products", productId); // Reference to the product document
+      const productDoc = await getDoc(productDocRef);
+  
+      if (productDoc.exists()) {
+        return { id: productDoc.id, ...productDoc.data() }; // Return the product data
+      } else {
+        console.error("No such product document!");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching product:", error);
+      throw error;
+    }
+  };
+
+  const updateProduct = async (productId, updatedData) => {
+    try {
+      const productDocRef = doc(firestore, "products", productId); // Reference to the product document
+      await updateDoc(productDocRef, updatedData); // Update the document with the new data
+      console.log("Product updated successfully!");
+    } catch (error) {
+      console.error("Error updating product:", error);
+      throw error;
+    }
+  };
 
   /*************** data-related function end  **************/
 
@@ -405,13 +697,9 @@ export const FirebaseProvider = (props) => {
 
   /*************** RAZORPAY function begin  **************/
 
-
-
-
   const generateUniqueId = () => {
     return uuidv4();
   };
-
 
   const createRazorpayOrder = async (orderPayload) => {
     try {
@@ -463,7 +751,6 @@ export const FirebaseProvider = (props) => {
     }
   }
 
-
   const createOrder = async (createOrderPayload) => {
     // ORDER PAYLOAD!!
 
@@ -501,48 +788,47 @@ export const FirebaseProvider = (props) => {
     return orderRef.id;
   }
 
-
   /*************** RAZORPAY function end  **************/
 
 
-  const [user, setUser] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isDeliveryPartner, setIsDeliveryPartner] = useState(false);
+  // const [user, setUser] = useState(null);
+  // const [isAdmin, setIsAdmin] = useState(false);
+  // const [isDeliveryPartner, setIsDeliveryPartner] = useState(false);
 
-  useEffect(() => {
-    onAuthStateChanged(firebaseAuth, (user) => {
-      if (user) setUser(user);
-      else setUser(null);
-    });
-  }, []);
+  // useEffect(() => {
+  //   onAuthStateChanged(firebaseAuth, (user) => {
+  //     if (user) setUser(user);
+  //     else setUser(null);
+  //   });
+  // }, []);
 
-  const isLoggedIn = user ? true : false;
+  // const isLoggedIn = user ? true : false;
 
-  const logoutUser = async () => {
-    try {
-      await firebaseAuth.signOut();
-      console.log("User signed out successfully");
-      setUser(null);
+  // const logoutUser = async () => {
+  //   try {
+  //     await firebaseAuth.signOut();
+  //     console.log("User signed out successfully");
+  //     setUser(null);
 
-    } catch (error) {
-      console.error("Sign Out Error", error);
-    }
-  };
+  //   } catch (error) {
+  //     console.error("Sign Out Error", error);
+  //   }
+  // };
 
-  useEffect(() => {
-    // console.log("BK user", user, user?.uid)
-    if (user) {
-      if (user?.uid == "ukEdfieQ7FaI4rpITgxbtWyBuZZ2") {
-        setIsAdmin(true);
-      } else if (user?.uid == "EEqRTrY732ZaK27XRkjkJbjMq5E2") {
-        setIsDeliveryPartner(true);
-      }
-    }
-    else {
-      if (isAdmin) setIsAdmin(false);
-      if (isDeliveryPartner) setIsDeliveryPartner(false);
-    }
-  }, [user])
+  // useEffect(() => {
+  //   // console.log("BK user", user, user?.uid)
+  //   if (user) {
+  //     if (user?.uid == "ukEdfieQ7FaI4rpITgxbtWyBuZZ2") {
+  //       setIsAdmin(true);
+  //     } else if (user?.uid == "EEqRTrY732ZaK27XRkjkJbjMq5E2") {
+  //       setIsDeliveryPartner(true);
+  //     }
+  //   }
+  //   else {
+  //     if (isAdmin) setIsAdmin(false);
+  //     if (isDeliveryPartner) setIsDeliveryPartner(false);
+  //   }
+  // }, [user])
 
 
   return (
@@ -550,6 +836,11 @@ export const FirebaseProvider = (props) => {
       value={{
         isLoggedIn,
         user,
+        isSiteOpen,
+        toggleSiteStatus,
+        fetchSiteStatus,
+        firebaseAuth,
+        firestore,
         isAdmin,
         isDeliveryPartner,
         fetchOrdersForDeliveryAgent,
@@ -571,14 +862,27 @@ export const FirebaseProvider = (props) => {
         fetchProductsWithFirstVariant,
         fetchCartWithDetails,
         fetchPurchasedItemWithDetails,
+        fetchVariantById,
+        updateVariant,
 
         logoutUser,
 
         displayToastMessage,
         checkIsItemAlreadyInCart,
-        // createRazorpayOrder,
         createOrder,
         createRazorpayPaymentsSuccess,
+
+        sendOtp,
+        verifyOtp,
+        resetPassword,
+        saveUserDetails,
+        fetchPhoneNumber,
+        listenForNewOrders,
+        playNotificationSound,
+        fetchAddresses,
+        fetchProductById,
+        updateProduct,
+        storage,
       }}
     >
       {props.children}

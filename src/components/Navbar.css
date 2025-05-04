@@ -1,47 +1,97 @@
 .navbar {
-    position: sticky;
-    top: 0;
-    background-color: var(--primary-color); /* Use the primary color */
-    z-index: 1000;
-    box-shadow: var(--box-shadow); /* Add a subtle shadow */
-    padding: 10px 20px;
+  position: sticky;
+  top: 0;
+  background-color: var(--primary-color);
+  z-index: 1000;
+  box-shadow: var(--box-shadow);
+  padding: 10px 20px;
 }
 
 .navbar-brand {
-    font-weight: bold;
-    font-size: 1.5rem;
-    color: var(--text-light-color); /* Use the light text color */
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: var(--text-light-color);
 }
 
 .btn-light {
-background-color: var(--text-light-color); /* White */
-color: var(--primary-color); /* Primary color text */
-border: none; /* Remove border */
-border-radius: var(--border-radius);
-padding: 8px 16px;
-transition: background-color 0.3s ease;
+  background-color: var(--text-light-color); /* White */
+  color: var(--primary-color); /* Primary color text */
+  border: none; /* Remove border */
+  border-radius: var(--border-radius);
+  padding: 8px 16px;
+  transition: background-color 0.3s ease;
 }
 
 .btn-light:hover {
-background-color: var(--accent-color); /* Accent color on hover */
+  background-color: var(--accent-color); /* Accent color on hover */
+}
+
+.navbar-toggler {
+  border: none;
+  color: var(--text-light-color);
+}
+
+.navbar-toggler-icon {
+  background-color: var(--text-light-color);
 }
 
 .navbar-nav .nav-link {
-    color: var(--text-light-color);
+  color: var(--text-light-color);
+  font-size: 1rem;
 }
 
-/* Customize the dropdown menu to match the navbar color */
+/* Dropdown menu styling */
 .dropdown-menu {
-    background-color: var(--primary-color); /* Match the navbar's primary color */
-    border: none; /* Remove the border */
-    box-shadow: var(--box-shadow); /* Add a subtle shadow */
+  background-color: var(--primary-color);
+  border: none;
+  box-shadow: var(--box-shadow);
+}
+
+.dropdown-item {
+  color: var(--text-light-color);
+}
+
+.dropdown-item:hover {
+  background-color: var(--accent-color);
+  color: var(--text-light-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 8px 15px;
   }
-  
-  .dropdown-item {
-    color: var(--text-light-color); /* Use the light text color for dropdown items */
+
+  .navbar-brand {
+    font-size: 1.2rem;
   }
-  
-  .dropdown-item:hover {
-    background-color: var(--accent-color); /* Highlight on hover with the accent color */
-    color: var(--text-light-color); /* Keep text color consistent */
+
+  .navbar-nav .nav-link {
+    font-size: 0.9rem;
   }
+
+  .dropdown-menu {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    flex-direction: column; /* Stack navbar items vertically */
+    align-items: flex-start;
+  }
+
+  .navbar-brand {
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+
+  .navbar-nav {
+    width: 100%; /* Full width for nav links */
+  }
+
+  .navbar-nav .nav-link {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+  }
+}

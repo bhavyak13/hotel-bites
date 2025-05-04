@@ -3,6 +3,7 @@ import { useFirebase } from "../context/Firebase";
 import { Card, ListGroup, Alert, Spinner, Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import OrderFoodCard from "../components/OrderFoodCard";
+import "../pages/orders.css";
 
 const ORDER_STATUSES = [
   "Created",
@@ -17,6 +18,8 @@ const ORDER_STATUSES = [
 const OrdersComponent = ({ isAdminView }) => {
   const firebase = useFirebase();
   const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]); // State for filtered orders
+  const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const printRef = useRef(null);
@@ -33,7 +36,8 @@ const OrdersComponent = ({ isAdminView }) => {
       const ordersWithDetails = await Promise.all(
         fetchedOrders.map(async (order) => {
           const updatedPurchasedItems = await firebase.fetchPurchasedItemWithDetails(order.purchasedItems);
-          return { ...order, purchasedItems: updatedPurchasedItems };
+          const phoneNumber = await firebase.fetchPhoneNumber(order.userId);
+          return { ...order, purchasedItems: updatedPurchasedItems, phoneNumber };
         })
       );
 
@@ -48,7 +52,40 @@ const OrdersComponent = ({ isAdminView }) => {
 
   useEffect(() => {
     getOrders();
+  
+    // Listen for new orders
+    const unsubscribe = firebase.listenForNewOrders((newOrders) => {
+      if (newOrders.length > 0) {
+        // Play notification sound and display toast message for specific roles
+        if (firebase?.user && !firebase?.isAdmin && !firebase?.isDeliveryPartner) {
+          firebase.playNotificationSound(); // Play the notification sound
+          firebase.displayToastMessage("New order received!");
+        }
+  
+        // Add new orders to the list
+        setOrders((prevOrders) => [...newOrders, ...prevOrders]);
+      }
+    });
+  
+    return () => unsubscribe(); // Cleanup the listener on unmount
   }, [firebase]);
+
+  useEffect(() => {
+    setFilteredOrders(orders); // Sync filtered orders with all orders
+  }, [orders]);
+
+  const handleSearch = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    const filtered = orders.filter((order) =>
+      order.orderId.toLowerCase().includes(query) ||
+      order.phoneNumber?.toLowerCase().includes(query) ||
+      order.address?.toLowerCase().includes(query)
+    );
+
+    setFilteredOrders(filtered);
+  };
 
   const handleStatusChange = async (orderId, newStatus) => {
     setLoading(true);
@@ -91,7 +128,19 @@ const OrdersComponent = ({ isAdminView }) => {
   return (
     <div className="container mt-5">
       <h3 className="mb-4">{isAdminView ? "All Orders" : "My Orders"}</h3>
-      {orders?.map((order) => (
+
+            {/* Search Bar */}
+      <div className="search-container mb-4">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Search orders by ID, phone number, or address..."
+          value={searchQuery}
+          onChange={handleSearch}
+        />
+      </div>
+
+      {filteredOrders?.map((order) => (
         <Card key={order.orderId} className="mb-3">
           <Card.Header>
             <h5>Order ID: {order.orderId}</h5>
@@ -113,6 +162,7 @@ const OrdersComponent = ({ isAdminView }) => {
                 <span className="text-primary ms-2">{order.status}</span>
               )}
             </h6>
+            <h6>Phone Number: {order.phoneNumber || "N/A"}</h6>
             <h6>Final Price: ₹{order.finalPrice}</h6>
             {order.cookingInstructions && <h6><strong>Cooking Instructions:</strong> <span style={{ color: "red" }}>{order.cookingInstructions}</span></h6>}
             <h6>Address: {order?.address}</h6>
@@ -127,12 +177,21 @@ const OrdersComponent = ({ isAdminView }) => {
             <ListGroup>
               {order.purchasedItems?.map((item, idx) => (
                 <ListGroup.Item key={idx}>
-                  <OrderFoodCard key={item.id} id={item.id} {...item} finalPrice={order?.finalPrice} />
+                        {item ? (
+                <OrderFoodCard
+                  key={item.id}
+                  id={item.id}
+                  {...item}
+                  finalPrice={order?.finalPrice}
+                />
+              ) : (
+                <p>Item details are missing.</p>
+              )}
                 </ListGroup.Item>
               ))}
             </ListGroup>
           </Card.Body>
-          {!isAdminView && (
+          {firebase?.isAdmin && (
             <Card.Footer>
               <Button variant="secondary" onClick={() => handlePrint(order.orderId)}>
                 Print Order
