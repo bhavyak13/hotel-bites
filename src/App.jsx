@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
-import { SiteStatusProvider } from "./context/siteStatusContext"; // Import SiteStatusProvider
-
+// import { SiteStatusProvider } from "./context/siteStatusContext"; // Import SiteStatusProvider
+import { FirebaseProvider } from "./context/Firebase"; // Use FirebaseProvider
 // CSS
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
@@ -17,16 +17,20 @@ import AppWrapper from "./AppWrapper";
 import DeliveryPartnerOrderScreen from "./pages/DeliveryPartnerOrderScreen";
 import OrdersComponent from "./pages/Orders";
 import AddNewProduct from "./pages/AddNew/AddNewProduct";
+import EditProduct from "./pages/AddNew/EditProduct";
 import AddNewVariant from "./pages/AddNew/AddNewVariant";
+import EditVariant from "./pages/AddNew/EditVariant";
 import ShippingPolicy from "./pages/ShippingDelivery";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsAndConditions from "./pages/TermsConditions";
 import CancellationRefundPolicy from "./pages/CancellationRefund";
 import ContactUs from "./pages/Contact-us";
+import AddNewAddress from "./pages/AddNew/AddNewAddress";
+
 
 function App() {
   return (
-    <SiteStatusProvider> {/* Wrap the entire app */}
+    <FirebaseProvider> {/* Wrap the entire app */}
       <div>
         <MyNavbar />
         <ToastContainer />
@@ -42,15 +46,18 @@ function App() {
           <Route path="/products" element={<AppWrapper><HomePage /></AppWrapper>} />
           <Route path="/products/new" element={<AppWrapper status={{ requiresAdmin: true }}><AddNewProduct /></AppWrapper>} />
           <Route path="/products/:productId" element={<AppWrapper status={{}}><BookDetailPage /></AppWrapper>} />
+          <Route path="/products/:productId/edit" element={<AppWrapper status={{}}><EditProduct /></AppWrapper>} />
           <Route path="/products/:productId/variants/new" element={<AppWrapper status={{ requiresAdmin: true }}><AddNewVariant /></AppWrapper>} />
+          <Route path="/products/:productId/variants/edit" element={<AppWrapper status={{ requiresAdmin: true }}><EditVariant /></AppWrapper>} />
           <Route path="/cart" element={<AppWrapper status={{ requiresLogin: true }}><Cart /></AppWrapper>} />
           <Route path="/orders/delivery-partner" element={<AppWrapper status={{ deliveryScreen: true }}><DeliveryPartnerOrderScreen /></AppWrapper>} />
           <Route path="/orders" element={<AppWrapper status={{ requiresLogin: true }}><OrdersComponent /></AppWrapper>} />
           <Route path="/orders/all" element={<AppWrapper status={{ requiresAdmin: true }}><OrdersComponent isAdminView={true} /></AppWrapper>} />
+          <Route path="/address" element={<AppWrapper status={{ requiresAdmin: true }}><AddNewAddress /></AppWrapper>} />
         </Routes>
         <FooterBar />
       </div>
-    </SiteStatusProvider>
+    </FirebaseProvider>
   );
 }
 

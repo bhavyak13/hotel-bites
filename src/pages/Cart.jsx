@@ -9,13 +9,13 @@ import { useNavigate } from "react-router-dom";
 import "../pages/home.css";
 import { paymentMethods } from "../context/utils";
 
-const initialAddresses = [
-  "Old OPD , Safdarjung Hospital , New Delhi, Delhi - 110029",
-  "Main OPD , Safdarjung Hospital , New Delhi, Delhi - 110029",
-  "NEB , Safdarjung Hospital , New Delhi, Delhi - 110029",
-  "SSB , Safdarjung Hospital , New Delhi, Delhi - 110029",
-  "SIC , Safdarjung Hospital , New Delhi, Delhi - 110029"
-];
+// const initialAddresses = [
+//   "Old OPD , Safdarjung Hospital , New Delhi, Delhi - 110029",
+//   "Main OPD , Safdarjung Hospital , New Delhi, Delhi - 110029",
+//   "NEB , Safdarjung Hospital , New Delhi, Delhi - 110029",
+//   "SSB , Safdarjung Hospital , New Delhi, Delhi - 110029",
+//   "SIC , Safdarjung Hospital , New Delhi, Delhi - 110029"
+// ];
 
 
 const Cart = () => {
@@ -25,7 +25,7 @@ const Cart = () => {
   const [data, setData] = useState([]);
   const [finalPrice, setFinalPrice] = useState(0);
   const [selectedAddress, setSelectedAddress] = useState(""); // State for selected address
-  const [addresses, setAddresses] = useState(initialAddresses); // Available addresses
+  const [addresses, setAddresses] = useState([]); // Replace initialAddresses with Firestore data
   const [landmark, setLandmark] = useState(""); // State for landmark
   const [cookingInstructions, setCookingInstructions] = useState(""); // State for cooking instructions
   const [loading, setLoading] = useState(true);
@@ -43,14 +43,26 @@ const Cart = () => {
 
   }
 
+  // Fetch addresses from Firestore
+  const fetchAddresses = async () => {
+    try {
+      const fetchedAddresses = await firebase.fetchAddresses(); // Fetch addresses from Firestore
+      const addressList = fetchedAddresses.map((address) => address.address); // Extract address strings
+      setAddresses(addressList); // Update the addresses state
+    } catch (error) {
+      console.error("Error fetching addresses:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+    fetchAddresses(); // Fetch addresses on component mount
+  }, [firebase]);
+
   const handleRemoveDocument = async (id) => {
     await firebase.removeDocumentWithId("shoppingCartItems", id);
     await fetchData();
   }
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const calculateFinalPrice = () => {
     const total = data.reduce((sum, item) => {

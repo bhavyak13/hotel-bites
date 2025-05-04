@@ -15,7 +15,8 @@
   "dependencies": {
     "axios": "^1.8.3",
     "bootstrap": "^5.3.3",
-    "firebase": "^11.3.1",
+    "firebase": "^11.6.0",
+    "hotel-bites": "file:",
     "my-app": "file:",
     "razorpay": "^2.9.5",
     "react": "^19.0.0",
