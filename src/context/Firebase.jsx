@@ -178,8 +178,8 @@ const playNotificationSound = () => {
         recaptchaContainer.id = "recaptcha-container";
         document.body.appendChild(recaptchaContainer);
       }
-
       const recaptchaVerifier = new RecaptchaVerifier(
+        firebaseAuth,
         "recaptcha-container",
         {
           size: "invisible",
@@ -187,15 +187,12 @@ const playNotificationSound = () => {
             console.log("reCAPTCHA verified:", response);
           },
         },
-        firebaseAuth
       );
-
       const confirmationResult = await signInWithPhoneNumber(
         firebaseAuth,
         phoneNumber,
         recaptchaVerifier
       );
-
       return confirmationResult; // Return the confirmation result to verify OTP later
     } catch (error) {
       console.error("Error sending OTP:", error);
