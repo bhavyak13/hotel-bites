@@ -212,6 +212,7 @@ const Cart = () => {
         retry: false,
       };
 
+      console.log("Using Razorpay Key ID:", import.meta.env.VITE_RAZORPAY_KEY_ID); // Debugging log
       const rzp = new window.Razorpay(options);
       rzp.on("payment.failed", async function (response) {
         showFailureAlert();
