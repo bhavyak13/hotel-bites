@@ -12,6 +12,17 @@ const RegisterPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phoneNumber, setPhoneNumber] = useState(""); // State for phone number
+  const [allfieldsfilled, setallfieldsfilled] = useState(false);
+
+  useEffect(() => {
+    const isValidPhone = /^\d{10}$/.test(phoneNumber); // Simple 10-digit check
+    if (!email || !password || !isValidPhone) {
+      setallfieldsfilled(false);
+    } else {
+      setallfieldsfilled(true);
+    }
+  }, [email, password, phoneNumber]);
+
 
   useEffect(() => {
     if (firebase.isLoggedIn) {
@@ -23,6 +34,10 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      if (!allfieldsfilled) {
+        firebase.displayToastMessage("Please fill all fields");
+        return;
+      }
       console.log("Signing up a user...");
       const result = await firebase.signupUserWithEmailAndPassword(email, password);
 
@@ -37,6 +52,8 @@ const RegisterPage = () => {
       firebase.displayToastMessage(err.message);
     }
   };
+
+
 
   return (
     <div className="container mt-5">
@@ -57,10 +74,18 @@ const RegisterPage = () => {
         <Form.Group className="mb-3" controlId="formBasicPhone">
           <Form.Label>Phone Number</Form.Label>
           <Form.Control
-            type="tel"
-            placeholder="+91 1234567890"
+            type="text"
+            placeholder="Enter 10-digit phone number"
             value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
+            onChange={(e) => {
+              const input = e.target.value;
+              // Allow only digits
+              if (/^\d*$/.test(input)) {
+                setPhoneNumber(input);
+              }
+            }}
+            maxLength={10}
+            required
           />
         </Form.Group>
 
@@ -74,7 +99,7 @@ const RegisterPage = () => {
           />
         </Form.Group>
 
-        <Button variant="primary" type="submit">
+        <Button variant="primary" type="submit" disabled={!allfieldsfilled}>
           Create Account
         </Button>
       </Form>
