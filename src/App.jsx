@@ -42,7 +42,7 @@ function App() {
           <Route path="/cancel-refund" element={<AppWrapper><CancellationRefundPolicy /></AppWrapper>} />
           <Route path="/shipping-policy" element={<AppWrapper><ShippingPolicy /></AppWrapper>} />
           <Route path="/login" element={<AppWrapper><LoginPage /></AppWrapper>} />
-          <Route path="/register" element={<AppWrapper><RegisterPage /></AppWrapper>} />
+          {/* <Route path="/register" element={<AppWrapper><RegisterPage /></AppWrapper>} /> */}
           <Route path="/products" element={<AppWrapper><HomePage /></AppWrapper>} />
           <Route path="/products/new" element={<AppWrapper status={{ requiresAdmin: true }}><AddNewProduct /></AppWrapper>} />
           <Route path="/products/:productId" element={<AppWrapper status={{}}><BookDetailPage /></AppWrapper>} />

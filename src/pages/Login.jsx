@@ -54,8 +54,8 @@ const LoginPage = () => {
     const formattedPhoneNumber = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
 
     if (!formattedPhoneNumber || formattedPhoneNumber.length < 11) { // e.g., +91 requires 13 digits total
-       firebase.displayToastMessage("Please enter a valid 10-digit phone number.", "error");
-       return;
+      firebase.displayToastMessage("Please enter a valid 10-digit phone number.", "error");
+      return;
     }
     setLoading(true); // Start loading
     try {
@@ -79,17 +79,17 @@ const LoginPage = () => {
 
   const handleOtpLogin = async (e) => {
     e.preventDefault();
-     if (!otp || otp.length !== 6) { // Strict 6-digit OTP validation
-       firebase.displayToastMessage("Please enter the 6-digit OTP.", "error");
-       return;
+    if (!otp || otp.length !== 6) { // Strict 6-digit OTP validation
+      firebase.displayToastMessage("Please enter the 6-digit OTP.", "error");
+      return;
     }
-     // --- FIX: Check if confirmationResult exists ---
-     if (!confirmationResult) {
-        firebase.displayToastMessage("OTP session expired or invalid. Please request OTP again.", "error");
-        setOtpSent(false); // Reset state to request again
-        setOtp("");
-        return;
-     }
+    // --- FIX: Check if confirmationResult exists ---
+    if (!confirmationResult) {
+      firebase.displayToastMessage("OTP session expired or invalid. Please request OTP again.", "error");
+      setOtpSent(false); // Reset state to request again
+      setOtp("");
+      return;
+    }
 
     setLoading(true); // Start loading
     try {
@@ -103,7 +103,7 @@ const LoginPage = () => {
       firebase.displayToastMessage(`OTP login failed: ${err.message || 'Unknown error'}`, "error");
       // Optionally clear OTP input on failure: setOtp("");
     } finally {
-        setLoading(false); // Stop loading
+      setLoading(false); // Stop loading
     }
   };
 
@@ -121,7 +121,7 @@ const LoginPage = () => {
       console.error("Error resetting password:", err.message);
       firebase.displayToastMessage(`Password reset failed: ${err.message}`, "error");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -130,7 +130,7 @@ const LoginPage = () => {
   // Render Password Reset Form
   if (showResetForm) {
     // ... (password reset form remains the same, maybe add loading state to button)
-     return (
+    return (
       <div className="login-container">
         <div className="login-box">
           <h2 className="login-header-title">Reset Password</h2>
@@ -172,8 +172,8 @@ const LoginPage = () => {
       <div className="login-box">
         {/* Header */}
         <div className="login-header">
-          <h2 className="login-header-title">Login Account</h2>
-          <p className="login-header-subtitle">Hello, welcome back to our account</p>
+          <h2 className="login-header-title">Login / Sign Up</h2>
+          <p className="login-header-subtitle">Enter your phone number to get started</p>
         </div>
 
         {/* Toggle Buttons */}
@@ -212,15 +212,15 @@ const LoginPage = () => {
 
             {/* Password Input */}
             <Form.Group className="mb-4" controlId="formLoginPassword">
-               <Form.Label>Password</Form.Label>
-               <Form.Control
+              <Form.Label>Password</Form.Label>
+              <Form.Control
                 onChange={(e) => setPassword(e.target.value)}
                 value={password}
                 type="password"
                 placeholder="Password"
                 required
                 disabled={loading}
-               />
+              />
             </Form.Group>
 
             {/* Submit Button */}
@@ -229,7 +229,7 @@ const LoginPage = () => {
             </Button>
 
             {/* Forgot Password Link */}
-            <div className="text-center mt-3">
+            {/* <div className="text-center mt-3">
               <Button
                 variant="link"
                 onClick={() => setShowResetForm(true)}
@@ -238,7 +238,11 @@ const LoginPage = () => {
               >
                 Forgot Password?
               </Button>
+            </div> */}
+            <div className="footer_basics mt-2" style={{color: "red"}}>
+              Email featture is not avialable. Please use Phone number login
             </div>
+
           </Form>
         )}
 
@@ -246,9 +250,9 @@ const LoginPage = () => {
           <Form onSubmit={otpSent ? handleOtpLogin : handleRequestOtp} className="login-form">
             {/* Phone Input */}
             <Form.Group className="mb-3" controlId="formPhoneNumber">
-               <Form.Label>Phone Number (10 digits)</Form.Label>
-               {/* Add placeholder or helper text for country code if needed */}
-               <Form.Control
+              <Form.Label>Phone Number (10 digits)</Form.Label>
+              {/* Add placeholder or helper text for country code if needed */}
+              <Form.Control
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 value={phoneNumber}
                 type="tel"
@@ -256,7 +260,7 @@ const LoginPage = () => {
                 required
                 disabled={otpSent || loading} // Disable phone input after requesting OTP or during loading
                 maxLength={10} // Max length for 10 digits
-               />
+              />
             </Form.Group>
 
             {/* OTP Input (conditional) */}
@@ -284,22 +288,22 @@ const LoginPage = () => {
 
             {/* Optionally add a way to resend OTP or change number */}
             {otpSent && !loading && (
-                 <Button
-                    variant="link"
-                    onClick={() => { setOtpSent(false); setConfirmationResult(null); setOtp(""); }}
-                    className="back-link mt-2"
-                    size="sm"
-                 >
-                    Change Number / Resend OTP
-                 </Button>
+              <Button
+                variant="link"
+                onClick={() => { setOtpSent(false); setConfirmationResult(null); setOtp(""); }}
+                className="back-link mt-2"
+                size="sm"
+              >
+                Change Number / Resend OTP
+              </Button>
             )}
           </Form>
         )}
 
-         {/* Create Account Link */}
-         <div className="create-account-link mt-4 text-center">
+        {/* Create Account Link */}
+        {/* <div className="create-account-link mt-4 text-center">
             Not registered yet? <Link to="/register">Create an Account</Link>
-        </div>
+        </div> */}
 
       </div>
       {/* This div is needed for RecaptchaVerifier */}

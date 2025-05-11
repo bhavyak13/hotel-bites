@@ -67,9 +67,6 @@ const MyNavbar = () => {
             <Nav.Link as={Link} to={`/cart`}>Cart</Nav.Link>
           )}
           {!firebase?.user && (
-            <Nav.Link as={Link} to={`/register`}>Register</Nav.Link>
-          )}
-          {!firebase?.user && (
             <Nav.Link as={Link} to={`/login`}>Login</Nav.Link>
           )}
           {/* {!firebase?.user && (
