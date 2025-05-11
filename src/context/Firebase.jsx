@@ -469,6 +469,7 @@ const playNotificationSound = () => {
         cartRef,
         where("productId", "==", productId),
         where("variantId", "==", variantId),
+        where("userId", "==", user?.uid),
         limit(1) // Limit to one result as we only need to check existence
       );
 
