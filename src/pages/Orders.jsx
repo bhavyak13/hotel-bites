@@ -32,11 +32,17 @@ const OrdersComponent = ({ isAdminView }) => {
 
   const getOrders = async () => {
     try {
-      const fetchedOrders = isAdminView ? await firebase.fetchAllOrders() : await firebase.fetchOrders();
+      const fetchedOrders = isAdminView
+        ? await firebase.fetchAllOrders()
+        : await firebase.fetchOrders();
+
       const ordersWithDetails = await Promise.all(
         fetchedOrders.map(async (order) => {
           const updatedPurchasedItems = await firebase.fetchPurchasedItemWithDetails(order.purchasedItems);
-          const phoneNumber = await firebase.fetchPhoneNumber(order.userId);
+
+          // Fetch phone number from Firebase Authentication
+          const phoneNumber = firebase?.user?.phoneNumber || "N/A";
+
           return { ...order, purchasedItems: updatedPurchasedItems, phoneNumber };
         })
       );
