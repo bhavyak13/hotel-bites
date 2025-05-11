@@ -57,7 +57,7 @@ const OrdersComponent = ({ isAdminView }) => {
     const unsubscribe = firebase.listenForNewOrders((newOrders) => {
       if (newOrders.length > 0) {
         // Play notification sound and display toast message for specific roles
-        if (firebase?.user && !firebase?.isAdmin && !firebase?.isDeliveryPartner) {
+        if (!(firebase?.user && !firebase?.isAdmin && !firebase?.isDeliveryPartner)) {
           firebase.playNotificationSound(); // Play the notification sound
           firebase.displayToastMessage("New order received!");
         }
