@@ -1,4 +1,3 @@
-
 /* eslint-disable */
 import { onRequest } from "firebase-functions/v2/https";
 import { logger } from "firebase-functions";
@@ -49,6 +48,8 @@ export const createRazorPayOrder = onRequest(async (req, res) => {
                 payment_capture: 1,
             };
 
+            console.log("Received request to create Razorpay order with options:", options);
+
             const response = await razorpay.orders.create(options);
             res.status(200).json(response);
         } catch (error) {
@@ -93,6 +94,7 @@ export const verifyPaymentSignature = onRequest((req, res) => {
             const orderRef = await getDocById(orderId, "orders");
 
             console.log("razorpayPaymentSuccessData:", data);
+            console.log("Verifying Razorpay payment signature with data:", data);
 
             if (!data || !data.razorpayOrderId || !data.razorpayPaymentId || !data.razorpaySignature) {
                 return res.status(400).json({ error: "Invalid razorpayPaymentSuccessData data" });

@@ -116,6 +116,7 @@ const Cart = () => {
       status: 'Created',
     };
 
+    console.log("Order payload before sending to Firebase:", orderPayload);
     console.log(orderPayload);
 
     // console.log("bk orderId,orderPayload", orderId, orderPayload)

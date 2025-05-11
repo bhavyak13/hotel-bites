@@ -13,6 +13,8 @@ const ORDER_STATUSES = [
 const DeliveryPartnerOrderScreen = () => {
   const firebase = useFirebase();
   const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]); // For filtered orders
+  const [searchQuery, setSearchQuery] = useState(""); // For search query
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -29,9 +31,14 @@ const DeliveryPartnerOrderScreen = () => {
       const ordersWithDetails = await Promise.all(
         fetchedOrders.map(async (order) => {
           const updatedPurchasedItems = await firebase.fetchPurchasedItemWithDetails(order.purchasedItems);
+
+          // Ensure phone number is included in the order data
+          const phoneNumber = order.phoneNumber || "N/A";
+
           return {
             ...order,
-            purchasedItems: updatedPurchasedItems
+            purchasedItems: updatedPurchasedItems,
+            phoneNumber, // Add phone number to the order object
           };
         })
       );
@@ -45,6 +52,7 @@ const DeliveryPartnerOrderScreen = () => {
       // console.log("BK DeliveryPartnerOrderScreen sortedOrders", sortedOrders);
 
       setOrders(sortedOrders);
+      setFilteredOrders(sortedOrders); // Initialize filtered orders
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
@@ -55,6 +63,20 @@ const DeliveryPartnerOrderScreen = () => {
   useEffect(() => {
     getOrders();
   }, [firebase]);
+
+  const handleSearch = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    const filtered = orders.filter(
+      (order) =>
+        order.orderId.toLowerCase().includes(query) ||
+        order.phoneNumber.toLowerCase().includes(query) ||
+        (order.address && order.address.toLowerCase().includes(query))
+    );
+
+    setFilteredOrders(filtered);
+  };
 
   const handleStatusChange = async (orderId, newStatus) => {
     setLoading(true);
@@ -85,7 +107,7 @@ const DeliveryPartnerOrderScreen = () => {
     );
   }
 
-  if (!orders?.length) {
+  if (!filteredOrders?.length) {
     return (
       <Alert variant="warning" className="mt-5 text-center">
         No orders found.
@@ -96,7 +118,19 @@ const DeliveryPartnerOrderScreen = () => {
   return (
     <div className="container mt-5">
       <h3 className="mb-4">My Orders</h3>
-      {orders?.map((order) => (
+
+      {/* Search Bar */}
+      <div className="search-container mb-4">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Search orders by ID, phone number, or address..."
+          value={searchQuery}
+          onChange={handleSearch}
+        />
+      </div>
+
+      {filteredOrders?.map((order) => (
         <Card key={order.orderId} className="mb-3">
           <Card.Header>
             <h5>Order ID: {order.orderId}</h5>
@@ -105,6 +139,7 @@ const DeliveryPartnerOrderScreen = () => {
             <h6>Status: {order.status}</h6>
             <h6>Final Price: ₹{order.finalPrice}</h6>
             <h6>Address: {order?.address}</h6>
+            <h6>Phone Number: {order.phoneNumber || "N/A"}</h6>
             {order?._createdDate && (
               <h6>Created Date: {formattedDate(order?._createdDate)}</h6>
             )}
@@ -151,7 +186,7 @@ const DeliveryPartnerOrderScreen = () => {
 
             <Button
               onClick={() => {
-                handleStatusChange(order.id, 'Cancelled')
+                handleStatusChange(order.id, "Cancelled");
               }}
               variant="danger"
               disabled={order.status === 'Delivered' || order.status === 'Cancelled'}
