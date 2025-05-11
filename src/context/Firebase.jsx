@@ -284,9 +284,11 @@ const playNotificationSound = () => {
       // // console.log("BK imageRef,uploadResult", imageRef, uploadResult);
     }
     let docRef;
+    // console.log("BK user",user?.uid, user)
     docRef = await addDoc(collection(firestore, collectionName), {
       ...data,
       userId: user?.uid || "",
+      phoneNumber: user?.phoneNumber || '',
     });
     // // console.log("BK handleCreateNewDoc docRef.id, docRef:", docRef.id, docRef);
     return docRef;
