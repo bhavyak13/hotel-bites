@@ -89,7 +89,7 @@ export const FirebaseProvider = (props) => {
 
   useEffect(() => {
     if (user) {
-      if (user?.uid == "ukEdfieQ7FaI4rpITgxbtWyBuZZ2") {
+      if (user?.uid == "d0CkzQ2rBpQLd3OLOkWkgjjQZaI3") {
         setIsAdmin(true);
       } else if (user?.uid == "EEqRTrY732ZaK27XRkjkJbjMq5E2") {
         setIsDeliveryPartner(true);
