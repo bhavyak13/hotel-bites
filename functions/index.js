@@ -18,7 +18,7 @@ const RAZORPAY_KEY_SECRET = process.env.VITE_RAZORPAY_KEY_SECRET;
 // logger.log("BK process.env",process.env);
 
 const razorpay = new Razorpay({
-    key_id: RAZORPAY_KEY_ID,// process.env.RAZORPAY_KEY_ID,
+    key: RAZORPAY_KEY_ID,// process.env.RAZORPAY_KEY_ID,
     key_secret: RAZORPAY_KEY_SECRET,// process.env.RAZORPAY_KEY_SECRET,
 });
 
@@ -48,9 +48,12 @@ export const createRazorPayOrder = onRequest(async (req, res) => {
                 payment_capture: 1,
             };
 
-            console.log("Received request to create Razorpay order with options:", options);
+            // console.log("Received request to create Razorpay order with options:", options);
+            // console.log("Requesting Razorpay preferences with key_id:", RAZORPAY_KEY_ID);
+            // console.log("Request options:", options);
 
             const response = await razorpay.orders.create(options);
+            // console.log("Response from Razorpay:", response.data);
             res.status(200).json(response);
         } catch (error) {
             res.status(500).json({ error: error.message });
