@@ -9,15 +9,6 @@ import { useNavigate } from "react-router-dom";
 import "../pages/home.css";
 import { paymentMethods } from "../context/utils";
 
-// const initialAddresses = [
-//   "Old OPD , Safdarjung Hospital , New Delhi, Delhi - 110029",
-//   "Main OPD , Safdarjung Hospital , New Delhi, Delhi - 110029",
-//   "NEB , Safdarjung Hospital , New Delhi, Delhi - 110029",
-//   "SSB , Safdarjung Hospital , New Delhi, Delhi - 110029",
-//   "SIC , Safdarjung Hospital , New Delhi, Delhi - 110029"
-// ];
-
-
 const Cart = () => {
 
 
@@ -213,7 +204,8 @@ const Cart = () => {
         retry: false,
       };
 
-      console.log("Using Razorpay Key ID:", import.meta.env.VITE_RAZORPAY_KEY_ID); // Debugging log
+      // console.log("Using Razorpay Key ID:", import.meta.env.VITE_RAZORPAY_KEY_ID); // Debugging log
+      // console.log("Razorpay Options:", options); // Log Razorpay options for debugging
       const rzp = new window.Razorpay(options);
       rzp.on("payment.failed", async function (response) {
         showFailureAlert();
@@ -222,7 +214,8 @@ const Cart = () => {
       rzp.open();
     }
     catch (e) {
-      console.log("error in handlePayment function  : ", e)
+      // console.error("Error in Razorpay payment process:", e); // Log Razorpay payment errors
+      // console.log("error in handlePayment function  : ", e)
       setLoading(false);
     } finally {
     }
@@ -238,18 +231,25 @@ const Cart = () => {
       setLoading(true); // LOADING START
       const createOrderPayload = {
         finalPrice,
-        paymentMethod
-      }
+        paymentMethod,
+        address: selectedAddress,
+        landmark, // Include landmark in the payload
+        cookingInstructions,
+      };
+
       const torderId = await firebase.createOrder(createOrderPayload);
-      if (paymentMethod === 'online') {
-        await handlePayment(torderId);
-      } else {
-        postBuyNow(torderId);
+
+      // Prevent online payment
+      if (paymentMethod === "online") {
+        firebase.displayToastMessage("Online payment is temporarily disabled.", "error");
+        setLoading(false);
+        return;
       }
+
+      postBuyNow(torderId);
     } catch (error) {
       console.error("Error placing order:", error);
       setLoading(false);
-    } finally {
     }
   };
 
@@ -261,11 +261,6 @@ const Cart = () => {
       </div>
     );
   }
-  // dummy commit
-
-
-
-
 
   return (
     <div className="home-page">
@@ -335,11 +330,12 @@ const Cart = () => {
             <div className="final-price">
               final price : {finalPrice}
             </div>
-
-            {/* Payment Method Selection */}
-            <div className="mt-3">
-              <h5>Select Payment Method</h5>
-              {paymentMethods.map((item, index) => (
+{/* Payment Method Radio Buttons */}
+          <div className="mt-3">
+            <h5>Select Payment Method</h5>
+            {paymentMethods
+              .filter((item) => item.value !== "online") // Exclude online payment
+              .map((item, index) => (
                 <div key={index} className="form-check">
                   <input
                     className="form-check-input"

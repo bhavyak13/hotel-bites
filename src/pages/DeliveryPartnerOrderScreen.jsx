@@ -138,7 +138,7 @@ const DeliveryPartnerOrderScreen = () => {
           <Card.Body>
             <h6>Status: {order.status}</h6>
             <h6>Final Price: ₹{order.finalPrice}</h6>
-            <h6>Address: {order?.address}</h6>
+            <h6><strong>Address: {order?.landmark && (<span style={{ fontStyle: "italic" , color: "green"}}> {order.landmark} , </span>)}{order?.address}</strong></h6>
             <h6>Phone Number: {order.phoneNumber || "N/A"}</h6>
             {order?._createdDate && (
               <h6>Created Date: {formattedDate(order?._createdDate)}</h6>

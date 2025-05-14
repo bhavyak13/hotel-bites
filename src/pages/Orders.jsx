@@ -9,7 +9,7 @@ const ORDER_STATUSES = [
   "Created",
   // "Processing",
   "Preparing",
-  "Ready for Pickup",
+  // "Ready for Pickup",
   "Out for Delivery",
   "Delivered",
   "Cancelled"
@@ -164,10 +164,10 @@ const OrdersComponent = ({ isAdminView }) => {
                 <span className="text-primary ms-2">{order.status}</span>
               )}
             </h6>
-            <h6>Phone Number: {order?.phoneNumber}</h6>
+            <h6>Phone Number: {order?.phoneNumber || "N/A"}</h6>
             <h6>Final Price: ₹{order.finalPrice}</h6>
             {order.cookingInstructions && <h6><strong>Cooking Instructions:</strong> <span style={{ color: "red" }}>{order.cookingInstructions}</span></h6>}
-            <h6>Address: {order?.address}</h6>
+            <h6><strong>Address: {order?.landmark && (<span style={{ fontStyle: "italic", color: "green" }}> {order.landmark} , </span>)}{order?.address}</strong></h6>
             {isAdminView && <h6>Delivery Partner ID: {order?.deliveryPartnerId}</h6>}
             {order?._createdDate && <h6>Created Date: {formattedDate(order?._createdDate)}</h6>}
             {order?.paymentMethod && <h6>Payment Method: {order?.paymentMethod}</h6>}

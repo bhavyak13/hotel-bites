@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useFirebase } from "../context/Firebase";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 // import { SiteStatusContext } from "../context/siteStatusContext";
 import FoodCard from "../components/FoodCard";
 import "../pages/home.css";
@@ -11,6 +12,7 @@ const HomePage = () => {
   const firebase = useFirebase();
   const { isAdmin, isSiteOpen, toggleSiteStatus } = firebase;
   // const { isSiteOpen, toggleSiteStatus } = useContext(SiteStatusContext);
+  const navigate = useNavigate();
 
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -75,7 +77,7 @@ const HomePage = () => {
       <div className="header">
         <div className="menu-title">Menu</div>
         <div className="cart-icon-container">
-          <div className="cart-icon">🛒</div>
+          <div className="cart-icon" onClick={() => navigate("/cart")}>🛒</div>
         </div>
       </div>
 

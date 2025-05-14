@@ -178,6 +178,8 @@ const playNotificationSound = () => {
         recaptchaContainer.id = "recaptcha-container";
         document.body.appendChild(recaptchaContainer);
       }
+
+      // Initialize reCAPTCHA verifier
       const recaptchaVerifier = new RecaptchaVerifier(
         firebaseAuth,
         "recaptcha-container",
@@ -186,17 +188,34 @@ const playNotificationSound = () => {
           callback: (response) => {
             console.log("reCAPTCHA verified:", response);
           },
-        },
+          'expired-callback': () => {
+            console.error("reCAPTCHA expired. Please try again.");
+          },
+        }
       );
+
+      // Send OTP
       const confirmationResult = await signInWithPhoneNumber(
         firebaseAuth,
         phoneNumber,
         recaptchaVerifier
       );
+
+      console.log("OTP sent successfully.");
       return confirmationResult; // Return the confirmation result to verify OTP later
     } catch (error) {
       console.error("Error sending OTP:", error);
-      throw error;
+
+      // Handle specific Firebase errors
+      if (error.code === "auth/invalid-app-credential") {
+        console.error("Invalid app credentials. Check your Firebase configuration.");
+      } else if (error.code === "auth/missing-phone-number") {
+        console.error("Phone number is missing or invalid.");
+      } else {
+        console.error("Unexpected error during OTP login.");
+      }
+
+      throw error; // Re-throw the error for the caller to handle
     }
   };
 
@@ -706,6 +725,8 @@ const playNotificationSound = () => {
 
   const createRazorpayOrder = async (orderPayload) => {
     try {
+      // console.log("Server time when creating Razorpay order:", new Date().toISOString()); // Log server time
+      // console.log("Order payload being sent to Razorpay:", orderPayload); // Log order payload
       const response = await axios.post(
         "https://us-central1-hotel-bites.cloudfunctions.net/createRazorPayOrder",
         orderPayload,
