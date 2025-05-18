@@ -352,28 +352,56 @@ const playNotificationSound = () => {
         ...doc.data(),
       }));
 
-      // Step 2: Fetch first variant for each product
+      // Step 2: For each product, fetch all variants and pick the lowest price one
       const variantPromises = products.map(async (product) => {
-        const variantQuery = query(
-          collection(firestore, `products/${product.id}/variants`),
-          limit(1) // Get only the first variant
-        );
+        const variantsQuery = collection(firestore, `products/${product.id}/variants`);
+        const variantsSnapshot = await getDocs(variantsQuery);
+        const variants = variantsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
 
-        const variantSnapshot = await getDocs(variantQuery);
-        const firstVariant = variantSnapshot.docs.length > 0
-          ? { id: variantSnapshot.docs[0].id, ...variantSnapshot.docs[0].data() }
-          : null;
+        // console.log(`Product: ${product.name} (${product.id}) variants:`, variants);
 
-        return { ...product, firstVariant }; // Attach first variant to product
+        // Find the variant with the lowest price (consider priceOffer if present, else priceOriginal)
+        let lowestVariant = null;
+        let lowestPrice = Number.POSITIVE_INFINITY;
+        for (const variant of variants) {
+          let price = undefined;
+          // Use priceOffer if it's a valid number, else priceOriginal if it's a valid number
+          if (
+            typeof variant.priceOffer === "number" &&
+            !isNaN(variant.priceOffer)
+          ) {
+            price = variant.priceOffer;
+          } else if (
+            typeof variant.priceOriginal === "number" &&
+            !isNaN(variant.priceOriginal)
+          ) {
+            price = variant.priceOriginal;
+          }
+
+          // Only compare if price is a valid number
+          if (typeof price === "number" && price < lowestPrice) {
+            lowestPrice = price;
+            lowestVariant = variant;
+          }
+        }
+
+        // console.log(
+        //   `Lowest variant for product ${product.name} (${product.id}):`,
+        //   lowestVariant
+        // );
+
+        return { ...product, firstVariant: lowestVariant };
       });
 
       // Step 3: Resolve all promises in parallel
       const productsWithVariants = await Promise.all(variantPromises);
-      // console.log("Products with first variants:", productsWithVariants);
 
       return productsWithVariants;
     } catch (error) {
-      console.error("Error fetching products with variants:", error);
+      // console.error("Error fetching products with variants:", error);
     }
   };
 
