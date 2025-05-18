@@ -63,7 +63,7 @@ const FoodCard = (data) => {
         <Card.Text>
           Price: <strong>₹ {firstVariant?.priceOffer || firstVariant?.priceOriginal}</strong>
         </Card.Text>
-        {!firebase.isAdmin && isActive && (
+        {!firebase.isAdmin && !firebase.isDeliveryPartner && isActive && (
           <Button onClick={() => redirectToOtherPages("detail")} variant="primary">
             Details
           </Button>
