@@ -1,10 +1,12 @@
 /* Styling for Bootstrap Card Modification */
 .food-card-bs {
   max-width: 350px; /* Adjust max width as needed */
-  margin: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 20px; /* Or use 25px like CartFoodCard if preferred */
+  border-radius: 12px; 
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
   overflow: hidden; /* Ensure content stays within rounded borders */
+  background: #fff; 
+  display: flex; /* For horizontal layout of image and body */
 }
 
 .food-image-col {
@@ -12,68 +14,73 @@
 }
 
 .food-image-bs {
-  width: 100%;
-  height: auto; /* Maintain aspect ratio */
-  border-radius: 8px 0 0 8px; /* Round left corners */
+  min-width: 120px; /* Ensure image has a minimum width */
+  max-width: 120px; /* Control image width */
+  height: 140px; /* Set a fixed height for uniform image length */
   object-fit: cover; /* Ensure image covers the area */
-  max-height: 120px; /* Adjust max height as needed */
+  border-right: 1px solid #eee; /* Separator like CartFoodCard's border-bottom */
 }
 
 .food-body-bs {
-  padding: 15px;
+  padding: 16px; 
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  justify-content: space-between; /* Distribute space */
+  flex-grow: 1; /* Allow body to take remaining space */
 }
 
 .food-name-bs {
-  font-size: 1.1rem;
-  font-weight: bold;
-  margin-bottom: 5px;
+  font-size: 1.2rem; 
+  font-weight: 600; 
+  margin-bottom: 8px; 
 }
 
 .food-description-bs {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 10px;
+  font-size: 0.95rem; 
+  color: #555; 
+  margin-bottom: 12px; 
   overflow: hidden;
-  white-space: nowrap;
+  /* Keep text ellipsis for potentially long descriptions */
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limit to 2 lines */
+  -webkit-box-orient: vertical;
   text-overflow: ellipsis;
+  flex-grow: 1; /* Allow description to take available space before pricing */
 }
 
 .food-pricing-bs {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: auto; /* Push to the bottom */
 }
 
 .food-price-bs {
   font-size: 1rem;
-  color: #333;
+  color: #333; /* Consistent with CartFoodCard text */
   font-weight: bold;
-  margin-bottom: 0;
 }
 
 .add-to-cart-btn-bs {
-  background-color: #212529; /* Dark background as in the image */
-  color: white;
+  background-color: #28a745; /* A common "add" or "success" color */
+  color: #fff;
   border: none;
   padding: 8px 15px;
-  border-radius: 5px;
+  border-radius: 6px; /* Softer rounding */
   cursor: pointer;
   transition: background-color 0.3s ease;
   font-size: 0.9rem;
 }
 
 .add-to-cart-btn-bs:hover {
-  background-color: #000; /* Darker on hover */
+  background-color: #218838; /* Darker shade on hover */
 }
 
 .inactive-overlay-bs {
   position: absolute;
   top: 0;
   left: 0;
-  width: 40%; /* Adjust width to cover image area */
+  width: 120px; /* Match image width */
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
   display: flex;
@@ -81,7 +88,6 @@
   align-items: center;
   color: white;
   font-weight: bold;
-  border-radius: 8px 0 0 8px; /* Match image rounding */
 }
 
 .inactive-text-bs {
@@ -93,11 +99,9 @@
   .food-card-bs {
     max-width: 300px;
   }
-  .food-image-bs {
-    max-height: 100px;
-  }
   .food-body-bs {
     padding: 10px;
+    gap: 4px;
   }
   .food-name-bs {
     font-size: 1rem;
@@ -119,12 +123,16 @@
 /* Mobile styles */
 @media (max-width: 600px) {
   .food-card-bs {
-    max-width: 95%;
+    /* max-width: 95%; */ /* Let it be controlled by grid/flex container */
     margin: 10px auto;
+    flex-direction: column; /* Stack image and body vertically on small screens */
   }
   .food-image-bs {
-    max-height: 80px;
-    max-width: 120px; /* Adjust if needed */
+    width: 100%; /* Full width for image when stacked */
+    max-width: 100%;
+    height: 150px; /* Adjust height for vertical stack */
+    border-right: none; /* Remove side border */
+    border-bottom: 1px solid #eee; /* Add bottom border when stacked */
   }
   .food-body-bs {
     padding: 8px;
@@ -135,7 +143,7 @@
   }
   .food-description-bs {
     font-size: 0.7rem;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
   }
   .add-to-cart-btn-bs {
     padding: 5px 10px;

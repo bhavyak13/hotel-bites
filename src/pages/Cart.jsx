@@ -6,8 +6,9 @@ import FoodCard from "../components/FoodCard";
 import { Alert, Button, Form, Spinner } from "react-bootstrap";
 import CartFoodCard from "../components/CartFoodCard";
 import { useNavigate } from "react-router-dom";
-import "../pages/home.css";
+// import "../pages/home.css";
 import { paymentMethods } from "../context/utils";
+import "../pages/Cart.css";
 
 const Cart = () => {
 
@@ -284,6 +285,7 @@ const Cart = () => {
                   key={book.id}
                   id={book.id}
                   handleRemoveDocument={handleRemoveDocument}
+                  onCartUpdate={fetchData} // <-- pass refresh function
                   {...book}
                 />
               ))}
@@ -328,7 +330,7 @@ const Cart = () => {
             </Form.Group>
 
             <div className="final-price">
-              final price : {finalPrice}
+              Final price : {finalPrice}
             </div>
 {/* Payment Method Radio Buttons */}
           <div className="mt-3">

@@ -25,6 +25,7 @@ import {
   limit,
   deleteDoc,
   updateDoc,
+  Timestamp, // Import Timestamp if you use it for _updatedDate or similar
 } from "firebase/firestore";
 
 
@@ -511,6 +512,26 @@ const playNotificationSound = () => {
     }
   };
 
+  const updateCartItemQuantity = async (cartItemId, newQuantity) => {
+    if (!cartItemId || typeof newQuantity !== 'number' || newQuantity < 1) {
+      console.error("Invalid parameters for updating cart item quantity. Cart Item ID:", cartItemId, "New Quantity:", newQuantity);
+      throw new Error("Invalid parameters for updating cart item quantity.");
+    }
+    try {
+      const cartItemRef = doc(firestore, "shoppingCartItems", cartItemId);
+      await updateDoc(cartItemRef, {
+        quantity: newQuantity,
+        // Optionally, update a timestamp:
+        // _updatedDate: Timestamp.now(),
+      });
+      // console.log(`Cart item ${cartItemId} quantity updated to ${newQuantity}`);
+    } catch (error) {
+      console.error("Error updating cart item quantity in Firestore:", error);
+      throw error;
+    }
+  };
+
+
   const checkIsItemAlreadyInCart = async (collectionName, productId, variantId) => {
     try {
       const cartRef = collection(firestore, collectionName);
@@ -934,6 +955,7 @@ const playNotificationSound = () => {
         fetchAddresses,
         fetchProductById,
         updateProduct,
+        updateCartItemQuantity, // Expose the new function
         storage,
       }}
     >
