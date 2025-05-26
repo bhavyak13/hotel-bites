@@ -93,17 +93,17 @@ const HomePage = () => {
       </div>
 
       {/* Food Menu */}
-      <div className="menu-container">
-        {filteredData.length > 0 ? (
-          filteredData.map((item) => (
-            <div key={item.id} className="menu-item">
-              <FoodCard {...item} />
-            </div>
-          ))
-        ) : (
-          <p className="text-center mt-4">No items match your search.</p>
-        )}
-      </div>
+        <div className="menu-list">
+          {filteredData.length > 0 ? (
+            filteredData.map((item) => (
+              <div key={item.id} className="menu-item">
+                <FoodCard {...item} />
+              </div>
+            ))
+          ) : (
+            <p className="text-center mt-4">No items match your search.</p>
+          )}
+        </div>
     </div>
   );
 };

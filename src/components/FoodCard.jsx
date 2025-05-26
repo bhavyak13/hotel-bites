@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
+import "./FoodCard.css"; // Import the CSS file for additional styling
 
 import { useFirebase } from "../context/Firebase";
 
@@ -52,10 +53,10 @@ const FoodCard = (data) => {
       }; // No special styles for admin
 
   return (
-    <Card style={cardStyle}>
-      {url && <Card.Img variant="top" src={url} alt={name} />}
-      <Card.Body>
-        <Card.Title>{name}</Card.Title>
+    <Card className="food-card" style={cardStyle}>
+      {url && <Card.Img className="food-card-img" variant="top" src={url} alt={name} />}
+      <Card.Body className="food-card-body">
+        <Card.Title className="food-card-title">{name}</Card.Title>
         <Card.Text>{description}</Card.Text>
         {firebase.isAdmin && (
           <Card.Text>Status: <strong>{status}</strong></Card.Text>
