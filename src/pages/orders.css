@@ -1,5 +1,5 @@
- /* Search Bar */
- .search-container {
+/* Search Bar */
+.search-container {
     margin-bottom: 20px;
     padding: 0 10px;
   }
@@ -11,3 +11,86 @@
     border-radius: 5px;
     font-size: 1rem;
   }
+
+  .print-bold-large {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Card styling */
+.order-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  margin-bottom: 32px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+}
+
+.order-card-header {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 16px 24px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ff6347;
+}
+
+.order-card-body {
+  padding: 24px;
+}
+
+.order-card-footer {
+  background: #f8f9fa;
+  border-top: 1px solid #e0e0e0;
+  padding: 12px 24px;
+  text-align: right;
+}
+
+.order-items-list {
+  margin-bottom: 18px;
+}
+
+.order-item {
+  border-bottom: 1px dashed #bdbdbd;
+  padding: 12px 0;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.order-total-section {
+  margin-top: 24px;
+  padding: 16px;
+  background: #fff8e1;
+  border-radius: 8px;
+  border: 1px solid #ffe0b2;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #388e3c;
+  text-align: right;
+}
+
+.order-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.order-details {
+  font-size: 1.25rem; /* Increase as needed, e.g., 1.5rem for even larger */
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 600px) {
+  .order-card-body, .order-card-header, .order-card-footer {
+    padding: 10px;
+  }
+  .order-total-section {
+    font-size: 1rem;
+    padding: 10px;
+  }
+}
