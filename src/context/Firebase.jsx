@@ -246,40 +246,46 @@ const playNotificationSound = () => {
     }
   };
 
-  // Fetch the site status from Firestore
-    const fetchSiteStatus = async () => {
-      try {
-        const siteStatusDocRef = doc(firestore, "siteStatus", "global");
-        const siteStatusDoc = await getDoc(siteStatusDocRef);
-        if (siteStatusDoc.exists()) {
-          setIsSiteOpen(siteStatusDoc.data().isSiteOpen);
-        } else {
-          console.log("Site status document does not exist. Initializing...");
-          await setDoc(siteStatusDocRef, { isSiteOpen: true }); // Default to true
-          setIsSiteOpen(true);
-        }
-      } catch (error) {
-        console.error("Error fetching site status:", error);
+  // Real-time listener for site status
+  useEffect(() => {
+    const siteStatusDocRef = doc(firestore, "siteStatus", "global");
+    const unsubscribe = onSnapshot(siteStatusDocRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const siteData = docSnap.data();
+        // console.log("Site status updated from Firestore via onSnapshot:", siteData.isSiteOpen);
+        setIsSiteOpen(siteData.isSiteOpen);
+      } else {
+        console.warn("Site status document 'siteStatus/global' does not exist. Initializing to open.");
+        // Initialize if it doesn't exist. This should ideally be a one-time setup.
+        setDoc(siteStatusDocRef, { isSiteOpen: true })
+          .catch(err => console.error("Error initializing site status document:", err));
       }
+    }, (error) => {
+      console.error("Error listening to site status with onSnapshot:", error);
+    });
+
+    return () => {
+      // console.log("Unsubscribing from site status listener.");
+      unsubscribe(); // Cleanup listener on unmount
     };
-  
-    // Toggle the site status in Firestore
-    const toggleSiteStatus = async () => {
-      try {
-        const newStatus = !isSiteOpen; // Toggle the current status
-        console.log("Toggling site status to:", newStatus); // Debugging log
-        setIsSiteOpen(newStatus); // Update local state
-        await setDoc(doc(firestore, "siteStatus", "global"), { isSiteOpen: newStatus });
-        console.log("Site status updated successfully in Firestore."); // Debugging log
-      } catch (error) {
-        console.error("Error updating site status:", error); // Log any errors
+  }, []); // Empty dependency array ensures this runs once on mount
+
+  // Toggle the site status in Firestore
+  const toggleSiteStatus = async () => {
+    try {
+      const siteStatusDocRef = doc(firestore, "siteStatus", "global");
+      const currentStatusDoc = await getDoc(siteStatusDocRef);
+      let newStatus = true; // Default to open if doc doesn't exist or on error reading
+      if (currentStatusDoc.exists()) {
+          newStatus = !currentStatusDoc.data().isSiteOpen;
+      } else {
+          console.warn("Site status document not found during toggle. Assuming current is 'closed' and setting to 'open'.");
       }
-    };
-  
-    useEffect(() => {
-      // Fetch site status on component mount
-      fetchSiteStatus();
-    }, []);
+      await setDoc(siteStatusDocRef, { isSiteOpen: newStatus });
+    } catch (error) {
+      console.error("Error updating site status in toggleSiteStatus:", error);
+    }
+  };
   
     useEffect(() => {
       onAuthStateChanged(firebaseAuth, (currentUser) => {
@@ -758,6 +764,44 @@ const playNotificationSound = () => {
     }
   };
 
+  const addToCart = async (productId, variantId, quantity) => {
+    if (!user) {
+      displayToastMessage("You must be logged in to add items to the cart.", "error");
+      throw new Error("User not logged in");
+    }
+    if (!productId || !variantId || typeof quantity !== 'number' || quantity <= 0) {
+      displayToastMessage("Invalid item details or quantity.", "error");
+      throw new Error("Invalid item details or quantity");
+    }
+
+    try {
+      const existingCartItemDoc = await checkIsItemAlreadyInCart("shoppingCartItems", productId, variantId);
+
+      if (existingCartItemDoc) {
+        const currentData = existingCartItemDoc.data();
+        const currentQuantity = currentData.quantity || 0;
+        await updateDoc(doc(firestore, "shoppingCartItems", existingCartItemDoc.id), {
+          quantity: currentQuantity + quantity,
+          _updatedDate: Timestamp.now(),
+        });
+        displayToastMessage("Item quantity updated in cart!", "success");
+      } else {
+        await addDoc(collection(firestore, "shoppingCartItems"), {
+          userId: user.uid,
+          productId,
+          variantId,
+          quantity,
+          _createdDate: Timestamp.now(),
+          _updatedDate: Timestamp.now(),
+        });
+        displayToastMessage("Item added to cart!", "success");
+      }
+    } catch (error) {
+      console.error("Error adding/updating item in cart:", error);
+      displayToastMessage(`Failed to update cart: ${error.message}`, "error");
+      throw error;
+    }
+  };
   /*************** data-related function end  **************/
 
 
@@ -911,7 +955,6 @@ const playNotificationSound = () => {
         user,
         isSiteOpen,
         toggleSiteStatus,
-        fetchSiteStatus,
         firebaseAuth,
         firestore,
         isAdmin,
@@ -956,6 +999,7 @@ const playNotificationSound = () => {
         fetchProductById,
         updateProduct,
         updateCartItemQuantity, // Expose the new function
+        addToCart, // Expose addToCart
         storage,
       }}
     >

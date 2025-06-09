@@ -14,6 +14,7 @@ const Cart = () => {
 
 
   const firebase = useFirebase();
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [finalPrice, setFinalPrice] = useState(0);
   const [selectedAddress, setSelectedAddress] = useState(""); // State for selected address
@@ -22,9 +23,6 @@ const Cart = () => {
   const [cookingInstructions, setCookingInstructions] = useState(""); // State for cooking instructions
   const [loading, setLoading] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState("cash-on-delivery");
-
-
-
 
   const fetchData = async () => {
     await firebase.fetchCartWithDetails("shoppingCartItems")
@@ -74,7 +72,6 @@ const Cart = () => {
 
 
   // console.log("BK cart data", data);
-  const navigate = useNavigate();
 
 
 
@@ -262,6 +259,19 @@ const Cart = () => {
       </div>
     );
   }
+
+  // Check site status after all hooks have been defined
+  if (!firebase.isSiteOpen && !firebase.isAdmin) {
+    return (
+      <div className="text-center mt-5 p-4">
+        <h1>Site Closed</h1>
+        <p>Ordering is currently disabled as the site is closed. We apologize for any inconvenience.</p>
+        <p>Please check back later!</p>
+        <Button variant="primary" onClick={() => navigate("/")}>Go to Homepage</Button>
+      </div>
+    );
+  }
+
 
   return (
     <div className="home-page">
