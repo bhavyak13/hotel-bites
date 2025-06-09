@@ -105,7 +105,37 @@ const OrdersComponent = ({ isAdminView }) => {
   const handlePrint = (orderId) => {
     const printContent = document.getElementById(`order-${orderId}`);
     const printWindow = window.open("", "_blank");
-    printWindow.document.write(printContent.innerHTML);
+    // Add print-specific CSS for larger, bold, black text
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Order Print</title>
+          <style>
+            body {
+              font-size: 20px;
+              font-weight: bold;
+              color: #000 !important;
+              font-family: Arial, sans-serif;
+              margin: 20px;
+            }
+            h5, h6, strong, span, p {
+              font-size: 20px !important;
+              font-weight: bold !important;
+              color: #000 !important;
+            }
+            hr {
+              border: 1px solid #000;
+            }
+            .text-primary, .text-success, .text-danger, .text-warning {
+              color: #000 !important;
+            }
+          </style>
+        </head>
+        <body>
+          ${printContent.innerHTML}
+        </body>
+      </html>
+    `);
     printWindow.document.close();
     printWindow.print();
   };
@@ -143,12 +173,12 @@ const OrdersComponent = ({ isAdminView }) => {
       </div>
 
       {filteredOrders?.map((order) => (
-        <Card key={order.orderId} className="mb-3">
-          <Card.Header>
-            <h5>Order ID: {order.orderId}</h5>
-          </Card.Header>
-          <Card.Body id={`order-${order.orderId}`} ref={printRef}>
-            <h6>
+        <Card key={order.orderId} className="order-card">
+          <div className="order-card-header">
+            Order ID: {order.orderId}
+          </div>
+          <div className="order-card-body" id={`order-${order.orderId}`} ref={printRef}>
+            <h6 className="order-details">
               Status:
               {firebase?.isAdmin ? (
                 <Form.Select
@@ -164,41 +194,60 @@ const OrdersComponent = ({ isAdminView }) => {
                 <span className="text-primary ms-2">{order.status}</span>
               )}
             </h6>
-            <h6>Phone Number: {order?.phoneNumber || "N/A"}</h6>
-            <h6>Final Price: ₹{order.finalPrice}</h6>
-            {order.cookingInstructions && <h6><strong>Cooking Instructions:</strong> <span style={{ color: "red" }}>{order.cookingInstructions}</span></h6>}
-            <h6><strong>Address: {order?.landmark && (<span style={{ fontStyle: "italic", color: "green" }}> {order.landmark} , </span>)}{order?.address}</strong></h6>
-            {isAdminView && <h6>Delivery Partner ID: {order?.deliveryPartnerId}</h6>}
-            {order?._createdDate && <h6>Created Date: {formattedDate(order?._createdDate)}</h6>}
-            {order?.paymentMethod && <h6>Payment Method: {order?.paymentMethod}</h6>}
+            <h6 className="order-details">Phone Number: {order?.phoneNumber || "N/A"}</h6>
+            <h6 className="order-details">Final Price: ₹{order.finalPrice}</h6>
+            {order.cookingInstructions && (
+              <h6 className="order-details">
+                <strong>Cooking Instructions:</strong>
+                <span style={{ color: "red" }}> {order.cookingInstructions}</span>
+              </h6>
+            )}
+            <h6 className="order-details">
+              <strong>
+                Address:
+                {order?.landmark && (
+                  <span style={{ fontStyle: "italic", color: "green" }}>
+                    {" "}{order.landmark} ,
+                  </span>
+                )}
+                {order?.address}
+              </strong>
+            </h6>
+            {isAdminView && <h6 className="order-details">Delivery Partner ID: {order?.deliveryPartnerId}</h6>}
+            {order?._createdDate && <h6 className="order-details">Created Date: {formattedDate(order?._createdDate)}</h6>}
+            {order?.paymentMethod && <h6 className="order-details">Payment Method: {order?.paymentMethod}</h6>}
             {order?.razorpayPaymentStatus &&
-              <h6>Payment Status: {order?.razorpayPaymentStatus === 'Done' ? "Paid" : 'Pending'}</h6>
+              <h6 className="order-details">Payment Status: {order?.razorpayPaymentStatus === 'Done' ? "Paid" : 'Pending'}</h6>
             }
             <hr />
-            <h6>Purchased Items:</h6>
-            <ListGroup>
+            <div className="order-section-title">Purchased Items:</div>
+            <ListGroup className="order-items-list">
               {order.purchasedItems?.map((item, idx) => (
-                <ListGroup.Item key={idx}>
-                        {item ? (
-                <OrderFoodCard
-                  key={item.id}
-                  id={item.id}
-                  {...item}
-                  finalPrice={order?.finalPrice}
-                />
-              ) : (
-                <p>Item details are missing.</p>
-              )}
+                <ListGroup.Item key={idx} className="order-item">
+                  {item ? (
+                    <OrderFoodCard
+                      key={item.id}
+                      id={item.id}
+                      {...item}
+                      finalPrice={order?.finalPrice}
+                    />
+                  ) : (
+                    <p>Item details are missing.</p>
+                  )}
                 </ListGroup.Item>
               ))}
             </ListGroup>
-          </Card.Body>
+            <hr />
+            <div className="order-total-section">
+              Total Bill: ₹{order.finalPrice}
+            </div>
+          </div>
           {firebase?.isAdmin && (
-            <Card.Footer>
+            <div className="order-card-footer">
               <Button variant="secondary" onClick={() => handlePrint(order.orderId)}>
                 Print Order
               </Button>
-            </Card.Footer>
+            </div>
           )}
         </Card>
       ))}

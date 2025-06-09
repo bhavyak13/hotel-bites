@@ -10,7 +10,7 @@ import FooterBar from "../components/FooterBar";
 
 const HomePage = () => {
   const firebase = useFirebase();
-  const { isAdmin, isSiteOpen, toggleSiteStatus } = firebase;
+  const { isAdmin, isSiteOpen, toggleSiteStatus, user } = firebase; // Added user for potential future use
   // const { isSiteOpen, toggleSiteStatus } = useContext(SiteStatusContext);
   const navigate = useNavigate();
 
@@ -21,11 +21,15 @@ const HomePage = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      await firebase.fetchProductsWithFirstVariant().then((data) => {
-        setData(data);
-        setFilteredData(data);
-      });
-      setLoading(false);
+      try {
+        const productsData = await firebase.fetchProductsWithFirstVariant();
+        setData(productsData || []); // Ensure data is an array
+        setFilteredData(productsData || []);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchProducts();
   }, [firebase]);
@@ -65,7 +69,10 @@ const HomePage = () => {
       {isAdmin && (
         <div className="text-center mb-4">
           <Button variant={isSiteOpen ? "danger" : "success"} onClick={toggleSiteStatus}>
-            {isSiteOpen ? "Close Site" : "Open Site"}
+            {isSiteOpen ? "Close Site (Ordering Enabled)" : "Open Site (Ordering Disabled)"}
+          </Button>
+          <Button variant="info" className="ms-2" onClick={() => window.location.reload()}>
+            Admin Refresh Page
           </Button>
         </div>
       )}
