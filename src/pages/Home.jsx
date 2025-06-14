@@ -7,6 +7,7 @@ import "../pages/home.css";
 import { Spinner } from "react-bootstrap";
 import { Button } from "react-bootstrap";
 import FooterBar from "../components/FooterBar";
+import AdSlot from "../components/AdSlot"; // Import the AdSlot component
 
 const HomePage = () => {
   const firebase = useFirebase();
@@ -78,7 +79,13 @@ const HomePage = () => {
       )}
 
       {/* Advertisement Space */}
-      <div className="ad-container">Advertising space</div>
+      <div className="ad-container">
+        {/* Replace with your actual AdSense Publisher ID and Ad Slot ID */}
+        <AdSlot
+          adClient="ca-pub-YOUR_ADSENSE_PUBLISHER_ID"
+          adSlot="YOUR_AD_SLOT_ID_FOR_HOME_PAGE"
+        />
+      </div>
 
       {/* Header */}
       <div className="header">
