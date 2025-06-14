@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 // import "../pages/home.css";
 import { paymentMethods } from "../context/utils";
 import "../pages/Cart.css";
+import AdSlot from "../components/AdSlot"; // Import the AdSlot component
 
 const Cart = () => {
 
@@ -276,7 +277,13 @@ const Cart = () => {
   return (
     <div className="home-page">
       {/* Advertisement Space */}
-      <div className="ad-container">Advertising space</div>
+      <div className="ad-container">
+        {/* Replace with your actual AdSense Publisher ID and Ad Slot ID for the cart page */}
+        <AdSlot
+          adClient="ca-pub-YOUR_ADSENSE_PUBLISHER_ID"
+          adSlot="YOUR_AD_SLOT_ID_FOR_CART_PAGE"
+        />
+      </div>
 
       {/* Header */}
       <div className="header">
