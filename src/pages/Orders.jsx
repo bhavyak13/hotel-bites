@@ -21,6 +21,10 @@ const OrdersComponent = ({ isAdminView }) => {
   const [filteredOrders, setFilteredOrders] = useState([]); // State for filtered orders
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [loading, setLoading] = useState(true);
+  const [exportRangeType, setExportRangeType] = useState("monthly"); // Default export range
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
+
   const navigate = useNavigate();
   const printRef = useRef(null);
 
@@ -225,6 +229,131 @@ const OrdersComponent = ({ isAdminView }) => {
     printWindow.onafterprint = () => printWindow.close(); // Close window after print
   };
 
+  // --- CSV Export Functions ---
+
+  const getFormattedDateForCSV = (date) => {
+    if (!date) return { date: '', time: '' };
+    const d = new Date(date);
+    return {
+      date: d.toLocaleDateString('en-CA'), // YYYY-MM-DD
+      time: d.toLocaleTimeString('en-GB'), // HH:MM:SS
+    };
+  };
+
+  const getExportDateRange = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+    let startDate, endDate = new Date();
+    endDate.setHours(23, 59, 59, 999); // End of today or end date
+
+    switch (exportRangeType) {
+      case 'weekly':
+        startDate = new Date(today);
+        startDate.setDate(today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1)); // Start of current week (Monday)
+        endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'monthly':
+        startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'quarterly':
+        const currentQuarter = Math.floor(today.getMonth() / 3);
+        startDate = new Date(today.getFullYear(), currentQuarter * 3, 1);
+        endDate = new Date(today.getFullYear(), startDate.getMonth() + 3, 0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'custom':
+        if (!customStartDate || !customEndDate) {
+          firebase.displayToastMessage("Please select a valid custom date range.", "error");
+          return null;
+        }
+        startDate = new Date(customStartDate);
+        startDate.setHours(0,0,0,0);
+        endDate = new Date(customEndDate);
+        endDate.setHours(23,59,59,999);
+        if (startDate > endDate) {
+          firebase.displayToastMessage("Start date cannot be after end date.", "error");
+          return null;
+        }
+        break;
+      default:
+        return null;
+    }
+    return { startDate, endDate };
+  };
+
+  const handleExportOrders = () => {
+    const range = getExportDateRange();
+    if (!range) return;
+
+    const { startDate, endDate } = range;
+
+    const ordersToExport = orders.filter(order => {
+      const orderDate = new Date(order._createdDate);
+      return orderDate >= startDate && orderDate <= endDate;
+    });
+
+    if (ordersToExport.length === 0) {
+      firebase.displayToastMessage("No orders found for the selected date range.", "info");
+      return;
+    }
+
+    convertToCSVAndDownload(ordersToExport, `orders_export_${exportRangeType}_${new Date().toISOString().split('T')[0]}.csv`);
+  };
+
+  const convertToCSVAndDownload = (data, filename) => {
+    const deliveryFee = 10; // Consistent with print bill
+    const headers = [
+      "Order ID", "Order Date", "Order Time", "Status", "Customer Phone", "Address", "Landmark",
+      "Order Cooking Instructions", "Payment Method", "Payment Status",
+      "Item Product Name", "Item Variant Name", "Item Quantity", "Item Unit Price", "Item Line Total",
+      "Order Subtotal (Items)", "Delivery Fee", "Order Total Bill"
+    ];
+
+    let csvRows = [headers.join(",")];
+
+    data.forEach(order => {
+      const { date: orderDateStr, time: orderTimeStr } = getFormattedDateForCSV(order._createdDate);
+      const orderSubtotal = parseFloat(order.finalPrice) || 0;
+      const orderTotalBill = orderSubtotal + deliveryFee;
+
+      order.purchasedItems?.forEach(item => {
+        const productName = item.product?.name?.replace(/,/g, '') || 'N/A';
+        const variantName = item.variant?.name?.replace(/,/g, '') || 'N/A';
+        const itemUnitPrice = parseFloat(item.variant?.priceOffer || item.variant?.priceOriginal || 0);
+        const itemQuantity = parseInt(item.quantity) || 0;
+        const itemLineTotal = itemUnitPrice * itemQuantity;
+
+        const row = [
+          order.orderId, orderDateStr, orderTimeStr, order.status, order.phoneNumber || 'N/A',
+          order.address?.replace(/,/g, '') || 'N/A', order.landmark?.replace(/,/g, '') || 'N/A',
+          order.cookingInstructions?.replace(/,/g, '') || 'N/A', order.paymentMethod || 'N/A',
+          order.razorpayPaymentStatus === 'Done' ? "Paid" : 'Pending',
+          productName, variantName, itemQuantity, itemUnitPrice.toFixed(2), itemLineTotal.toFixed(2),
+          orderSubtotal.toFixed(2), deliveryFee.toFixed(2), orderTotalBill.toFixed(2)
+        ];
+        csvRows.push(row.join(","));
+      });
+    });
+
+    const csvString = csvRows.join("\n");
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+  // --- End CSV Export Functions ---
+
   if (loading) {
     return (
       <div className="text-center mt-5">
@@ -257,6 +386,35 @@ const OrdersComponent = ({ isAdminView }) => {
         />
       </div>
 
+      {isAdminView && (
+        <Card className="mb-4">
+          <Card.Header>Export Orders</Card.Header>
+          <Card.Body>
+            <Form.Group className="mb-3">
+              <Form.Label>Select Export Range</Form.Label>
+              <Form.Select value={exportRangeType} onChange={(e) => setExportRangeType(e.target.value)}>
+                <option value="weekly">Current Week</option>
+                <option value="monthly">Current Month</option>
+                <option value="quarterly">Current Quarter</option>
+                <option value="custom">Custom Range</option>
+              </Form.Select>
+            </Form.Group>
+            {exportRangeType === 'custom' && (
+              <>
+                <Form.Group className="mb-3">
+                  <Form.Label>Start Date</Form.Label>
+                  <Form.Control type="date" value={customStartDate} onChange={(e) => setCustomStartDate(e.target.value)} max={new Date().toISOString().split("T")[0]}/>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>End Date</Form.Label>
+                  <Form.Control type="date" value={customEndDate} onChange={(e) => setCustomEndDate(e.target.value)} max={new Date().toISOString().split("T")[0]}/>
+                </Form.Group>
+              </>
+            )}
+            <Button variant="success" onClick={handleExportOrders}>Export to CSV</Button>
+          </Card.Body>
+        </Card>
+      )}
       {filteredOrders?.map((order) => (
         <Card key={order.orderId} className="order-card">
           <div className="order-card-header">
