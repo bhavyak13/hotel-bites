@@ -34,67 +34,112 @@ const OrdersComponent = ({ isAdminView }) => {
     }
   }, [firebase, isAdminView, navigate]);
 
-  const getOrders = async () => {
-    try {
-      const fetchedOrders = isAdminView
-        ? await firebase.fetchAllOrders()
-        : await firebase.fetchOrders();
+  // const getOrders = async () => {
+  //   try {
+  //     const fetchedOrders = isAdminView
+  //       ? await firebase.fetchAllOrders()
+  //       : await firebase.fetchOrders();
 
-      const ordersWithDetails = await Promise.all(
-        fetchedOrders.map(async (order) => {
-          const updatedPurchasedItems = await firebase.fetchPurchasedItemWithDetails(order.purchasedItems);
-          return { ...order, purchasedItems: updatedPurchasedItems };
-        })
-      );
+  //     const ordersWithDetails = await Promise.all(
+  //       fetchedOrders.map(async (order) => {
+  //         const updatedPurchasedItems = await firebase.fetchPurchasedItemWithDetails(order.purchasedItems);
+  //         return { ...order, purchasedItems: updatedPurchasedItems };
+  //       })
+  //     );
 
-      const sortedOrders = ordersWithDetails.sort((a, b) => new Date(b._createdDate) - new Date(a._createdDate));
-      setOrders(sortedOrders);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     const sortedOrders = ordersWithDetails.sort((a, b) => new Date(b._createdDate) - new Date(a._createdDate));
+  //     setOrders(sortedOrders);
+  //   } catch (error) {
+  //     console.error("Error fetching orders:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
-    getOrders();
+    // getOrders();
   
-    // Listen for new orders
-    const unsubscribe = firebase.listenForNewOrders((newOrders) => {
-      if (newOrders.length > 0) {
-        // Play notification sound and display toast message for specific roles
+    // // Listen for new orders
+    // const unsubscribe = firebase.listenForNewOrders((newOrders) => {
+    //   if (newOrders.length > 0) {
+    //     // Play notification sound and display toast message for specific roles
+    //     if (!(firebase?.user && !firebase?.isAdmin && !firebase?.isDeliveryPartner)) {
+    //       firebase.playNotificationSound(); // Play the notification sound
+    //       firebase.displayToastMessage("New order received!");
+    //     }
+  
+    //     // Add new orders to the list
+    //     setOrders((prevOrders) => [...newOrders, ...prevOrders]);
+    //   }
+    // });
+  
+    if (!firebase.isLoggedIn) {
+      setLoading(false);
+      setOrders([]);
+      return;
+    }
+
+    setLoading(true);
+    const unsubscribe = firebase.listenToAllOrders(
+      async (allOrders) => {
+        try {
+          const ordersWithDetails = await Promise.all(
+            allOrders.map(async (order) => {
+              const updatedPurchasedItems = await firebase.fetchPurchasedItemWithDetails(order.purchasedItems);
+              return { ...order, purchasedItems: updatedPurchasedItems };
+            })
+          );
+          setOrders(ordersWithDetails);
+        } catch (error) {
+          console.error("Error processing real-time orders:", error);
+        } finally {
+          setLoading(false);
+        }
+      },
+      isAdminView,
+      () => { // Notification callback for new orders
         if (!(firebase?.user && !firebase?.isAdmin && !firebase?.isDeliveryPartner)) {
-          firebase.playNotificationSound(); // Play the notification sound
+          firebase.playNotificationSound();
           firebase.displayToastMessage("New order received!");
         }
-  
-        // Add new orders to the list
-        setOrders((prevOrders) => [...newOrders, ...prevOrders]);
       }
-    });
-  
+    );
+
     return () => unsubscribe(); // Cleanup the listener on unmount
-  }, [firebase]);
+  }, [firebase, isAdminView]);
 
   useEffect(() => {
-    setFilteredOrders(orders); // Sync filtered orders with all orders
-  }, [orders]);
-
-  const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
-    setSearchQuery(query);
-
+  //   setFilteredOrders(orders); // Sync filtered orders with all orders
+  // }, [orders]);
+   const query = searchQuery.toLowerCase();
+    if (!query) {
+      setFilteredOrders(orders);
+      return;
+    }
     const filtered = orders.filter((order) =>
       order.orderId.toLowerCase().includes(query) ||
       order.phoneNumber?.toLowerCase().includes(query) ||
       order.address?.toLowerCase().includes(query)
     );
-
     setFilteredOrders(filtered);
+  }, [searchQuery, orders]);
+
+  const handleSearch = (e) => {
+    // const query = e.target.value.toLowerCase();
+    // setSearchQuery(query);
+
+    // const filtered = orders.filter((order) =>
+    //   order.orderId.toLowerCase().includes(query) ||
+    //   order.phoneNumber?.toLowerCase().includes(query) ||
+    //   order.address?.toLowerCase().includes(query)
+    // );
+
+    // setFilteredOrders(filtered);
+    setSearchQuery(e.target.value);
   };
 
   const handleStatusChange = async (orderId, newStatus) => {
-    setLoading(true);
+    // setLoading(true);
     await firebase.updateOrderStatus(orderId, { status: newStatus });
     await getOrders();
     setLoading(false);

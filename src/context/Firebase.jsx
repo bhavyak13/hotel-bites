@@ -948,6 +948,32 @@ const playNotificationSound = () => {
   // }, [user])
 
 
+  const listenToAllOrders = (callback, isAdminView, onNewOrder) => {
+    const ordersCollectionRef = collection(firestore, "orders");
+    const q = query(ordersCollectionRef, orderBy("_createdDate", "desc"));
+    let lastOrderIds = new Set();
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const allOrders = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(order => order.status !== "razorpayOrderCreationStart");
+
+      // Detect new orders for notification
+      const newOrderDocs = snapshot.docChanges().filter((change) => change.type === "added");
+      const newOrderIds = new Set(newOrderDocs.map(change => change.doc.id));
+      if (onNewOrder && newOrderIds.size > 0) {
+        // Only notify if there are truly new orders
+        const trulyNew = [...newOrderIds].filter(id => !lastOrderIds.has(id));
+        if (trulyNew.length > 0) onNewOrder();
+      }
+      lastOrderIds = new Set(allOrders.map(order => order.id));
+
+      callback(allOrders);
+    });
+
+    return unsubscribe;
+  };
+
   return (
     <FirebaseContext.Provider
       value={{
@@ -1001,6 +1027,7 @@ const playNotificationSound = () => {
         updateCartItemQuantity, // Expose the new function
         addToCart, // Expose addToCart
         storage,
+        listenToAllOrders,
       }}
     >
       {props.children}

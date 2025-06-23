@@ -72,9 +72,7 @@ const HomePage = () => {
           <Button variant={isSiteOpen ? "danger" : "success"} onClick={toggleSiteStatus}>
             {isSiteOpen ? "Close Site (Ordering Enabled)" : "Open Site (Ordering Disabled)"}
           </Button>
-          <Button variant="info" className="ms-2" onClick={() => window.location.reload()}>
-            Admin Refresh Page
-          </Button>
+          {/* Removed Admin Refresh Page button */}
         </div>
       )}
 
