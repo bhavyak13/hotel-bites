@@ -530,6 +530,31 @@ const OrdersComponent = ({ isAdminView }) => {
               Delivery Fee: ₹10 <br />
               Total Bill: ₹{order.finalPrice + 10}
             </div>
+            {/* --- Debug: Show role and status info --- */}
+            {/* {console.log(
+              "OrderID:", order.orderId,
+              "isAdmin:", firebase.isAdmin,
+              "isDeliveryPartner:", firebase.isDeliveryPartner,
+              "isLoggedIn:", firebase.isLoggedIn,
+              "order.status:", order.status
+            )} */}
+            {/* --- Add Cancel Order button for customers --- */}
+            {firebase.isLoggedIn &&
+              !firebase.isAdmin &&
+              !firebase.isDeliveryPartner &&
+              order.status !== 'Cancelled' &&
+              order.status !== 'Delivered' && (
+                <Button
+                  variant="danger"
+                  className="mt-2"
+                  onClick={async () => {
+                    await firebase.updateOrderStatus(order.id, { status: "Cancelled" });
+                    firebase.displayToastMessage("Order cancelled successfully.", "success");
+                  }}
+                >
+                  Cancel Order
+                </Button>
+            )}
           </div>
           {firebase?.isAdmin && (
             <div className="order-card-footer">
