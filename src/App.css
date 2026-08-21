@@ -12,15 +12,92 @@
 }
 
 :root {
-    --primary-color: #FF6347; /* Tomato Red */
-    --secondary-color: #FFF8E1; /* Light Yellow (Secondary - for backgrounds) */
-    --accent-color: #FFD700; /* Gold (Accent - for buttons, highlights) */
-    --text-color: #333333; /* Dark Gray (Text) */
-    --text-light-color: #FFFFFF; /* White (for text over dark backgrounds) */
-     --heading-font: 'Montserrat', sans-serif;
-     --body-font: 'Open Sans', sans-serif;
-    --border-radius: 8px; /* Consistent border radius */
+    /* PRIMARY COLORS - From Figma Design System */
+    --primary-color: #FFFFFF; /* Figma Primary Red */
+    --primary-dark: #C40020; /* Darker primary for hover/active states */
+    --primary-light: #F9E0E0; /* Light primary background */
+    
+    /* BACKGROUND COLORS - From Figma */
+    --secondary-color: #F9FAFB; /* Light background */
+    --background-light: #FFFFFF; /* Pure white background */
+    --background-neutral: #F3F4F6; /* Light gray background */
+    --background-subtle: #F9FAFB; /* Very subtle background */
+    
+    /* ACCENT COLORS - From Figma */
+    --accent-color: #581C87; /* Figma Purple accent */
+    --accent-dark: #4A1874; /* Darker accent for hover states */
+    --accent-light: #DDD6FE; /* Lighter accent for backgrounds */
+    
+    /* TEXT COLORS */
+    --text-color: #111827; /* Figma Dark Gray/Black (Primary text) */
+    --text-secondary: #4B5563; /* Medium gray (Secondary text) */
+    --text-light: #9CA3AF; /* Light gray (Tertiary text) */
+    --text-light-color: #E60023; /* White (for text over dark backgrounds) */
+    
+    /* SEMANTIC COLORS */
+    --success-color: #10B981; /* Green for success states */
+    --error-color: #E60023; /* Red for error states */
+    --warning-color: #F59E0B; /* Amber for warning states */
+    --info-color: #3B82F6; /* Blue for info states */
+    
+    /* TYPOGRAPHY - From Figma */
+    --heading-font: 'Poppins', sans-serif; /* Figma Primary Font */
+    --body-font: 'Inter', sans-serif; /* Figma Secondary Font */
+    
+    /* Font Sizes */
+    --font-size-xs: 0.75rem; /* 12px */
+    --font-size-sm: 0.875rem; /* 14px */
+    --font-size-base: 1rem; /* 16px */
+    --font-size-lg: 1.125rem; /* 18px */
+    --font-size-xl: 1.25rem; /* 20px */
+    --font-size-2xl: 1.5rem; /* 24px */
+    --font-size-3xl: 1.875rem; /* 30px */
+    --font-size-4xl: 2.25rem; /* 36px */
+    
+    /* Font Weights */
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-black: 900;
+    
+    /* BORDER RADIUS - From Figma */
+    --border-radius-none: 0;
+    --border-radius-sm: 8px; /* Small radius */
+    --border-radius-base: 16px; /* Figma default (16px) */
+    --border-radius-md: 24px; /* Figma medium (24px) */
+    --border-radius-lg: 32px; /* Figma large (32px) */
+    --border-radius-xl: 32px; /* Extra large */
+    --border-radius-full: 9999px; /* Figma fully rounded (pills, circles) */
+    
+    /* SHADOWS */
     --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    --box-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --box-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --box-shadow-lg: 0 8px 12px rgba(0, 0, 0, 0.15);
+    --box-shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.2);
+    
+    /* SPACING */
+    --spacing-xs: 0.25rem; /* 4px */
+    --spacing-sm: 0.5rem; /* 8px */
+    --spacing-base: 1rem; /* 16px */
+    --spacing-md: 1.5rem; /* 24px */
+    --spacing-lg: 2rem; /* 32px */
+    --spacing-xl: 3rem; /* 48px */
+    --spacing-2xl: 4rem; /* 64px */
+    
+    /* BORDER WIDTHS */
+    --border-width-thin: 1px;
+    --border-width-base: 2px;
+    --border-width-thick: 3px;
+    
+    /* Z-INDEX SCALE */
+    --z-dropdown: 1000;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+    --z-notification: 1080;
 }
 
 body {
