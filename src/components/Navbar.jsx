@@ -14,7 +14,7 @@ const MyNavbar = () => {
   return (
     <Navbar expand="lg" className="navbar">
       <Container>
-        <Navbar.Brand as={Link} to={`/`}>Kalra Catters</Navbar.Brand>
+        <Navbar.Brand as={Link} to={`/`}>stash360</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">

@@ -6,7 +6,7 @@ const CancellationRefundPolicy = () => {
       <h1 className="text-3xl font-bold mb-6">Cancellation and Refund Policy</h1>
       
       <p className="mb-6">
-        At [Kalra Catters], we strive to provide a smooth food ordering experience. However, if you are not satisfied with your order, here’s our policy on cancellations and refunds:
+        At [stash360], we strive to provide a smooth food ordering experience. However, if you are not satisfied with your order, here’s our policy on cancellations and refunds:
       </p>
 
       <h2 className="text-2xl font-semibold mt-8 mb-4">1. Return or Exchange Period</h2>

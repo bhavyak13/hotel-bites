@@ -5,7 +5,7 @@ const ShippingPolicy = () => {
     <div className="max-w-4xl mx-auto p-8">
       <h1 className="text-4xl font-bold mb-6">Shipping Policy</h1>
       <p className="mb-4">
-        This shipping policy explains how <strong>Kalra Caterers</strong> operates its shipping procedures and how we strive to meet your expectations with every order. Whether you're a first-time buyer or a returning customer, we want to ensure that your experience with us is smooth and satisfactory, right from placing your order to the moment it arrives at your doorstep. This policy has been created with the help of the shipping policy generator.
+        This shipping policy explains how <strong>stash360</strong> operates its shipping procedures and how we strive to meet your expectations with every order. Whether you're a first-time buyer or a returning customer, we want to ensure that your experience with us is smooth and satisfactory, right from placing your order to the moment it arrives at your doorstep. This policy has been created with the help of the shipping policy generator.
       </p>
       <p className="mb-6">
         Please read this shipping policy together with our terms and conditions to familiarize yourself with the rest of our general guidelines.

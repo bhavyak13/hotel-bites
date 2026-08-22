@@ -161,7 +161,7 @@ const OrdersComponent = ({ isAdminView }) => {
 
     const deliveryFee = 10; // Added delivery fee
     const totalWithDelivery = totalItemsPrice + deliveryFee; // Calculate total with delivery
-    const shopName = "KALRA CATERS"; // Corrected typo, ensure this is your desired name
+    const shopName = "stash360S"; // Corrected typo, ensure this is your desired name
     const shopAddress = "M.B.B.S. GIRLS MESS , SJH NEW DELHI - 110029"; // Replace with actual shop address
     const shopPhone = "PH: +91 7011974522 , +91 9311764250"; // Replace with actual shop phone or order-related contact
 

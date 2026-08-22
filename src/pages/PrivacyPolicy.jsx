@@ -6,7 +6,7 @@ const PrivacyPolicy = () => {
       <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
       
       <p className="mb-6">
-        At [Kalra Catters], we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, and protect the data you provide to us.
+        At [stash360], we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, and protect the data you provide to us.
       </p>
 
       <h2 className="text-2xl font-semibold mt-8 mb-4">1. Information We Collect</h2>
