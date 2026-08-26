@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
@@ -25,21 +25,7 @@ const FoodCard = (data) => {
   // These will be reactive due to onSnapshot (for isSiteOpen) and onAuthStateChanged (for isAdmin)
   const canOrder = firebase.isSiteOpen || firebase.isAdmin;
 
-  const handleAddToCart = async () => {
-    if (firstVariant && id && firebase.user) {
-      try {
-        await firebase.addToCart(id, firstVariant.id, 1); // Add 1 quantity
-      } catch (err) {
-        // Error is already handled and toasted within firebase.addToCart
-        console.error("Error in FoodCard handleAddToCart:", err.message);
-      }
-    } else if (!firebase.user) {
-      firebase.displayToastMessage("Please log in to add items to your cart.", "error");
-    } else {
-      firebase.displayToastMessage("Item details are missing, cannot add to cart.", "error");
-    }
-  };
-  const redirectToOtherPages = (pageName, variantId = null) => {
+  const redirectToOtherPages = (pageName) => {
     const productId = id;
     let link = "";
 
@@ -59,6 +45,21 @@ const FoodCard = (data) => {
 
   // Determine card styles and button behavior based on status
   const isActive = status === "active";
+  const canOpenDetails = !firebase.isAdmin && !firebase.isDeliveryPartner && isActive && canOrder;
+
+  const openDetails = () => {
+    if (canOpenDetails) {
+      redirectToOtherPages("detail");
+    }
+  };
+
+  const handleCardKeyDown = (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openDetails();
+    }
+  };
+
   const cardStyle = !firebase.isAdmin // Styles for non-admin users
     ? {
         width: "18rem",
@@ -73,7 +74,15 @@ const FoodCard = (data) => {
       }; // No special styles for admin
 
   return (
-    <Card className="food-card" style={cardStyle}>
+    <Card
+      className={`food-card${canOpenDetails ? " food-card--clickable" : ""}`}
+      style={cardStyle}
+      onClick={openDetails}
+      onKeyDown={handleCardKeyDown}
+      role={canOpenDetails ? "link" : undefined}
+      tabIndex={canOpenDetails ? 0 : undefined}
+      aria-label={canOpenDetails ? `View details for ${name}` : undefined}
+    >
       {url && <Card.Img className="food-card-img" variant="top" src={url} alt={name} />}
       <Card.Body className="food-card-body">
         <Card.Title className="food-card-title">{name}</Card.Title>
@@ -84,33 +93,18 @@ const FoodCard = (data) => {
         <Card.Text>
           Price: <strong>₹ {firstVariant?.priceOffer || firstVariant?.priceOriginal}</strong>
         </Card.Text>
-        {!firebase.isAdmin && !firebase.isDeliveryPartner && isActive && (
-          <Button
-            disabled={!canOrder} // Disable if site is closed and user is not admin
-            onClick={async () => {
-              if (!canOrder) {
-                firebase.displayToastMessage("Ordering is currently disabled as the site is closed.", "warning");
-                return;
-              }
-              redirectToOtherPages("detail");
-            }}
-            variant="primary"
-          >
-            Details
-          </Button>
-        )}
         {/* Message for non-admins if ordering is disabled */}
         {!firebase.isAdmin && !firebase.isDeliveryPartner && isActive && !canOrder && (
           <div className="text-danger mt-2" style={{ fontWeight: "bold" }}>Ordering is temporarily disabled.</div>
         )}
         {firebase.isAdmin && ( // Admin buttons
-          <Button onClick={() => redirectToOtherPages("variant")} variant="primary">
+          <Button onClick={(event) => { event.stopPropagation(); redirectToOtherPages("variant"); }} variant="primary">
             Add New Variant
           </Button>
         )}
         {firebase.isAdmin && (
           <Button
-            onClick={() => redirectToOtherPages("edit", firstVariant?.id)} // Pass the variant ID
+            onClick={(event) => { event.stopPropagation(); redirectToOtherPages("edit"); }}
             variant="primary"
           >
             Edit Variant
@@ -118,7 +112,7 @@ const FoodCard = (data) => {
         )}
         {firebase.isAdmin && (
           <Button
-            onClick={() => redirectToOtherPages("edit product", firstVariant?.id)} // Pass the variant ID
+            onClick={(event) => { event.stopPropagation(); redirectToOtherPages("edit product"); }}
             variant="primary"
           >
             Edit Product

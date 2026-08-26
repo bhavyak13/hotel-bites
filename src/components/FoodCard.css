@@ -1,4 +1,19 @@
 /* Styling for Bootstrap Card Modification */
+.food-card--clickable {
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.food-card--clickable:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+  transform: translateY(-2px);
+}
+
+.food-card--clickable:focus-visible {
+  outline: 3px solid rgba(13, 110, 253, 0.45);
+  outline-offset: 3px;
+}
+
 .food-card-bs {
   max-width: 350px; /* Adjust max width as needed */
   margin: 20px; /* Or use 25px like CartFoodCard if preferred */

@@ -87,7 +87,7 @@ const HomePage = () => {
 
       {/* Header */}
       <div className="header">
-        <div className="menu-title">Menu</div>
+        {/* <div className="menu-title">Menu</div> */}
         <div className="cart-icon-container">
           <div className="cart-icon" onClick={() => navigate("/cart")}>🛒</div>
         </div>
