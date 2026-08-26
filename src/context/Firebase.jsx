@@ -90,9 +90,9 @@ export const FirebaseProvider = (props) => {
 
   useEffect(() => {
     if (user) {
-      if (user?.uid == "d0CkzQ2rBpQLd3OLOkWkgjjQZaI3") {
+      if (user?.uid == "0slm7fZkhIcGexSaxhSuTGYvMlz1") {
         setIsAdmin(true);
-      } else if (user?.uid == "EEqRTrY732ZaK27XRkjkJbjMq5E2") {
+      } else if (user?.uid == "ae9rFhQYXyPDfubejKHXaAsBEGM2") {
         setIsDeliveryPartner(true);
       }
     } else {

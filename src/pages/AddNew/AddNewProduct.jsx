@@ -67,6 +67,11 @@ const AddNewProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!coverPic) {
+      firebase.displayToastMessage("Please select a cover image.", "error");
+      return;
+    }
+
     const finalData = {
       ...formData,
       productImage: coverPic,
@@ -74,13 +79,18 @@ const AddNewProduct = () => {
 
     // // // console.log("BK finaldata",finalData,coverPic);
 
-    await firebase.handleCreateNewDoc(
-      finalData,
-      "products"
-    );
-    setFormData(defaultFormData);
-    firebase.displayToastMessage("product created successfully!");
-    navigate('/');
+    try {
+      await firebase.handleCreateNewDoc(finalData, "products");
+      setFormData(defaultFormData);
+      firebase.displayToastMessage("product created successfully!");
+      navigate('/');
+    } catch (error) {
+      console.error("Error creating product:", error);
+      firebase.displayToastMessage(
+        "Product could not be created. Check Firebase Storage configuration.",
+        "error"
+      );
+    }
   };
 
   return (
