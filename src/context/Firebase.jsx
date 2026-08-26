@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
@@ -68,6 +68,7 @@ export const FirebaseProvider = (props) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isSiteOpen, setIsSiteOpen] = useState(true); // Default to true while loading
   const [isDeliveryPartner, setIsDeliveryPartner] = useState(false);
+  const recaptchaVerifierRef = useRef(null);
 
   useEffect(() => {
     onAuthStateChanged(firebaseAuth, (user) => {
@@ -180,31 +181,36 @@ const playNotificationSound = () => {
         document.body.appendChild(recaptchaContainer);
       }
 
-      // Initialize reCAPTCHA verifier
-      const recaptchaVerifier = new RecaptchaVerifier(
-        firebaseAuth,
-        "recaptcha-container",
-        {
-          size: "invisible",
-          callback: (response) => {
-            console.log("reCAPTCHA verified:", response);
-          },
-          'expired-callback': () => {
-            console.error("reCAPTCHA expired. Please try again.");
-          },
-        }
-      );
+      if (!recaptchaVerifierRef.current) {
+        recaptchaVerifierRef.current = new RecaptchaVerifier(
+          firebaseAuth,
+          "recaptcha-container",
+          {
+            size: "invisible",
+            callback: () => {
+              console.log("reCAPTCHA verified.");
+            },
+            "expired-callback": () => {
+              console.error("reCAPTCHA expired. Please try again.");
+              recaptchaVerifierRef.current?.clear();
+              recaptchaVerifierRef.current = null;
+            },
+          }
+        );
+      }
 
       // Send OTP
       const confirmationResult = await signInWithPhoneNumber(
         firebaseAuth,
         phoneNumber,
-        recaptchaVerifier
+        recaptchaVerifierRef.current
       );
 
       console.log("OTP sent successfully.");
       return confirmationResult; // Return the confirmation result to verify OTP later
     } catch (error) {
+      recaptchaVerifierRef.current?.clear();
+      recaptchaVerifierRef.current = null;
       console.error("Error sending OTP:", error);
 
       // Handle specific Firebase errors

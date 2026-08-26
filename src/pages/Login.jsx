@@ -49,14 +49,14 @@ const LoginPage = () => {
 
   const handleRequestOtp = async (e) => {
     e.preventDefault();
-    // Basic phone number validation (ensure it's a reasonable length)
-    // Add country code prefix if not present (e.g., +91 for India)
-    const formattedPhoneNumber = phoneNumber.startsWith('+') ? phoneNumber : `+91${phoneNumber}`;
+    const localPhoneNumber = phoneNumber.replace(/\D/g, "");
 
-    if (!formattedPhoneNumber || formattedPhoneNumber.length < 11) { // e.g., +91 requires 13 digits total
+    if (!/^\d{10}$/.test(localPhoneNumber)) {
       firebase.displayToastMessage("Please enter a valid 10-digit phone number.", "error");
       return;
     }
+
+    const formattedPhoneNumber = `+91${localPhoneNumber}`;
     setLoading(true); // Start loading
     try {
       console.log("Requesting OTP for:", formattedPhoneNumber);
@@ -68,7 +68,10 @@ const LoginPage = () => {
       setOtpSent(true); // Show OTP input field
     } catch (err) {
       console.error("OTP request failed:", err);
-      firebase.displayToastMessage(`OTP request failed: ${err.message || 'Unknown error'}`, "error");
+      const errorMessage = err.code === "auth/invalid-app-credential"
+        ? "Unable to verify this app. Please try again, or contact support if the issue continues."
+        : `OTP request failed: ${err.message || "Unknown error"}`;
+      firebase.displayToastMessage(errorMessage, "error");
       setOtpSent(false);
       setConfirmationResult(null); // Clear confirmation result on error
     } finally {
@@ -253,7 +256,7 @@ const LoginPage = () => {
               <Form.Label>Phone Number (10 digits)</Form.Label>
               {/* Add placeholder or helper text for country code if needed */}
               <Form.Control
-                onChange={(e) => setPhoneNumber(e.target.value)}
+                onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, "").slice(0, 10))}
                 value={phoneNumber}
                 type="tel"
                 placeholder="Enter 10-digit phone number"
@@ -268,7 +271,7 @@ const LoginPage = () => {
               <Form.Group className="mb-4" controlId="formOtp">
                 <Form.Label>OTP</Form.Label>
                 <Form.Control
-                  onChange={(e) => setOtp(e.target.value)}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
                   value={otp}
                   type="text"
                   inputMode="numeric"
