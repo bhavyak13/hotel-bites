@@ -18,10 +18,23 @@ import React, { useEffect, useRef } from 'react';
  }) => {
    const adRef = useRef(null);
  
+   const hasCustomAd = Boolean(
+    customHtml || (customImageUrl && customLinkUrl)
+   );
+
+   const hasAdsenseAd = Boolean(adClient && adSlot);
+
    useEffect(() => {
     const currentAdRef = adRef.current;
     if (!currentAdRef) return;
- 
+
+    if (
+     (adType === "custom" && !hasCustomAd) ||
+     (adType === "adsense" && !hasAdsenseAd)
+    ) {
+     return;
+    }
+
     // Clear previous ad content to handle prop changes correctly
     currentAdRef.innerHTML = '';
 
@@ -102,8 +115,16 @@ import React, { useEffect, useRef } from 'react';
   }, [
     adType, adClient, adSlot, adFormat, adLayoutKey, 
     customImageUrl, customLinkUrl, customAltText, customHtml, 
-    // style, className // These apply to the wrapper, effect doesn't need to re-run for them if only wrapper changes
+    hasCustomAd, hasAdsenseAd,
   ]); // Re-run if essential ad parameters change
+
+  const hasMissingConfiguration =
+    (adType === "custom" && !hasCustomAd) ||
+    (adType === "adsense" && !hasAdsenseAd);
+
+  if (hasMissingConfiguration) {
+    return null;
+  }
  
   // The style and className props are applied directly to the returned div
   return <div ref={adRef} style={style} className={className} />;

@@ -1,6 +1,8 @@
 {
   "projects": {
     "default": "stash360-dev",
-    "development": "stash360-dev"
+    "dev": "stash360-dev",
+    "development": "stash360-dev",
+    "legacy": "hotel-bites"
   }
 }
