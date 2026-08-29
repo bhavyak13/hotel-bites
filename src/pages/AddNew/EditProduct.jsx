@@ -157,13 +157,24 @@ const EditProduct = () => {
             onChange={handleProductChange}
             placeholder="Enter Product Description"
           />
-          <FormInput
+          {/* <FormInput
             label="Category"
             name="category"
             value={product.category}
             onChange={handleProductChange}
             placeholder="Enter Product Category"
-          />
+          /> */}
+          <Form.Group className="mb-3">
+            <Form.Label>Category</Form.Label>
+            <Form.Select
+              name="category"
+              value={product.category}
+              onChange={handleProductChange}
+            >
+              <option value="men">Men</option>
+              <option value="women">Women</option>
+            </Form.Select>
+          </Form.Group>
           <FormInput
             label="Price"
             name="price"
